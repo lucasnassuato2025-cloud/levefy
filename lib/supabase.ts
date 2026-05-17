@@ -1,0 +1,9 @@
+// lib/supabase.ts — browser/client-side Supabase instance
+
+import { createBrowserClient } from "@supabase/ssr";
+import { getSupabaseConfig } from "@/lib/env";
+
+export function createClient() {
+  const { url, anonKey } = getSupabaseConfig();
+  return createBrowserClient(url, anonKey);
+}

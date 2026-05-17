@@ -1,0 +1,27 @@
+# render.yaml — Levefy deployment config for Render
+# Docs: https://render.com/docs/yaml-spec
+
+services:
+  - type: web
+    name: levefy
+    runtime: node
+    plan: free
+    buildCommand: npm ci && npm run build
+    startCommand: node .next/standalone/server.js
+    healthCheckPath: /
+
+    envVars:
+      - key: NODE_ENV
+        value: production
+      - key: NODE_VERSION
+        value: 20.11.0
+      - key: PORT
+        value: 3000
+      - key: HOSTNAME
+        value: 0.0.0.0
+
+      # Set these manually in the Render dashboard (sensitive):
+      # NEXT_PUBLIC_SUPABASE_URL
+      # NEXT_PUBLIC_SUPABASE_ANON_KEY
+      # DATABASE_URL
+      # DIRECT_URL

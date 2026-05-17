@@ -1,11 +1,11 @@
 "use client";
-import Link from "next/link";
 import { useRouter } from "next/navigation";
 import { useState } from "react";
 import Logo from "@/components/Logo";
 import { GoogleButton } from "@/components/GoogleButton";
 import { auth } from "@/lib/auth";
-import { Mail, Lock, User } from "lucide-react";
+import { syncCurrentUser } from "@/app/actions/sync-user";
+import { Mail, Lock, User, AlertCircle, CheckCircle } from "lucide-react";
 
 type Mode = "login" | "register" | "forgot";
 
@@ -14,16 +14,32 @@ export default function LoginPage() {
   const [mode, setMode] = useState<Mode>("login");
   const [form, setForm] = useState({ name: "", email: "", password: "" });
   const [loading, setLoading] = useState(false);
+  const [error, setError] = useState<string | null>(null);
+  const [success, setSuccess] = useState<string | null>(null);
 
   const onSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
+    setError(null);
+    setSuccess(null);
     setLoading(true);
     try {
-      if (mode === "login") await auth.signInWithEmail(form.email, form.password);
-      else if (mode === "register") await auth.signUp(form.name, form.email, form.password);
-      else { await auth.sendPasswordReset(form.email); setMode("login"); return; }
-      router.push("/dashboard");
-    } finally { setLoading(false); }
+      if (mode === "login") {
+        await auth.signInWithEmail(form.email, form.password);
+        await syncCurrentUser();
+        router.push("/dashboard");
+      } else if (mode === "register") {
+        await auth.signUp(form.name, form.email, form.password);
+        setSuccess("Account created! Check your email to confirm your account.");
+      } else {
+        await auth.sendPasswordReset(form.email);
+        setSuccess("Reset link sent! Check your inbox.");
+        setMode("login");
+      }
+    } catch (err: unknown) {
+      setError(err instanceof Error ? err.message : "Something went wrong. Try again.");
+    } finally {
+      setLoading(false);
+    }
   };
 
   return (
@@ -53,6 +69,18 @@ export default function LoginPage() {
           </p>
 
           <form className="mt-8 space-y-4" onSubmit={onSubmit}>
+            {error && (
+              <div className="flex items-center gap-2 rounded-xl bg-red-50 border border-red-200 px-4 py-3 text-sm text-red-700">
+                <AlertCircle className="w-4 h-4 shrink-0" />
+                {error}
+              </div>
+            )}
+            {success && (
+              <div className="flex items-center gap-2 rounded-xl bg-green-50 border border-green-200 px-4 py-3 text-sm text-green-700">
+                <CheckCircle className="w-4 h-4 shrink-0" />
+                {success}
+              </div>
+            )}
             {mode === "register" && (
               <Field icon={<User className="w-4 h-4"/>} label="Full name" type="text" placeholder="Jane Doe"
                 value={form.name} onChange={v=>setForm({...form, name: v})}/>

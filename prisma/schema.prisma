@@ -1,0 +1,64 @@
+// Levefy — Prisma Schema
+// Database: Neon PostgreSQL
+// Run: npx prisma migrate dev --name init
+
+generator client {
+  provider      = "prisma-client-js"
+  binaryTargets = ["native", "rhel-openssl-3.0.x", "linux-musl-openssl-3.0.x"]
+}
+
+datasource db {
+  provider  = "postgresql"
+  url       = env("DATABASE_URL")
+  // Neon requires directUrl for migrations
+  directUrl = env("DIRECT_URL")
+}
+
+model User {
+  id            String     @id
+  email         String     @unique
+  name          String?
+  avatar        String?
+  currentWeight Float?
+  goalWeight    Float?
+  createdAt     DateTime   @default(now())
+  updatedAt     DateTime   @updatedAt
+
+  progress      Progress[]
+
+  @@map("users")
+}
+
+model Recipe {
+  id          String   @id @default(cuid())
+  title       String
+  description String?
+  calories    Int?
+  image       String?
+  category    String?
+  createdAt   DateTime @default(now())
+
+  @@map("recipes")
+}
+
+model Challenge {
+  id          String   @id @default(cuid())
+  title       String
+  description String?
+  day         Int
+  createdAt   DateTime @default(now())
+
+  @@map("challenges")
+}
+
+model Progress {
+  id            String   @id @default(cuid())
+  userId        String
+  weight        Float?
+  completedDays Int      @default(0)
+  loggedAt      DateTime @default(now())
+
+  user          User     @relation(fields: [userId], references: [id], onDelete: Cascade)
+
+  @@map("progress")
+}

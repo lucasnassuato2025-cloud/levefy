@@ -1,7 +1,24 @@
 import AppShell from "@/components/AppShell";
 import { Droplets, Flame, TrendingDown, Check, Trophy, Quote } from "lucide-react";
 
-export default function Dashboard() {
+async function getUser() {
+  try {
+    const { createServerSupabaseClient } = await import("@/lib/supabase-server");
+    const supabase = await createServerSupabaseClient();
+    const { data: { user } } = await supabase.auth.getUser();
+    return user;
+  } catch {
+    return null;
+  }
+}
+
+export default async function Dashboard() {
+  const user = await getUser();
+
+  const displayName = user?.user_metadata?.full_name
+    ?? user?.email?.split("@")[0]
+    ?? "there";
+
   const checklist = [
     { t: "Drink 2L water", done: true },
     { t: "30-min walk", done: true },
@@ -12,7 +29,7 @@ export default function Dashboard() {
   return (
     <AppShell>
       <div className="rounded-3xl gradient-brand text-white p-7 lg:p-9 mb-6">
-        <p className="text-white/80 text-sm">Good morning, Jane 👋</p>
+        <p className="text-white/80 text-sm">Good morning, {displayName} 👋</p>
         <h1 className="mt-1 text-2xl lg:text-3xl font-bold">You're on a 14-day streak. Keep going!</h1>
       </div>
 
