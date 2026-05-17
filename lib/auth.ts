@@ -1,4 +1,4 @@
-// FIX RENDER BUILD
+Ôªø// FIX RENDER BUILD
 
 import { createClient } from "@/lib/supabase";
 
@@ -9,7 +9,7 @@ export const auth = {
     const supabase = createClient();
 
     if (!supabase) {
-      throw new Error("Supabase client n„o inicializado");
+      throw new Error("Supabase client n√£o inicializado");
     }
 
     const { error } = await supabase.auth.signInWithPassword({
@@ -24,7 +24,7 @@ export const auth = {
     const supabase = createClient();
 
     if (!supabase) {
-      throw new Error("Supabase client n„o inicializado");
+      throw new Error("Supabase client n√£o inicializado");
     }
 
     const { error } = await supabase.auth.signUp({
@@ -42,7 +42,7 @@ export const auth = {
     const supabase = createClient();
 
     if (!supabase) {
-      throw new Error("Supabase client n„o inicializado");
+      throw new Error("Supabase client n√£o inicializado");
     }
 
     const { error } = await supabase.auth.signInWithOAuth({
@@ -59,7 +59,7 @@ export const auth = {
     const supabase = createClient();
 
     if (!supabase) {
-      throw new Error("Supabase client n„o inicializado");
+      throw new Error("Supabase client n√£o inicializado");
     }
 
     const { error } = await supabase.auth.resetPasswordForEmail(email, {
@@ -73,7 +73,7 @@ export const auth = {
     const supabase = createClient();
 
     if (!supabase) {
-      throw new Error("Supabase client n„o inicializado");
+      throw new Error("Supabase client n√£o inicializado");
     }
 
     await supabase.auth.signOut();
@@ -83,7 +83,7 @@ export const auth = {
     const supabase = createClient();
 
     if (!supabase) {
-      throw new Error("Supabase client n„o inicializado");
+      throw new Error("Supabase client n√£o inicializado");
     }
 
     const {
