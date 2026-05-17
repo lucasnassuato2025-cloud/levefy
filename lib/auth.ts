@@ -23,6 +23,10 @@ export const auth = {
 
   async signInWithGoogle() {
     const supabase = createClient();
+
+if (!supabase) {
+  throw new Error("Supabase client não inicializado");
+}
     const { error } = await supabase.auth.signInWithOAuth({
       provider: "google",
       options: { redirectTo: `${location.origin}/auth/callback` },
