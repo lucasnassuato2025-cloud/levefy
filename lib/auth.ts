@@ -1,3 +1,6 @@
+// FIX RENDER BUILD
+
+
 // lib/auth.ts — Real Supabase Auth helpers (client-side)
 
 import { createClient } from "@/lib/supabase";
