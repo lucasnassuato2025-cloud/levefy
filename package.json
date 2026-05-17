@@ -5,7 +5,7 @@
   "scripts": {
     "dev": "next dev",
     "build": "prisma generate && next build",
-    "postbuild": "xcopy public .next\\standalone\\public /E /I /Y && xcopy .next\\static .next\\standalone\\.next\\static /E /I /Y",
+    "postbuild": "node scripts/copy-standalone.js",
     "start": "next start",
     "lint": "next lint",
     "postinstall": "prisma generate || true",

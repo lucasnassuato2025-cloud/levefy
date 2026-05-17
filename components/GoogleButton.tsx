@@ -2,7 +2,7 @@
 import { useState } from "react";
 import { auth } from "@/lib/auth";
 
-export function GoogleButton({ label = "Continue with Google" }: { label?: string }) {
+export function GoogleButton({ label = "Continuar com Google" }: { label?: string }) {
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState<string | null>(null);
 
@@ -16,9 +16,9 @@ export function GoogleButton({ label = "Continue with Google" }: { label?: strin
           setError(null);
           try {
             await auth.signInWithGoogle();
-            // Supabase redirects to /auth/callback — no router.push needed
+            // Supabase redireciona para /auth/callback — nenhum router.push necessário
           } catch (err: unknown) {
-            setError(err instanceof Error ? err.message : "Google sign-in failed");
+            setError(err instanceof Error ? err.message : "Falha ao entrar com Google");
             setLoading(false);
           }
         }}
@@ -30,7 +30,7 @@ export function GoogleButton({ label = "Continue with Google" }: { label?: strin
           <path fill="#FBBC05" d="M3.96 10.71A5.41 5.41 0 0 1 3.68 9c0-.59.1-1.17.28-1.71V4.96H.96A9 9 0 0 0 0 9c0 1.45.35 2.82.96 4.04l3-2.33z"/>
           <path fill="#EA4335" d="M9 3.58c1.32 0 2.5.45 3.44 1.35l2.58-2.58A9 9 0 0 0 9 0 9 9 0 0 0 .96 4.96l3 2.33C4.67 5.16 6.66 3.58 9 3.58z"/>
         </svg>
-        {loading ? "Connecting..." : label}
+        {loading ? "Conectando..." : label}
       </button>
       {error && <p className="text-xs text-red-600 text-center">{error}</p>}
     </div>

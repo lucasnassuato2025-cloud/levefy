@@ -3,30 +3,30 @@ import { useState } from "react";
 import AppShell from "@/components/AppShell";
 import { Search, Heart } from "lucide-react";
 
-const CATEGORIES = ["All", "Breakfast", "Lunch", "Dinner", "Snacks", "Smoothies"];
+const CATEGORIES = ["Todas", "Café da Manhã", "Almoço", "Jantar", "Lanches", "Vitaminas"];
 const RECIPES = [
-  { name: "Green protein bowl", kcal: 420, cat: "Lunch", emoji: "🥗", time: "15 min" },
-  { name: "Avocado toast plus", kcal: 310, cat: "Breakfast", emoji: "🥑", time: "8 min" },
-  { name: "Lemon herb salmon", kcal: 480, cat: "Dinner", emoji: "🐟", time: "25 min" },
-  { name: "Berry power smoothie", kcal: 220, cat: "Smoothies", emoji: "🍓", time: "5 min" },
-  { name: "Oat & banana bowl", kcal: 340, cat: "Breakfast", emoji: "🍌", time: "10 min" },
-  { name: "Chicken quinoa plate", kcal: 510, cat: "Lunch", emoji: "🍗", time: "20 min" },
-  { name: "Veggie stir-fry", kcal: 390, cat: "Dinner", emoji: "🥦", time: "18 min" },
-  { name: "Greek yogurt cup", kcal: 180, cat: "Snacks", emoji: "🥄", time: "3 min" },
+  { name: "Bowl proteico verde", kcal: 420, cat: "Almoço", emoji: "🥗", time: "15 min" },
+  { name: "Torrada de abacate premium", kcal: 310, cat: "Café da Manhã", emoji: "🥑", time: "8 min" },
+  { name: "Salmão ao limão e ervas", kcal: 480, cat: "Jantar", emoji: "🐟", time: "25 min" },
+  { name: "Vitamina de frutas vermelhas", kcal: 220, cat: "Vitaminas", emoji: "🍓", time: "5 min" },
+  { name: "Bowl de aveia com banana", kcal: 340, cat: "Café da Manhã", emoji: "🍌", time: "10 min" },
+  { name: "Frango com quinoa", kcal: 510, cat: "Almoço", emoji: "🍗", time: "20 min" },
+  { name: "Refogado de legumes", kcal: 390, cat: "Jantar", emoji: "🥦", time: "18 min" },
+  { name: "Iogurte grego com frutas", kcal: 180, cat: "Lanches", emoji: "🥄", time: "3 min" },
 ];
 
 export default function Recipes() {
-  const [cat, setCat] = useState("All");
+  const [cat, setCat] = useState("Todas");
   const [q, setQ] = useState("");
   const [favs, setFavs] = useState<string[]>([]);
   const filtered = RECIPES.filter(r =>
-    (cat === "All" || r.cat === cat) && r.name.toLowerCase().includes(q.toLowerCase())
+    (cat === "Todas" || r.cat === cat) && r.name.toLowerCase().includes(q.toLowerCase())
   );
   return (
-    <AppShell title="Recipes">
+    <AppShell title="Receitas">
       <div className="card p-4 flex items-center gap-3 mb-5">
         <Search className="w-4 h-4 text-slate-400"/>
-        <input value={q} onChange={e=>setQ(e.target.value)} placeholder="Search recipes..." className="flex-1 outline-none text-sm bg-transparent"/>
+        <input value={q} onChange={e=>setQ(e.target.value)} placeholder="Buscar receitas..." className="flex-1 outline-none text-sm bg-transparent"/>
       </div>
       <div className="flex flex-wrap gap-2 mb-6">
         {CATEGORIES.map(c=>(
@@ -35,7 +35,7 @@ export default function Recipes() {
       </div>
       {filtered.length === 0 ? (
         <div className="card p-12 text-center">
-          <p className="text-slate-500">No recipes match your search.</p>
+          <p className="text-slate-500">Nenhuma receita encontrada.</p>
         </div>
       ) : (
         <div className="grid sm:grid-cols-2 lg:grid-cols-3 gap-5">
@@ -54,8 +54,8 @@ export default function Recipes() {
                   <h3 className="mt-1 font-semibold">{r.name}</h3>
                   <div className="mt-3 grid grid-cols-3 gap-2 text-center">
                     <div className="rounded-lg bg-slate-50 py-2"><p className="text-xs text-slate-500">Kcal</p><p className="font-semibold text-sm">{r.kcal}</p></div>
-                    <div className="rounded-lg bg-slate-50 py-2"><p className="text-xs text-slate-500">Time</p><p className="font-semibold text-sm">{r.time}</p></div>
-                    <div className="rounded-lg bg-slate-50 py-2"><p className="text-xs text-slate-500">Protein</p><p className="font-semibold text-sm">28g</p></div>
+                    <div className="rounded-lg bg-slate-50 py-2"><p className="text-xs text-slate-500">Tempo</p><p className="font-semibold text-sm">{r.time}</p></div>
+                    <div className="rounded-lg bg-slate-50 py-2"><p className="text-xs text-slate-500">Proteína</p><p className="font-semibold text-sm">28g</p></div>
                   </div>
                 </div>
               </div>

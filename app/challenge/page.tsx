@@ -2,10 +2,10 @@ import AppShell from "@/components/AppShell";
 import { Check, Lock, Flame } from "lucide-react";
 
 const MESSAGES = [
-  "Day 1: Today, you start. That's the hardest part.",
-  "Day 7: A full week — your habit is forming.",
-  "Day 14: You're stronger than your excuses.",
-  "Day 21: You did it. This is the new you.",
+  "Dia 1: Hoje você começa. Essa é a parte mais difícil.",
+  "Dia 7: Uma semana inteira — seu hábito está se formando.",
+  "Dia 14: Você é mais forte do que suas desculpas.",
+  "Dia 21: Você conseguiu. Este é o novo você.",
 ];
 
 export default function Challenge() {
@@ -13,13 +13,13 @@ export default function Challenge() {
   const total = 21;
   const pct = Math.round((completed / total) * 100);
   return (
-    <AppShell title="21-Day Challenge">
+    <AppShell title="Desafio 21 Dias">
       <div className="card p-7 mb-6">
         <div className="flex items-center justify-between flex-wrap gap-3">
           <div>
-            <p className="text-sm text-brand-700 font-semibold">CURRENT PROGRESS</p>
-            <p className="text-3xl font-bold mt-1">Day {completed} of {total}</p>
-            <p className="text-sm text-slate-500 mt-1">{total-completed} days to complete</p>
+            <p className="text-sm text-brand-700 font-semibold">PROGRESSO ATUAL</p>
+            <p className="text-3xl font-bold mt-1">Dia {completed} de {total}</p>
+            <p className="text-sm text-slate-500 mt-1">{total-completed} dias para concluir</p>
           </div>
           <div className="w-32 h-32 rounded-full grid place-items-center relative">
             <svg viewBox="0 0 100 100" className="w-full h-full -rotate-90">
@@ -53,13 +53,13 @@ export default function Challenge() {
         ))}
       </div>
 
-      <h2 className="font-bold text-xl mt-10 mb-4">Today's tasks</h2>
+      <h2 className="font-bold text-xl mt-10 mb-4">Tarefas de hoje</h2>
       <div className="grid md:grid-cols-2 gap-4">
         {[
-          { t: "Morning hydration", d: "Drink 500ml water within 30 min of waking." },
-          { t: "Move your body", d: "20-min walk or workout." },
-          { t: "Healthy meal", d: "Cook one Levefy recipe today." },
-          { t: "Mindful evening", d: "10 min stretch + sleep before 11pm." },
+          { t: "Hidratação matinal", d: "Beba 500ml de água nos primeiros 30 min após acordar." },
+          { t: "Movimente o corpo", d: "20 minutos de caminhada ou exercício." },
+          { t: "Refeição saudável", d: "Prepare uma receita Levefy hoje." },
+          { t: "Noite consciente", d: "10 min de alongamento + dormir antes das 23h." },
         ].map(x=>(
           <div key={x.t} className="card p-5 flex gap-4">
             <span className="w-10 h-10 rounded-xl gradient-brand text-white flex items-center justify-center shrink-0"><Check className="w-5 h-5"/></span>

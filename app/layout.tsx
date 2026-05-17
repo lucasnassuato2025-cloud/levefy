@@ -2,8 +2,8 @@ import type { Metadata, Viewport } from "next";
 import "./globals.css";
 
 export const metadata: Metadata = {
-  title: "Levefy — Lose weight without impossible diets",
-  description: "Premium weight loss & healthy lifestyle SaaS. Simple routines, healthy recipes, 21-day challenges and real accountability.",
+  title: "Levefy — Emagreça sem dietas impossíveis",
+  description: "SaaS de emagrecimento e estilo de vida saudável. Receitas simples, rotinas leves e o Desafio de 21 dias para criar hábitos reais.",
   applicationName: "Levefy",
   manifest: "/manifest.json",
   appleWebApp: {
@@ -16,8 +16,8 @@ export const metadata: Metadata = {
     apple: "/icons/apple-touch-icon.png",
   },
   openGraph: {
-    title: "Levefy — Lose weight without impossible diets",
-    description: "Healthy lifestyle SaaS with recipes, routines and 21-day challenges.",
+    title: "Levefy — Emagreça sem dietas impossíveis",
+    description: "SaaS de emagrecimento com receitas, rotinas e Desafio de 21 dias.",
     type: "website",
   },
 };
@@ -31,7 +31,7 @@ export const viewport: Viewport = {
 
 export default function RootLayout({ children }: { children: React.ReactNode }) {
   return (
-    <html lang="en">
+    <html lang="pt-BR">
       <body>
         {children}
         <script

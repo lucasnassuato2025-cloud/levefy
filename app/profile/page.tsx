@@ -24,7 +24,7 @@ export default async function Profile() {
     dbUser?.name ??
     authUser?.user_metadata?.full_name ??
     authUser?.email?.split("@")[0] ??
-    "User";
+    "Usuário";
 
   const displayEmail = authUser?.email ?? "";
   const avatar = dbUser?.avatar ?? authUser?.user_metadata?.avatar_url ?? null;
@@ -32,7 +32,7 @@ export default async function Profile() {
   const goalWeight = dbUser?.goalWeight ?? null;
 
   return (
-    <AppShell title="Profile">
+    <AppShell title="Perfil">
       <div className="grid lg:grid-cols-3 gap-5">
         <div className="card p-6 lg:col-span-1 text-center">
           {avatar ? (
@@ -45,16 +45,16 @@ export default async function Profile() {
           )}
           <h2 className="mt-4 font-bold text-xl">{displayName}</h2>
           <p className="text-sm text-slate-500">{displayEmail}</p>
-          <p className="mt-4 inline-block px-3 py-1 rounded-full bg-brand-50 text-brand-700 text-xs font-semibold">Free member</p>
+          <p className="mt-4 inline-block px-3 py-1 rounded-full bg-brand-50 text-brand-700 text-xs font-semibold">Membro grátis</p>
         </div>
 
         <div className="card p-6 lg:col-span-2">
-          <h3 className="font-semibold">Goals</h3>
+          <h3 className="font-semibold">Metas</h3>
           <div className="mt-4 grid grid-cols-3 gap-4">
             {[
-              { l: "Current", v: currentWeight ? `${currentWeight} kg` : "—" },
-              { l: "Goal", v: goalWeight ? `${goalWeight} kg` : "—" },
-              { l: "Timeline", v: "12 wks" },
+              { l: "Atual", v: currentWeight ? `${currentWeight} kg` : "—" },
+              { l: "Meta", v: goalWeight ? `${goalWeight} kg` : "—" },
+              { l: "Prazo", v: "12 sem." },
             ].map(x => (
               <div key={x.l} className="rounded-2xl bg-slate-50 p-4 text-center">
                 <p className="text-xs text-slate-500">{x.l}</p>
@@ -65,13 +65,13 @@ export default async function Profile() {
         </div>
 
         <div className="card p-6 lg:col-span-3">
-          <h3 className="font-semibold">Preferences</h3>
+          <h3 className="font-semibold">Preferências</h3>
           <div className="mt-4 grid md:grid-cols-2 gap-4">
             {[
-              { l: "Activity level", v: "Moderate" },
-              { l: "Diet", v: "Balanced" },
-              { l: "Allergies", v: "None" },
-              { l: "Daily calories", v: "1,800 kcal" },
+              { l: "Nível de atividade", v: "Moderado" },
+              { l: "Alimentação", v: "Equilibrada" },
+              { l: "Alergias", v: "Nenhuma" },
+              { l: "Calorias diárias", v: "1.800 kcal" },
             ].map(x => (
               <div key={x.l} className="flex justify-between items-center p-4 rounded-xl bg-slate-50">
                 <span className="text-sm text-slate-600">{x.l}</span>
@@ -82,12 +82,12 @@ export default async function Profile() {
         </div>
 
         <div className="card p-6 lg:col-span-3">
-          <h3 className="font-semibold">Progress settings</h3>
+          <h3 className="font-semibold">Configurações de progresso</h3>
           <div className="mt-4 space-y-3">
             {[
-              { t: "Daily reminders", d: "Get a gentle push to log your progress." },
-              { t: "Weekly summary", d: "Receive a weekly progress email." },
-              { t: "Public profile", d: "Share your progress with the community." },
+              { t: "Lembretes diários", d: "Receba um aviso para registrar seu progresso." },
+              { t: "Resumo semanal", d: "Receba um e-mail com seu progresso da semana." },
+              { t: "Perfil público", d: "Compartilhe seu progresso com a comunidade." },
             ].map((x, i) => (
               <div key={x.t} className="flex items-center justify-between p-4 rounded-xl bg-slate-50">
                 <div><p className="font-medium">{x.t}</p><p className="text-sm text-slate-500">{x.d}</p></div>

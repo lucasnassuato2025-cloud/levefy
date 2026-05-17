@@ -2,13 +2,15 @@
 import Link from "next/link";
 import { usePathname } from "next/navigation";
 import { LayoutDashboard, UtensilsCrossed, Trophy, User, Crown } from "lucide-react";
+
 const items = [
-  { href: "/dashboard", icon: LayoutDashboard, label: "Home" },
-  { href: "/recipes", icon: UtensilsCrossed, label: "Recipes" },
-  { href: "/challenge", icon: Trophy, label: "Challenge" },
-  { href: "/profile", icon: User, label: "Profile" },
-  { href: "/membership", icon: Crown, label: "Plans" },
+  { href: "/dashboard", icon: LayoutDashboard, label: "Painel" },
+  { href: "/recipes", icon: UtensilsCrossed, label: "Receitas" },
+  { href: "/challenge", icon: Trophy, label: "Desafio" },
+  { href: "/profile", icon: User, label: "Perfil" },
+  { href: "/membership", icon: Crown, label: "Premium" },
 ];
+
 export default function MobileNav() {
   const pathname = usePathname();
   return (

@@ -3,14 +3,15 @@ import Link from "next/link";
 import { usePathname, useRouter } from "next/navigation";
 import { LayoutDashboard, UtensilsCrossed, Trophy, User, Crown, Shield, LogOut } from "lucide-react";
 import Logo from "./Logo";
+import DownloadAppButton from "./DownloadAppButton";
 import { auth } from "@/lib/auth";
 
 const nav = [
-  { href: "/dashboard", label: "Dashboard", icon: LayoutDashboard },
-  { href: "/recipes", label: "Recipes", icon: UtensilsCrossed },
-  { href: "/challenge", label: "21-Day Challenge", icon: Trophy },
-  { href: "/profile", label: "Profile", icon: User },
-  { href: "/membership", label: "Membership", icon: Crown },
+  { href: "/dashboard", label: "Painel", icon: LayoutDashboard },
+  { href: "/recipes", label: "Receitas", icon: UtensilsCrossed },
+  { href: "/challenge", label: "Desafio 21 Dias", icon: Trophy },
+  { href: "/profile", label: "Perfil", icon: User },
+  { href: "/membership", label: "Área Premium", icon: Crown },
   { href: "/admin", label: "Admin", icon: Shield },
 ];
 
@@ -38,11 +39,23 @@ export default function Sidebar() {
           );
         })}
       </nav>
+
+      {/* Download App CTA */}
+      <div className="mb-4 rounded-2xl p-4 gradient-brand-soft border border-brand-100">
+        <p className="text-xs font-bold uppercase tracking-wider text-brand-700">App PWA</p>
+        <p className="mt-1 text-sm text-slate-700 leading-snug">
+          Instale o Levefy no celular e abra direto da tela inicial.
+        </p>
+        <div className="mt-3">
+          <DownloadAppButton variant="compact" fullWidth />
+        </div>
+      </div>
+
       <button
         onClick={handleSignOut}
         className="flex items-center gap-3 px-3 py-2.5 rounded-xl text-sm font-medium text-slate-600 hover:bg-slate-50 w-full text-left"
       >
-        <LogOut className="w-4 h-4" /> Sign out
+        <LogOut className="w-4 h-4" /> Sair
       </button>
     </aside>
   );
