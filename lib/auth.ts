@@ -1,8 +1,5 @@
 // FIX RENDER BUILD
 
-
-// lib/auth.ts — Real Supabase Auth helpers (client-side)
-
 import { createClient } from "@/lib/supabase";
 
 export type AuthError = { message: string };
@@ -37,7 +34,9 @@ if (!supabase) {
 const { error } = await supabase.auth.signUp({
   email,
   password,
-  options: { data: { full_name: name } },
+  options: {
+    data: { full_name: name },
+  },
 });
 
 if (error) throw new Error(error.message);
@@ -55,7 +54,9 @@ if (!supabase) {
 
 const { error } = await supabase.auth.signInWithOAuth({
   provider: "google",
-  options: { redirectTo: `${location.origin}/auth/callback` },
+  options: {
+    redirectTo: `${location.origin}/auth/callback`,
+  },
 });
 
 if (error) throw new Error(error.message);
