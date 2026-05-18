@@ -10,16 +10,32 @@ datasource db {
 }
 
 model User {
-  id            String     @id
-  email         String     @unique
+  id            String    @id
+  email         String    @unique
   name          String?
   avatar        String?
+  plan          String    @default("free")
+  stripeId      String?
   currentWeight Float?
   goalWeight    Float?
-  createdAt     DateTime   @default(now())
-  updatedAt     DateTime   @updatedAt
+  height        Float?
+  age           Int?
+  gender        String?
+  activityLevel String?   @default("moderate")
+  goal          String?   @default("emagrecimento")
+  restrictions  String[]  @default([])
+  xp            Int       @default(0)
+  level         Int       @default(1)
+  streakDays    Int       @default(0)
+  lastActiveAt  DateTime?
+  createdAt     DateTime  @default(now())
+  updatedAt     DateTime  @updatedAt
   progress      Progress[]
-
+  mealHistory   MealHistory[]
+  habits        HabitLog[]
+  waterLogs     WaterLog[]
+  shoppingLists ShoppingList[]
+  achievements  Achievement[]
   @@map("users")
 }
 
@@ -28,11 +44,59 @@ model Recipe {
   title       String
   description String?
   calories    Int?
+  protein     Float?
+  carbs       Float?
+  fat         Float?
   image       String?
   category    String?
+  tags        String[]
+  ingredients Json?
+  prepTime    Int?
+  difficulty  String?
+  goalType    String[]
+  isPremium   Boolean  @default(false)
   createdAt   DateTime @default(now())
-
   @@map("recipes")
+}
+
+model Food {
+  id       String  @id @default(cuid())
+  name     String
+  calories Float
+  protein  Float
+  carbs    Float
+  fat      Float
+  fiber    Float?
+  unit     String  @default("100g")
+  category String?
+  @@map("foods")
+}
+
+model MealTemplate {
+  id          String  @id @default(cuid())
+  name        String
+  description String?
+  goalType    String
+  meals       Json
+  totalCals   Int?
+  protein     Float?
+  carbs       Float?
+  fat         Float?
+  @@map("meal_templates")
+}
+
+model MealHistory {
+  id        String   @id @default(cuid())
+  userId    String
+  planJson  Json
+  calories  Int?
+  protein   Float?
+  carbs     Float?
+  fat       Float?
+  score     Int?
+  createdAt DateTime @default(now())
+  user      User     @relation(fields: [userId], references: [id], onDelete: Cascade)
+  @@map("meal_history")
 }
 
 model Challenge {
@@ -40,8 +104,8 @@ model Challenge {
   title       String
   description String?
   day         Int
+  tasks       Json?
   createdAt   DateTime @default(now())
-
   @@map("challenges")
 }
 
@@ -50,8 +114,52 @@ model Progress {
   userId        String
   weight        Float?
   completedDays Int      @default(0)
+  calories      Int?
+  water         Float?
+  notes         String?
   loggedAt      DateTime @default(now())
   user          User     @relation(fields: [userId], references: [id], onDelete: Cascade)
-
   @@map("progress")
+}
+
+model HabitLog {
+  id       String   @id @default(cuid())
+  userId   String
+  type     String
+  value    Float?
+  notes    String?
+  loggedAt DateTime @default(now())
+  user     User     @relation(fields: [userId], references: [id], onDelete: Cascade)
+  @@map("habit_logs")
+}
+
+model WaterLog {
+  id       String   @id @default(cuid())
+  userId   String
+  amount   Float
+  loggedAt DateTime @default(now())
+  user     User     @relation(fields: [userId], references: [id], onDelete: Cascade)
+  @@map("water_logs")
+}
+
+model ShoppingList {
+  id        String   @id @default(cuid())
+  userId    String
+  name      String
+  items     Json
+  createdAt DateTime @default(now())
+  user      User     @relation(fields: [userId], references: [id], onDelete: Cascade)
+  @@map("shopping_lists")
+}
+
+model Achievement {
+  id          String   @id @default(cuid())
+  userId      String
+  type        String
+  title       String
+  description String?
+  xpGained    Int      @default(0)
+  earnedAt    DateTime @default(now())
+  user        User     @relation(fields: [userId], references: [id], onDelete: Cascade)
+  @@map("achievements")
 }

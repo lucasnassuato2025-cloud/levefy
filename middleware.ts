@@ -1,55 +1,54 @@
-// middleware.ts — Protege rotas do app. Usuários não autenticados → /login
+import { createServerClient } from "@supabase/ssr";
+import { NextResponse } from "next/server";
+import type { NextRequest } from "next/server";
 
-import { createServerClient, type SetAllCookies } from "@supabase/ssr";
-import { NextResponse, type NextRequest } from "next/server";
+const PROTECTED = ["/dashboard", "/meal-ai", "/recipes", "/challenge", "/profile", "/admin"];
+const ADMIN_ONLY = ["/admin"];
+const ADMIN_EMAIL = process.env.ADMIN_EMAIL ?? "admin@levefy.com";
 
-const PROTECTED = ["/dashboard", "/recipes", "/challenge", "/profile", "/membership", "/admin"];
+export async function middleware(req: NextRequest) {
+  const res = NextResponse.next();
+  const pathname = req.nextUrl.pathname;
 
-export async function middleware(request: NextRequest) {
-  const supabaseUrl = process.env.NEXT_PUBLIC_SUPABASE_URL;
-  const supabaseKey = process.env.NEXT_PUBLIC_SUPABASE_ANON_KEY;
-
-  if (!supabaseUrl || !supabaseKey) {
-    return NextResponse.next({ request });
+  // Rate limit for API routes (basic)
+  if (pathname.startsWith("/api/ai/")) {
+    const ip = req.headers.get("x-forwarded-for") ?? "unknown";
+    // In production, use upstash/redis for proper rate limiting
   }
 
-  let supabaseResponse = NextResponse.next({ request });
+  const isProtected = PROTECTED.some(p => pathname.startsWith(p));
+  if (!isProtected) return res;
 
-  const supabase = createServerClient(supabaseUrl, supabaseKey, {
+  const supabase = createServerClient(
+  process.env.NEXT_PUBLIC_SUPABASE_URL!,
+  process.env.NEXT_PUBLIC_SUPABASE_ANON_KEY!,
+  {
     cookies: {
-      getAll() {
-        return request.cookies.getAll();
-      },
-      setAll(cookiesToSet: Parameters<SetAllCookies>[0]) {
-        cookiesToSet.forEach(({ name, value }) => request.cookies.set(name, value));
-        supabaseResponse = NextResponse.next({ request });
-        cookiesToSet.forEach(({ name, value, options }) =>
-          supabaseResponse.cookies.set(name, value, options)
-        );
+      getAll: () => req.cookies.getAll(),
+      setAll: (cookies: any[]) => {
+        cookies.forEach(({ name, value, options }) => {
+          res.cookies.set(name, value, options);
+        });
       },
     },
-  });
+  }
+);
 
-  const { data: { user } } = await supabase.auth.getUser();
+  const { data: { session } } = await supabase.auth.getSession();
 
-  const { pathname } = request.nextUrl;
-  const isProtected = PROTECTED.some((p) => pathname.startsWith(p));
-
-  if (isProtected && !user) {
-    const url = request.nextUrl.clone();
+  if (!session) {
+    const url = req.nextUrl.clone();
     url.pathname = "/login";
     return NextResponse.redirect(url);
   }
 
-  if (pathname === "/login" && user) {
-    const url = request.nextUrl.clone();
+  if (ADMIN_ONLY.some(p => pathname.startsWith(p)) && session.user.email !== ADMIN_EMAIL) {
+    const url = req.nextUrl.clone();
     url.pathname = "/dashboard";
     return NextResponse.redirect(url);
   }
 
-  return supabaseResponse;
+  return res;
 }
 
-export const config = {
-  matcher: ["/((?!_next/static|_next/image|favicon.ico|icons|manifest.json|sw.js).*)"],
-};
+export const config = { matcher: ["/((?!_next|api/auth|login|favicon|icons|manifest|sw.js|og.png).*)"] };

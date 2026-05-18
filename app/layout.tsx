@@ -2,24 +2,19 @@ import type { Metadata, Viewport } from "next";
 import "./globals.css";
 
 export const metadata: Metadata = {
-  title: "Levefy — Emagreça sem dietas impossíveis",
-  description: "SaaS de emagrecimento e estilo de vida saudável. Receitas simples, rotinas leves e o Desafio de 21 dias para criar hábitos reais.",
+  title: "Levefy — Plano alimentar inteligente em 60 segundos",
+  description: "Dietas personalizadas, receitas e progresso inteligente sem complicação. Meal AI que se adapta ao seu corpo.",
   applicationName: "Levefy",
   manifest: "/manifest.json",
-  appleWebApp: {
-    capable: true,
-    statusBarStyle: "default",
-    title: "Levefy",
-  },
-  icons: {
-    icon: "/favicon.ico",
-    apple: "/icons/apple-touch-icon.png",
-  },
+  appleWebApp: { capable: true, statusBarStyle: "default", title: "Levefy" },
+  icons: { icon: "/favicon.ico", apple: "/icons/apple-touch-icon.png" },
   openGraph: {
-    title: "Levefy — Emagreça sem dietas impossíveis",
-    description: "SaaS de emagrecimento com receitas, rotinas e Desafio de 21 dias.",
+    title: "Levefy — Plano alimentar inteligente",
+    description: "Dietas personalizadas em 60 segundos. Sem enrolação.",
     type: "website",
+    images: [{ url: "/og.png", width: 1200, height: 630 }],
   },
+  twitter: { card: "summary_large_image", title: "Levefy", description: "Plano alimentar inteligente em 60 segundos" },
 };
 
 export const viewport: Viewport = {
@@ -32,13 +27,25 @@ export const viewport: Viewport = {
 export default function RootLayout({ children }: { children: React.ReactNode }) {
   return (
     <html lang="pt-BR">
+      <head>
+        {/* Meta Pixel — substitua YOUR_PIXEL_ID pelo ID real */}
+        {process.env.NEXT_PUBLIC_META_PIXEL_ID && (
+          <script dangerouslySetInnerHTML={{ __html: `
+            !function(f,b,e,v,n,t,s){if(f.fbq)return;n=f.fbq=function(){n.callMethod?n.callMethod.apply(n,arguments):n.queue.push(arguments)};if(!f._fbq)f._fbq=n;n.push=n;n.loaded=!0;n.version='2.0';n.queue=[];t=b.createElement(e);t.async=!0;t.src=v;s=b.getElementsByTagName(e)[0];s.parentNode.insertBefore(t,s)}(window,document,'script','https://connect.facebook.net/en_US/fbevents.js');
+            fbq('init','${process.env.NEXT_PUBLIC_META_PIXEL_ID}');fbq('track','PageView');
+          ` }} />
+        )}
+        {/* GA4 */}
+        {process.env.NEXT_PUBLIC_GA4_ID && (
+          <>
+            <script async src={`https://www.googletagmanager.com/gtag/js?id=${process.env.NEXT_PUBLIC_GA4_ID}`} />
+            <script dangerouslySetInnerHTML={{ __html: `window.dataLayer=window.dataLayer||[];function gtag(){dataLayer.push(arguments)}gtag('js',new Date());gtag('config','${process.env.NEXT_PUBLIC_GA4_ID}');` }} />
+          </>
+        )}
+      </head>
       <body>
         {children}
-        <script
-          dangerouslySetInnerHTML={{
-            __html: `if ('serviceWorker' in navigator) { window.addEventListener('load', () => navigator.serviceWorker.register('/sw.js')); }`,
-          }}
-        />
+        <script dangerouslySetInnerHTML={{ __html: `if('serviceWorker' in navigator){window.addEventListener('load',()=>navigator.serviceWorker.register('/sw.js'))}` }} />
       </body>
     </html>
   );

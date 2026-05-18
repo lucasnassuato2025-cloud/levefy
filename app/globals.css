@@ -11,14 +11,11 @@ body { @apply bg-white text-slate-900 antialiased; font-family: Inter, system-ui
 .text-gradient { background: linear-gradient(135deg, #16a34a, #065f46); -webkit-background-clip: text; background-clip: text; color: transparent; }
 
 .card { @apply bg-white rounded-2xl border border-slate-200 shadow-sm; }
-.card-glass {
-  @apply rounded-3xl border border-white/60 bg-white/70 backdrop-blur-xl shadow-xl shadow-brand-900/5;
-}
+.card-glass { @apply rounded-3xl border border-white/60 bg-white/70 backdrop-blur-xl shadow-xl shadow-brand-900/5; }
 
 .btn-primary { @apply inline-flex items-center justify-center rounded-full bg-brand-600 hover:bg-brand-700 text-white font-semibold px-6 py-3 transition shadow-lg shadow-brand-600/20; }
 .btn-ghost { @apply inline-flex items-center justify-center rounded-full border border-slate-200 hover:border-brand-600 hover:text-brand-700 text-slate-700 font-semibold px-6 py-3 transition; }
 
-/* premium ambience */
 .bg-noise {
   background-image:
     radial-gradient(circle at 20% 10%, rgba(34,197,94,0.10), transparent 40%),
@@ -27,10 +24,11 @@ body { @apply bg-white text-slate-900 antialiased; font-family: Inter, system-ui
 }
 .shadow-premium { box-shadow: 0 30px 60px -20px rgba(6,95,70,0.25), 0 10px 30px -10px rgba(34,197,94,0.15); }
 
-/* Float animation */
 @keyframes floaty { 0%,100% { transform: translateY(0) } 50% { transform: translateY(-10px) } }
 .animate-float { animation: floaty 6s ease-in-out infinite; }
 
-/* fade-in already in tailwind config; ensure available class name */
 .animate-fade-in { animation: fadeIn 0.35s ease-out both; }
-@keyframes fadeIn { from { opacity: 0; transform: translateY(4px) } to { opacity: 1; transform: translateY(0) } }
+@keyframes fadeIn { from { opacity: 0; transform: translateY(6px) } to { opacity: 1; transform: translateY(0) } }
+
+/* Skeleton loader */
+.skeleton { @apply rounded-xl bg-slate-100 animate-pulse; }
