@@ -1,54 +1,45 @@
 import { createServerClient } from "@supabase/ssr";
-import { NextResponse } from "next/server";
-import type { NextRequest } from "next/server";
-
-const PROTECTED = ["/dashboard", "/meal-ai", "/recipes", "/challenge", "/profile", "/admin"];
-const ADMIN_ONLY = ["/admin"];
-const ADMIN_EMAIL = process.env.ADMIN_EMAIL ?? "admin@levefy.com";
+import { NextResponse, type NextRequest } from "next/server";
 
 export async function middleware(req: NextRequest) {
   const res = NextResponse.next();
-  const pathname = req.nextUrl.pathname;
-
-  // Rate limit for API routes (basic)
-  if (pathname.startsWith("/api/ai/")) {
-    const ip = req.headers.get("x-forwarded-for") ?? "unknown";
-    // In production, use upstash/redis for proper rate limiting
-  }
-
-  const isProtected = PROTECTED.some(p => pathname.startsWith(p));
-  if (!isProtected) return res;
 
   const supabase = createServerClient(
-  process.env.NEXT_PUBLIC_SUPABASE_URL!,
-  process.env.NEXT_PUBLIC_SUPABASE_ANON_KEY!,
-  {
-    cookies: {
-      getAll: () => req.cookies.getAll(),
-      setAll: (cookies: any[]) => {
-        cookies.forEach(({ name, value, options }) => {
-          res.cookies.set(name, value, options);
-        });
+    process.env.NEXT_PUBLIC_SUPABASE_URL!,
+    process.env.NEXT_PUBLIC_SUPABASE_ANON_KEY!,
+    {
+      cookies: {
+        getAll() {
+          return req.cookies.getAll();
+        },
+        setAll(cookies) {
+          cookies.forEach(({ name, value, options }) => {
+            res.cookies.set(name, value, options);
+          });
+        },
       },
-    },
-  }
-);
+    }
+  );
 
-  const { data: { session } } = await supabase.auth.getSession();
+  const {
+    data: { session },
+  } = await supabase.auth.getSession();
 
-  if (!session) {
-    const url = req.nextUrl.clone();
-    url.pathname = "/login";
-    return NextResponse.redirect(url);
-  }
+  const protectedRoutes = ["/dashboard", "/profile", "/membership"];
 
-  if (ADMIN_ONLY.some(p => pathname.startsWith(p)) && session.user.email !== ADMIN_EMAIL) {
-    const url = req.nextUrl.clone();
-    url.pathname = "/dashboard";
-    return NextResponse.redirect(url);
+  const isProtected = protectedRoutes.some((route) =>
+    req.nextUrl.pathname.startsWith(route)
+  );
+
+  if (isProtected && !session) {
+    return NextResponse.redirect(
+      new URL("/login", process.env.NEXT_PUBLIC_SITE_URL!)
+    );
   }
 
   return res;
 }
 
-export const config = { matcher: ["/((?!_next|api/auth|login|favicon|icons|manifest|sw.js|og.png).*)"] };
+export const config = {
+  matcher: ["/dashboard/:path*", "/profile/:path*", "/membership/:path*"],
+};

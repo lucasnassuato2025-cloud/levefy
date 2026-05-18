@@ -45,12 +45,12 @@ export const auth = {
       throw new Error("Supabase client não inicializado");
     }
 
-    const { error } = await supabase.auth.signInWithOAuth({
-      provider: "google",
-      options: {
-        redirectTo: `${location.origin}/auth/callback`,
-      },
-    });
+   const { error } = await supabase.auth.signInWithOAuth({
+  provider: "google",
+  options: {
+    redirectTo: `${process.env.NEXT_PUBLIC_SITE_URL}/auth/callback`,
+  },
+});
 
     if (error) throw new Error(error.message);
   },
