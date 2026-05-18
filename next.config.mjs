@@ -5,15 +5,14 @@ const nextConfig = {
   // Required for Render deployment
   output: "standalone",
 
-  // Security headers
+  // Security headers ajustados para permitir Auth externa
   async headers() {
     return [
-      {
-        source: "/(.*)",
+      {\n        source: "/(.*)",
         headers: [
           { key: "X-Content-Type-Options", value: "nosniff" },
-          { key: "X-Frame-Options", value: "DENY" },
-          { key: "Referrer-Policy", value: "strict-origin-when-cross-origin" },
+          { key: "X-Frame-Options", value: "SAMEORIGIN" }, // Mudado de DENY para SAMEORIGIN
+          { key: "Referrer-Policy", value: "no-referrer-when-downgrade" }, // Permite o callback do Google
         ],
       },
       {
@@ -29,4 +28,3 @@ const nextConfig = {
 };
 
 export default nextConfig;
-
