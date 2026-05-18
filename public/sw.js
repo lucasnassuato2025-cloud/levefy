@@ -1,10 +1,9 @@
 // public/sw.js — Levefy Service Worker
 // Strategy: Cache-first for static assets, network-first for pages
 
-const CACHE_NAME = "levefy-v1";
+const CACHE_NAME = "levefy-v2";
 const STATIC_ASSETS = [
   "/",
-  "/dashboard",
   "/manifest.json",
   "/icons/icon-192.png",
   "/icons/icon-512.png",
@@ -30,15 +29,27 @@ self.addEventListener("fetch", (event) => {
   const { request } = event;
   const url = new URL(request.url);
 
-  // Skip non-GET and external requests
-  if (request.method !== "GET" || url.origin !== location.origin) return;
+  // Skip non-GET requests
+  if (request.method !== "GET") return;
+
+  // Skip auth, API and Supabase routes — nunca interceptar
+  if (
+    url.pathname.startsWith("/auth") ||
+    url.pathname.startsWith("/api") ||
+    url.hostname.includes("supabase.co") ||
+    url.hostname.includes("google.com") ||
+    url.hostname.includes("accounts.google") ||
+    url.search.includes("code=") ||
+    url.search.includes("provider=")
+  ) return;
+
+  // Skip external requests
+  if (url.origin !== location.origin) return;
 
   // Network-first for HTML navigation (pages)
   if (request.mode === "navigate") {
     event.respondWith(
-      fetch(request).catch(() =>
-        caches.match("/") 
-      )
+      fetch(request).catch(() => caches.match("/"))
     );
     return;
   }
