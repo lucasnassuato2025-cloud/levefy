@@ -14,11 +14,13 @@
     "db:push": "prisma db push"
   },
   "dependencies": {
+    "@google/generative-ai": "^0.24.1",
     "@prisma/client": "^5.22.0",
     "@supabase/ssr": "^0.5.2",
     "@supabase/supabase-js": "^2.105.4",
     "lucide-react": "^0.460.0",
     "next": "15.0.3",
+    "ollama": "^0.6.3",
     "react": "18.3.1",
     "react-dom": "18.3.1"
   },
