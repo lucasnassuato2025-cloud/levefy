@@ -39,29 +39,29 @@ export const auth = {
   },
 
   async signInWithGoogle() {
-    const supabase = createClient();
+  const supabase = createClient();
 
-    if (!supabase) {
-      throw new Error("Supabase client não inicializado");
-    }
+  if (!supabase) {
+    throw new Error("Supabase client não inicializado");
+  }
 
-    const siteUrl =
-      process.env.NEXT_PUBLIC_SITE_URL ||
-      (typeof window !== "undefined" ? window.location.origin : "");
+  const siteUrl =
+    process.env.NEXT_PUBLIC_SITE_URL ||
+    (typeof window !== "undefined" ? window.location.origin : "");
 
-    const { error } = await supabase.auth.signInWithOAuth({
-      provider: "google",
-      options: {
-        redirectTo: `${siteUrl}/auth/callback`,
-        queryParams: {
-          access_type: "offline",
-          prompt: "consent",
-        },
+  const { error } = await supabase.auth.signInWithOAuth({
+    provider: "google",
+    options: {
+      redirectTo: `${siteUrl}/auth/callback`,
+      queryParams: {
+        access_type: "offline",
+        prompt: "consent",
       },
-    });
+    },
+  });
 
-    if (error) throw new Error(error.message);
-  },
+  if (error) throw new Error(error.message);
+},
 
   async sendPasswordReset(email: string) {
     const supabase = createClient();
