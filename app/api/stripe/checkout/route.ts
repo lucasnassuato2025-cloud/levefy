@@ -1,41 +1,42 @@
-import { NextResponse } from "next/server";
-import { stripe, STRIPE_PLANS } from "@/lib/stripe";
-import { createServerSupabaseClient } from "@/lib/supabase-server";
+import { NextResponse, type NextRequest } from "next/server";
+import { stripe } from "@/lib/stripe";
 
-export async function POST(req: Request) {
+export async function POST(request: NextRequest) {
   try {
-    const { plan, successUrl, cancelUrl } = await req.json();
-    const planConfig = STRIPE_PLANS[plan as keyof typeof STRIPE_PLANS];
-    if (!planConfig) return NextResponse.json({ error: "Plano inválido" }, { status: 400 });
+    const { priceId, userId, userEmail } = await request.json();
 
-    const supabase = await createServerSupabaseClient();
-    const { data: { user } } = await supabase.auth.getUser();
-
-    // Usa NEXT_PUBLIC_SITE_URL (correto) em vez de NEXTAUTH_URL (inexistente)
-    const siteUrl = process.env.NEXT_PUBLIC_SITE_URL || "https://levefy.onrender.com";
-
-    const sessionData: any = {
-      line_items: [{ price: planConfig.priceId, quantity: 1 }],
-      mode: planConfig.mode,
-      success_url: successUrl ?? `${siteUrl}/dashboard?success=true`,
-      cancel_url: cancelUrl ?? `${siteUrl}/membership`,
-      customer_email: user?.email ?? undefined,
-      metadata: { userId: user?.id ?? "", plan },
-      locale: "pt-BR",
-    };
-
-    if (planConfig.mode === "payment") {
-      sessionData.payment_method_types = ["card", "pix"];
-      sessionData.payment_intent_data = {
-        payment_method_options: { pix: { expires_after_seconds: 1800 } },
-      };
-    } else {
-      sessionData.payment_method_types = ["card"];
+    if (!priceId || !userId || !userEmail) {
+      return NextResponse.json(
+        { error: "Missing required fields" },
+        { status: 400 }
+      );
     }
 
-    const session = await stripe.checkout.sessions.create(sessionData);
-    return NextResponse.json({ url: session.url });
+    const siteUrl = process.env.NEXT_PUBLIC_SITE_URL || "https://levefy.vercel.app";
+
+    const session = await stripe.checkout.sessions.create({
+      payment_method_types: ["card"],
+      line_items: [
+        {
+          price: priceId,
+          quantity: 1,
+        },
+      ],
+      mode: "subscription",
+      success_url: `${siteUrl}/dashboard?success=true`,
+      cancel_url: `${siteUrl}/membership?canceled=true`,
+      metadata: {
+        userId,
+      },
+      customer_email: userEmail,
+    });
+
+    return NextResponse.json({ sessionId: session.id });
   } catch (error: any) {
-    return NextResponse.json({ error: error.message }, { status: 500 });
+    console.error("Stripe Checkout Error:", error);
+    return NextResponse.json(
+      { error: error.message || "Internal Server Error" },
+      { status: 500 }
+    );
   }
 }
