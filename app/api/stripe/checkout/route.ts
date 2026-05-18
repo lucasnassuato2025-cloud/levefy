@@ -11,11 +11,14 @@ export async function POST(req: Request) {
     const supabase = await createServerSupabaseClient();
     const { data: { user } } = await supabase.auth.getUser();
 
+    // Usa NEXT_PUBLIC_SITE_URL (correto) em vez de NEXTAUTH_URL (inexistente)
+    const siteUrl = process.env.NEXT_PUBLIC_SITE_URL || "https://levefy.onrender.com";
+
     const sessionData: any = {
       line_items: [{ price: planConfig.priceId, quantity: 1 }],
       mode: planConfig.mode,
-      success_url: successUrl ?? `${process.env.NEXTAUTH_URL}/dashboard?success=true`,
-      cancel_url: cancelUrl ?? `${process.env.NEXTAUTH_URL}/membership`,
+      success_url: successUrl ?? `${siteUrl}/dashboard?success=true`,
+      cancel_url: cancelUrl ?? `${siteUrl}/membership`,
       customer_email: user?.email ?? undefined,
       metadata: { userId: user?.id ?? "", plan },
       locale: "pt-BR",
