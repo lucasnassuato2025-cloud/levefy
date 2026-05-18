@@ -8,11 +8,12 @@ const nextConfig = {
   // Security headers ajustados para permitir Auth externa
   async headers() {
     return [
-      {\n        source: "/(.*)",
+      {
+        source: "/(.*)",
         headers: [
           { key: "X-Content-Type-Options", value: "nosniff" },
-          { key: "X-Frame-Options", value: "SAMEORIGIN" }, // Mudado de DENY para SAMEORIGIN
-          { key: "Referrer-Policy", value: "no-referrer-when-downgrade" }, // Permite o callback do Google
+          { key: "X-Frame-Options", value: "SAMEORIGIN" },
+          { key: "Referrer-Policy", value: "no-referrer-when-downgrade" },
         ],
       },
       {
