@@ -31,14 +31,13 @@ export async function middleware(req: NextRequest) {
     data: { session },
   } = await supabase.auth.getSession();
 
-  // CORRIGIDO: Agora com apenas um colchete simples
   const protectedRoutes = ["/dashboard", "/profile", "/membership"];
 
   const isProtected = protectedRoutes.some((route) =>
     req.nextUrl.pathname.startsWith(route)
   );
 
-  // Se a rota for protegida e o usuário NÃO estiver logado
+  // SE O USUÁRIO NÃO ESTIVER LOGADO: Redireciona usando a própria rota interna do servidor
   if (isProtected && !session) {
     const redirectUrl = req.nextUrl.clone();
     redirectUrl.pathname = "/login";
