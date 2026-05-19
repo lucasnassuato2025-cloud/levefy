@@ -8,11 +8,7 @@ export async function GET(request: Request) {
   const code = searchParams.get("code");
   const next = searchParams.get("next") ?? "/dashboard";
 
-  // Usa sempre a URL pública de produção para evitar redirects para localhost
-  const siteUrl =
-    process.env.NEXT_PUBLIC_SITE_URL ||
-    process.env.NEXTAUTH_URL ||
-    "https://levefy.onrender.com";
+  const siteUrl = "https://levefy-mu.vercel.app";
 
   if (code) {
     try {
