@@ -5,11 +5,11 @@ import { LayoutDashboard, UtensilsCrossed, Trophy, User, Crown, LogOut } from "l
 import { auth } from "@/lib/auth";
 
 const items = [
-  { href: "/dashboard", icon: LayoutDashboard, label: "Painel" },
-  { href: "/recipes",   icon: UtensilsCrossed, label: "Receitas" },
-  { href: "/challenge", icon: Trophy,           label: "Desafio" },
-  { href: "/profile",   icon: User,             label: "Perfil" },
-  { href: "/membership",icon: Crown,            label: "Premium" },
+  { href: "/dashboard",  icon: LayoutDashboard, label: "Painel" },
+  { href: "/recipes",    icon: UtensilsCrossed, label: "Receitas" },
+  { href: "/challenge",  icon: Trophy,           label: "Desafio" },
+  { href: "/profile",    icon: User,             label: "Perfil" },
+  { href: "/membership", icon: Crown,            label: "Premium" },
 ];
 
 export default function MobileNav() {
@@ -23,31 +23,45 @@ export default function MobileNav() {
   };
 
   return (
-    <nav className="lg:hidden fixed bottom-0 inset-x-0 z-40 bg-white/95 backdrop-blur-md border-t border-slate-100 shadow-[0_-4px_20px_rgba(0,0,0,0.06)]">
-      <div className="grid grid-cols-6 px-1 py-1">
-        {items.map(({ href, icon: Icon, label }) => {
-          const active = pathname === href;
-          return (
-            <Link key={href} href={href}
-              className={`flex flex-col items-center gap-1 py-2 px-1 rounded-2xl transition-all ${
-                active ? "text-brand-700" : "text-slate-400"
-              }`}>
-              <div className={`w-8 h-8 flex items-center justify-center rounded-xl transition-all ${
-                active ? "gradient-brand shadow-sm shadow-brand-600/30" : ""
-              }`}>
-                <Icon className={`w-4 h-4 ${active ? "text-white" : ""}`} />
-              </div>
-              <span className={`text-[10px] font-medium ${active ? "text-brand-700" : "text-slate-400"}`}>{label}</span>
-            </Link>
-          );
-        })}
-        <button onClick={handleSignOut}
-          className="flex flex-col items-center gap-1 py-2 px-1 rounded-2xl text-slate-400 hover:text-red-500 transition-all">
-          <div className="w-8 h-8 flex items-center justify-center rounded-xl">
-            <LogOut className="w-4 h-4" />
-          </div>
-          <span className="text-[10px] font-medium">Sair</span>
-        </button>
+    <nav className="lg:hidden fixed bottom-3 inset-x-3 z-40">
+      <div className="rounded-[28px] bg-white/85 backdrop-blur-xl border border-slate-100 shadow-[0_10px_40px_-10px_rgba(15,23,42,0.18)] px-1.5 py-1.5">
+        <div className="grid grid-cols-6">
+          {items.map(({ href, icon: Icon, label }) => {
+            const active = pathname === href;
+            return (
+              <Link
+                key={href}
+                href={href}
+                className={`relative flex flex-col items-center gap-1 py-2 px-1 rounded-2xl transition-all duration-200 ${
+                  active ? "text-brand-700" : "text-slate-400 hover:text-slate-600"
+                }`}
+              >
+                <div
+                  className={`w-9 h-9 flex items-center justify-center rounded-2xl transition-all duration-200 ${
+                    active ? "gradient-brand shadow-brand scale-105" : ""
+                  }`}
+                >
+                  <Icon className={`w-[18px] h-[18px] ${active ? "text-white" : ""}`} />
+                </div>
+                <span className={`text-[10px] font-semibold tracking-tight ${active ? "text-brand-700" : "text-slate-400"}`}>
+                  {label}
+                </span>
+                {active && (
+                  <span className="absolute -top-1 left-1/2 -translate-x-1/2 w-1 h-1 rounded-full bg-brand-600" />
+                )}
+              </Link>
+            );
+          })}
+          <button
+            onClick={handleSignOut}
+            className="flex flex-col items-center gap-1 py-2 px-1 rounded-2xl text-slate-400 hover:text-red-500 transition-all duration-200"
+          >
+            <div className="w-9 h-9 flex items-center justify-center rounded-2xl">
+              <LogOut className="w-[18px] h-[18px]" />
+            </div>
+            <span className="text-[10px] font-semibold">Sair</span>
+          </button>
+        </div>
       </div>
     </nav>
   );

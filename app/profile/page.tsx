@@ -64,67 +64,78 @@ export default function ProfilePage() {
     setCanceling(false);
   };
 
-  if (loading) return <AppShell title="Perfil"><div className="card p-8 text-center text-slate-400">Carregando...</div></AppShell>;
+  if (loading) return (
+    <AppShell title="Perfil">
+      <div className="grid lg:grid-cols-3 gap-6">
+        <div className="skeleton h-72 w-full" />
+        <div className="skeleton h-72 w-full lg:col-span-2" />
+      </div>
+    </AppShell>
+  );
 
   return (
     <AppShell title="Perfil">
-      <div className="grid lg:grid-cols-3 gap-6">
+      <div className="grid lg:grid-cols-3 gap-5 lg:gap-6">
 
         {/* Stats card */}
-        <div className="card p-6 text-center">
-          {/* Avatar */}
-          <div className="relative w-20 h-20 mx-auto mb-4">
+        <div className="card p-7 text-center relative overflow-hidden">
+          <div className="absolute -top-10 left-1/2 -translate-x-1/2 w-48 h-48 rounded-full bg-brand-100/40 blur-3xl pointer-events-none" />
+
+          <div className="relative w-24 h-24 mx-auto mb-4">
             {avatar ? (
-              <img src={avatar} alt="Foto de perfil" className="w-20 h-20 rounded-full object-cover border-4 border-brand-100 shadow-lg" />
+              <img
+                src={avatar}
+                alt="Foto de perfil"
+                className="w-24 h-24 rounded-full object-cover border-4 border-white shadow-premium"
+              />
             ) : (
-              <div className="w-20 h-20 rounded-full gradient-brand flex items-center justify-center text-4xl shadow-lg shadow-brand-600/20">
+              <div className="w-24 h-24 rounded-full gradient-brand flex items-center justify-center text-5xl shadow-premium border-4 border-white">
                 {level.emoji}
               </div>
             )}
-            <div className="absolute -bottom-1 -right-1 w-7 h-7 bg-brand-600 rounded-full flex items-center justify-center shadow">
+            <div className="absolute -bottom-1 -right-1 w-8 h-8 bg-brand-600 rounded-full flex items-center justify-center shadow border-2 border-white">
               <Camera className="w-3.5 h-3.5 text-white" />
             </div>
           </div>
 
-          <p className="font-bold text-xl">{form.name || "Usuário"}</p>
+          <p className="font-extrabold text-xl tracking-tight">{form.name || "Usuário"}</p>
           <p className="text-sm text-slate-500 mt-0.5">{level.title} · Nível {level.level}</p>
 
-          {/* Plan badge */}
-          <div className="mt-3">
+          <div className="mt-3 relative">
             {isPremium && (
-              <span className="inline-flex items-center gap-1 px-3 py-1 rounded-full bg-brand-100 text-brand-700 text-xs font-bold">
+              <span className="inline-flex items-center gap-1.5 px-3.5 py-1.5 rounded-full gradient-brand text-white text-[11px] font-extrabold tracking-wider uppercase shadow-brand">
                 <Crown className="w-3 h-3" /> PREMIUM
               </span>
             )}
             {isStart && (
-              <span className="inline-flex items-center gap-1 px-3 py-1 rounded-full bg-blue-100 text-blue-700 text-xs font-bold">
+              <span className="inline-flex items-center gap-1.5 px-3.5 py-1.5 rounded-full bg-blue-600 text-white text-[11px] font-extrabold tracking-wider uppercase shadow-soft">
                 ⚡ START
               </span>
             )}
             {!isPremium && !isStart && (
-              <span className="inline-flex items-center gap-1 px-3 py-1 rounded-full bg-slate-100 text-slate-600 text-xs font-bold">
+              <span className="inline-flex items-center gap-1.5 px-3.5 py-1.5 rounded-full bg-slate-100 text-slate-600 text-[11px] font-bold uppercase tracking-wider">
                 Plano Free
               </span>
             )}
           </div>
 
-          <div className="grid grid-cols-2 gap-3 mt-5">
-            <div className="rounded-2xl bg-brand-50 p-3">
-              <p className="text-xl font-bold text-brand-700">{xp}</p>
-              <p className="text-xs text-brand-600">XP total</p>
+          <div className="grid grid-cols-2 gap-3 mt-6">
+            <div className="rounded-2xl bg-brand-50 p-4">
+              <p className="text-2xl font-extrabold text-brand-700">{xp}</p>
+              <p className="text-[11px] text-brand-600 font-bold uppercase tracking-wider mt-0.5">XP total</p>
             </div>
-            <div className="rounded-2xl bg-orange-50 p-3">
-              <p className="text-xl font-bold text-orange-600">{streak > 0 ? `${streak}🔥` : "0"}</p>
-              <p className="text-xs text-orange-500">Streak</p>
+            <div className="rounded-2xl bg-orange-50 p-4">
+              <p className="text-2xl font-extrabold text-orange-600">{streak > 0 ? `${streak}🔥` : "0"}</p>
+              <p className="text-[11px] text-orange-500 font-bold uppercase tracking-wider mt-0.5">Streak</p>
             </div>
           </div>
 
-          {/* Cancel subscription */}
           {isPremium && (
-            <div className="mt-5 pt-5 border-t border-slate-100">
+            <div className="mt-6 pt-5 border-t border-slate-100">
               <button
                 onClick={() => setShowCancelConfirm(true)}
-                className="flex items-center gap-2 text-xs text-slate-400 hover:text-red-500 transition mx-auto">
+                className="flex items-center gap-2 text-xs text-slate-400 hover:text-red-500 transition mx-auto font-medium"
+              >
                 <CreditCard className="w-3.5 h-3.5" /> Cancelar assinatura
               </button>
             </div>
@@ -132,8 +143,11 @@ export default function ProfilePage() {
         </div>
 
         {/* Form */}
-        <div className="lg:col-span-2 card p-6 space-y-4">
-          <h3 className="font-semibold text-lg">Dados pessoais</h3>
+        <div className="lg:col-span-2 card p-7 space-y-5">
+          <div>
+            <h3 className="font-extrabold text-lg tracking-tight">Dados pessoais</h3>
+            <p className="text-xs text-slate-500 mt-0.5">Mantenha seus dados atualizados para um plano mais preciso</p>
+          </div>
           <div className="grid grid-cols-2 gap-4">
             {[
               { k: "name",   l: "Nome completo",  t: "text",   p: "Seu nome",  span: 2 },
@@ -142,26 +156,32 @@ export default function ProfilePage() {
               { k: "age",    l: "Idade",           t: "number", p: "30",        span: 1 },
             ].map(f => (
               <div key={f.k} className={f.span === 2 ? "col-span-2" : ""}>
-                <label className="text-xs text-slate-500 mb-1 block">{f.l}</label>
+                <label className="text-[11px] text-slate-500 mb-1 block font-medium">{f.l}</label>
                 <input
                   type={f.t} placeholder={f.p} value={form[f.k as keyof typeof form]}
                   onChange={e => setForm(prev => ({ ...prev, [f.k]: e.target.value }))}
-                  className="w-full rounded-xl border border-slate-200 px-3 py-2.5 text-sm outline-none focus:border-brand-500 focus:ring-2 focus:ring-brand-100"
+                  className="input-premium"
                 />
               </div>
             ))}
             <div>
-              <label className="text-xs text-slate-500 mb-1 block">Sexo</label>
-              <select value={form.gender} onChange={e => setForm(p => ({ ...p, gender: e.target.value }))}
-                className="w-full rounded-xl border border-slate-200 px-3 py-2.5 text-sm bg-white outline-none focus:border-brand-500">
+              <label className="text-[11px] text-slate-500 mb-1 block font-medium">Sexo</label>
+              <select
+                value={form.gender}
+                onChange={e => setForm(p => ({ ...p, gender: e.target.value }))}
+                className="input-premium bg-white"
+              >
                 <option value="feminino">Feminino</option>
                 <option value="masculino">Masculino</option>
               </select>
             </div>
             <div>
-              <label className="text-xs text-slate-500 mb-1 block">Objetivo</label>
-              <select value={form.goal} onChange={e => setForm(p => ({ ...p, goal: e.target.value }))}
-                className="w-full rounded-xl border border-slate-200 px-3 py-2.5 text-sm bg-white outline-none focus:border-brand-500">
+              <label className="text-[11px] text-slate-500 mb-1 block font-medium">Objetivo</label>
+              <select
+                value={form.goal}
+                onChange={e => setForm(p => ({ ...p, goal: e.target.value }))}
+                className="input-premium bg-white"
+              >
                 <option value="emagrecimento">🔥 Emagrecimento</option>
                 <option value="hipertrofia">💪 Hipertrofia</option>
                 <option value="manutencao">⚖️ Manutenção</option>
@@ -176,41 +196,52 @@ export default function ProfilePage() {
         </div>
 
         {/* Medals */}
-        <div className="lg:col-span-3 card p-6">
-          <h3 className="font-semibold mb-4 flex items-center gap-2">
-            <Trophy className="w-4 h-4 text-amber-500" /> Conquistas
-          </h3>
+        <div className="lg:col-span-3 card p-7">
+          <div className="flex items-center justify-between mb-5">
+            <h3 className="font-extrabold flex items-center gap-2 tracking-tight">
+              <Trophy className="w-4 h-4 text-amber-500" /> Conquistas
+            </h3>
+            <span className="text-[11px] font-bold px-2.5 py-1 rounded-full bg-amber-50 text-amber-700">
+              {MEDALS.length} medalhas
+            </span>
+          </div>
           <div className="grid grid-cols-2 sm:grid-cols-3 lg:grid-cols-6 gap-3">
             {MEDALS.map(m => (
-              <div key={m.id} className="text-center p-4 rounded-2xl border border-slate-100 hover:border-brand-200 hover:shadow-sm transition">
-                <div className="text-3xl mb-2">{m.emoji}</div>
-                <p className="text-xs font-semibold">{m.title}</p>
-                <p className="text-xs text-slate-400 mt-0.5">+{m.xp} XP</p>
+              <div
+                key={m.id}
+                className="text-center p-4 rounded-2xl border border-slate-100 hover:border-brand-200 hover:bg-brand-50/30 hover:-translate-y-0.5 hover:shadow-sm transition-all duration-200"
+              >
+                <div className="text-4xl mb-2">{m.emoji}</div>
+                <p className="text-xs font-bold leading-tight">{m.title}</p>
+                <p className="text-[11px] text-brand-600 mt-1 font-bold">+{m.xp} XP</p>
               </div>
             ))}
           </div>
         </div>
       </div>
 
-      {/* Cancel confirmation modal */}
       {showCancelConfirm && (
-        <div className="fixed inset-0 bg-black/50 flex items-center justify-center z-50 p-4">
-          <div className="card p-6 max-w-sm w-full">
+        <div className="fixed inset-0 bg-slate-900/60 backdrop-blur-sm flex items-center justify-center z-50 p-4 animate-fade-in">
+          <div className="card p-6 max-w-sm w-full shadow-premium">
             <div className="flex items-center gap-3 mb-4">
-              <div className="w-10 h-10 bg-red-100 rounded-xl flex items-center justify-center">
+              <div className="w-11 h-11 bg-red-100 rounded-2xl flex items-center justify-center">
                 <AlertTriangle className="w-5 h-5 text-red-500" />
               </div>
-              <h3 className="font-bold">Cancelar assinatura?</h3>
+              <h3 className="font-extrabold">Cancelar assinatura?</h3>
             </div>
-            <p className="text-sm text-slate-600 mb-5">
+            <p className="text-sm text-slate-600 mb-6 leading-relaxed">
               Você perderá acesso ao PREMIUM ao fim do período atual. Tem certeza?
             </p>
             <div className="flex gap-3">
-              <button onClick={() => setShowCancelConfirm(false)}
-                className="flex-1 btn-ghost">Manter plano</button>
-              <button onClick={cancelSubscription} disabled={canceling}
-                className="flex-1 bg-red-500 hover:bg-red-600 text-white font-semibold py-2.5 px-4 rounded-full transition disabled:opacity-60">
-                {canceling ? "Cancelando..." : "Confirmar cancelamento"}
+              <button onClick={() => setShowCancelConfirm(false)} className="flex-1 btn-ghost">
+                Manter plano
+              </button>
+              <button
+                onClick={cancelSubscription}
+                disabled={canceling}
+                className="flex-1 bg-gradient-to-r from-red-500 to-red-600 hover:from-red-600 hover:to-red-700 text-white font-bold py-3 px-4 rounded-full transition-all duration-200 hover:-translate-y-0.5 disabled:opacity-60 shadow-soft"
+              >
+                {canceling ? "Cancelando..." : "Confirmar"}
               </button>
             </div>
           </div>

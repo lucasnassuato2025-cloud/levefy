@@ -49,116 +49,172 @@ export default function DashboardPage() {
 
   if (loading) return (
     <AppShell title="Painel">
-      <div className="card p-8 text-center text-slate-400">Carregando seu painel...</div>
+      <div className="space-y-4">
+        <div className="skeleton h-32 w-full" />
+        <div className="grid grid-cols-2 lg:grid-cols-4 gap-4">
+          {Array.from({ length: 4 }).map((_, i) => <div key={i} className="skeleton h-24 w-full" />)}
+        </div>
+        <div className="skeleton h-40 w-full" />
+      </div>
     </AppShell>
   );
 
   return (
     <AppShell title="Painel">
-      {/* XP + Level banner */}
-      <div className="card p-5 gradient-brand-soft border border-brand-100 mb-6">
-        <div className="flex items-center justify-between gap-4 flex-wrap">
-          <div className="flex items-center gap-3">
-            <div className="w-12 h-12 rounded-2xl gradient-brand flex items-center justify-center text-2xl shadow-lg shadow-brand-600/20">
-              {level.emoji}
+      {/* XP + Level hero */}
+      <div className="card card-premium p-6 sm:p-7 mb-6 relative overflow-hidden">
+        <div className="absolute -top-16 -right-16 w-48 h-48 rounded-full bg-brand-200/40 blur-3xl pointer-events-none" />
+        <div className="relative flex items-center justify-between gap-4 flex-wrap">
+          <div className="flex items-center gap-4">
+            <div className="relative">
+              <div className="w-14 h-14 sm:w-16 sm:h-16 rounded-2xl gradient-brand flex items-center justify-center text-3xl shadow-brand">
+                {level.emoji}
+              </div>
+              <span className="absolute -inset-1 rounded-2xl animate-pulse-ring" />
             </div>
             <div>
-              <p className="text-xs text-brand-600 font-semibold uppercase tracking-wider">{level.title}</p>
-              <p className="font-bold text-lg">Nível {level.level} · {xp} XP</p>
-              {nextLevel && <p className="text-xs text-slate-500">Faltam {nextLevel.xpMin - xp} XP para Nível {nextLevel.level}</p>}
+              <p className="text-[11px] text-brand-700 font-bold uppercase tracking-[0.16em]">{level.title}</p>
+              <p className="font-extrabold text-xl sm:text-2xl tracking-tight">
+                Nível {level.level} <span className="text-slate-400 font-bold">·</span>{" "}
+                <span className="text-gradient-soft">{xp} XP</span>
+              </p>
+              {nextLevel && (
+                <p className="text-xs text-slate-500 mt-0.5">
+                  Faltam <strong className="text-slate-700">{nextLevel.xpMin - xp} XP</strong> para o Nível {nextLevel.level}
+                </p>
+              )}
             </div>
           </div>
-          <div className="flex items-center gap-3">
-            <div className="flex items-center gap-2 px-4 py-2 rounded-full bg-orange-50 border border-orange-100">
-              <Flame className="w-4 h-4 text-orange-500" />
-              <span className="font-bold text-orange-700">{streak > 0 ? `${streak} dias` : "Comece hoje!"}</span>
-            </div>
+          <div className="flex items-center gap-2 px-4 py-2.5 rounded-full bg-white border border-orange-100 shadow-soft">
+            <Flame className="w-4 h-4 text-orange-500" />
+            <span className="font-bold text-orange-700 text-sm">
+              {streak > 0 ? `${streak} dias seguidos` : "Comece hoje!"}
+            </span>
           </div>
         </div>
         {nextLevel && (
-          <div className="mt-4">
-            <div className="flex justify-between text-xs text-slate-500 mb-1">
-              <span>Progresso nível</span>
-              <span>{xpProgress}%</span>
+          <div className="relative mt-5">
+            <div className="flex justify-between text-[11px] text-slate-500 mb-1.5 font-medium">
+              <span>Progresso do nível</span>
+              <span className="text-brand-700 font-bold">{xpProgress}%</span>
             </div>
-            <div className="h-2 bg-white rounded-full overflow-hidden">
-              <div className="h-full gradient-brand rounded-full transition-all duration-500" style={{ width: `${xpProgress}%` }} />
+            <div className="h-2.5 bg-white/70 rounded-full overflow-hidden border border-brand-100">
+              <div
+                className="h-full gradient-brand rounded-full transition-all duration-700"
+                style={{ width: `${xpProgress}%` }}
+              />
             </div>
           </div>
         )}
       </div>
 
       {/* Stats row */}
-      <div className="grid grid-cols-2 lg:grid-cols-4 gap-4 mb-6">
+      <div className="grid grid-cols-2 lg:grid-cols-4 gap-3 sm:gap-4 mb-6">
         {[
           { icon: Target,     label: "Meta calórica", value: user?.goal ? "Definida" : "Não definida", sub: "configure no perfil", color: "text-brand-600", bg: "bg-brand-50" },
           { icon: TrendingUp, label: "Peso atual",    value: user?.currentWeight ? `${user.currentWeight}kg` : "—", sub: "atualize no perfil", color: "text-blue-600", bg: "bg-blue-50" },
           { icon: Trophy,     label: "XP total",      value: `${xp} XP`, sub: level.title, color: "text-amber-600", bg: "bg-amber-50" },
           { icon: Flame,      label: "Streak",        value: streak > 0 ? `${streak}d` : "0d", sub: "dias seguidos", color: "text-orange-500", bg: "bg-orange-50" },
         ].map(s => (
-          <div key={s.label} className="card p-4">
-            <div className={`w-9 h-9 rounded-xl ${s.bg} flex items-center justify-center mb-3`}>
+          <div key={s.label} className="card card-hover p-4 sm:p-5 group">
+            <div className={`w-10 h-10 rounded-2xl ${s.bg} flex items-center justify-center mb-3 transition-transform group-hover:scale-110`}>
               <s.icon className={`w-5 h-5 ${s.color}`} />
             </div>
-            <p className="text-2xl font-bold">{s.value}</p>
-            <p className="text-xs text-slate-500 mt-0.5">{s.sub}</p>
+            <p className="text-[11px] text-slate-400 font-semibold uppercase tracking-wider">{s.label}</p>
+            <p className="text-xl sm:text-2xl font-extrabold mt-1 tracking-tight">{s.value}</p>
+            <p className="text-[11px] text-slate-500 mt-0.5">{s.sub}</p>
           </div>
         ))}
       </div>
 
       {/* Water tracker */}
-      <div className="card p-5 mb-6">
-        <div className="flex items-center justify-between mb-3">
-          <div className="flex items-center gap-2">
-            <Droplets className="w-5 h-5 text-blue-500" />
-            <h3 className="font-semibold">Hidratação</h3>
+      <div className="card p-5 sm:p-6 mb-6">
+        <div className="flex items-center justify-between mb-4">
+          <div className="flex items-center gap-2.5">
+            <div className="w-9 h-9 rounded-xl bg-blue-50 flex items-center justify-center">
+              <Droplets className="w-4.5 h-4.5 text-blue-500" />
+            </div>
+            <div>
+              <h3 className="font-semibold text-sm sm:text-base">Hidratação</h3>
+              <p className="text-[11px] text-slate-400">Meta diária: {waterTarget}ml</p>
+            </div>
           </div>
-          <span className="text-sm font-semibold text-blue-600">{water}ml / {waterTarget}ml</span>
+          <span className="text-sm font-bold text-blue-600">{water}<span className="text-slate-400 font-medium">/{waterTarget}ml</span></span>
         </div>
         <div className="h-3 bg-blue-50 rounded-full overflow-hidden">
-          <div className="h-full bg-blue-400 rounded-full transition-all duration-500" style={{ width: `${waterPct}%` }} />
+          <div
+            className="h-full bg-gradient-to-r from-cyan-400 to-blue-500 rounded-full transition-all duration-500"
+            style={{ width: `${waterPct}%` }}
+          />
         </div>
-        <div className="flex gap-2 mt-3">
+        <div className="flex gap-2 mt-4">
           {[150, 250, 500].map(ml => (
-            <button key={ml} onClick={() => setWater(w => Math.min(waterTarget, w + ml))}
-              className="flex-1 py-2 rounded-xl text-xs font-semibold border border-blue-200 text-blue-600 hover:bg-blue-50 transition">
-              +{ml}ml
+            <button
+              key={ml}
+              onClick={() => setWater(w => Math.min(waterTarget, w + ml))}
+              className="flex-1 py-2.5 rounded-2xl text-xs font-bold border border-blue-100 bg-blue-50/50 text-blue-700 hover:bg-blue-100 hover:-translate-y-0.5 transition-all duration-200"
+            >
+              + {ml}ml
             </button>
           ))}
         </div>
       </div>
 
-      {/* Charts — only if has data */}
+      {/* Charts */}
       {hasProgress ? (
-        <div className="grid lg:grid-cols-2 gap-5 mb-6">
-          <div className="card p-5">
-            <h3 className="font-semibold mb-4 text-sm">📉 Peso — últimos 7 dias</h3>
-            <ResponsiveContainer width="100%" height={160}>
+        <div className="grid lg:grid-cols-2 gap-4 sm:gap-5 mb-6">
+          <div className="card p-5 sm:p-6">
+            <div className="flex items-center justify-between mb-4">
+              <h3 className="font-semibold text-sm flex items-center gap-2">
+                <span className="text-base">📉</span> Peso · últimos 7 dias
+              </h3>
+            </div>
+            <ResponsiveContainer width="100%" height={170}>
               <LineChart data={weightData}>
+                <defs>
+                  <linearGradient id="weightLine" x1="0" y1="0" x2="1" y2="0">
+                    <stop offset="0%" stopColor="#22c55e" />
+                    <stop offset="100%" stopColor="#065f46" />
+                  </linearGradient>
+                </defs>
                 <CartesianGrid strokeDasharray="3 3" stroke="#f1f5f9" />
-                <XAxis dataKey="day" tick={{ fontSize: 11 }} axisLine={false} tickLine={false} />
-                <YAxis domain={["auto","auto"]} tick={{ fontSize: 11 }} axisLine={false} tickLine={false} />
-                <Tooltip formatter={(v: number) => [`${v}kg`, "Peso"]} />
-                <Line type="monotone" dataKey="weight" stroke="#16a34a" strokeWidth={2.5} dot={{ fill: "#16a34a", r: 3 }} />
+                <XAxis dataKey="day" tick={{ fontSize: 11, fill: "#94a3b8" }} axisLine={false} tickLine={false} />
+                <YAxis domain={["auto","auto"]} tick={{ fontSize: 11, fill: "#94a3b8" }} axisLine={false} tickLine={false} />
+                <Tooltip
+                  contentStyle={{ borderRadius: 12, border: "1px solid #e2e8f0", fontSize: 12 }}
+                  formatter={(v: number) => [`${v}kg`, "Peso"]}
+                />
+                <Line type="monotone" dataKey="weight" stroke="url(#weightLine)" strokeWidth={3} dot={{ fill: "#16a34a", r: 4 }} activeDot={{ r: 6 }} />
               </LineChart>
             </ResponsiveContainer>
           </div>
-          <div className="card p-5">
-            <h3 className="font-semibold mb-4 text-sm">🔥 Calorias — últimos 7 dias</h3>
-            <ResponsiveContainer width="100%" height={160}>
+          <div className="card p-5 sm:p-6">
+            <h3 className="font-semibold text-sm mb-4 flex items-center gap-2">
+              <span className="text-base">🔥</span> Calorias · últimos 7 dias
+            </h3>
+            <ResponsiveContainer width="100%" height={170}>
               <BarChart data={calData}>
+                <defs>
+                  <linearGradient id="calBar" x1="0" y1="0" x2="0" y2="1">
+                    <stop offset="0%" stopColor="#22c55e" />
+                    <stop offset="100%" stopColor="#16a34a" />
+                  </linearGradient>
+                </defs>
                 <CartesianGrid strokeDasharray="3 3" stroke="#f1f5f9" />
-                <XAxis dataKey="day" tick={{ fontSize: 11 }} axisLine={false} tickLine={false} />
-                <YAxis tick={{ fontSize: 11 }} axisLine={false} tickLine={false} />
-                <Tooltip formatter={(v: number) => [`${v} kcal`, "Calorias"]} />
-                <Bar dataKey="cal" fill="#22c55e" radius={[4,4,0,0]} />
+                <XAxis dataKey="day" tick={{ fontSize: 11, fill: "#94a3b8" }} axisLine={false} tickLine={false} />
+                <YAxis tick={{ fontSize: 11, fill: "#94a3b8" }} axisLine={false} tickLine={false} />
+                <Tooltip
+                  contentStyle={{ borderRadius: 12, border: "1px solid #e2e8f0", fontSize: 12 }}
+                  formatter={(v: number) => [`${v} kcal`, "Calorias"]}
+                />
+                <Bar dataKey="cal" fill="url(#calBar)" radius={[8,8,0,0]} />
               </BarChart>
             </ResponsiveContainer>
           </div>
         </div>
       ) : (
-        <div className="card p-8 mb-6 text-center border-2 border-dashed border-slate-200">
-          <div className="text-4xl mb-3">📊</div>
+        <div className="card p-10 mb-6 text-center border-2 border-dashed border-slate-200 bg-white/50">
+          <div className="text-5xl mb-3">📊</div>
           <p className="font-semibold text-slate-700">Seus gráficos aparecerão aqui</p>
           <p className="text-sm text-slate-400 mt-1">Comece a usar o Levefy para ver seu progresso!</p>
         </div>
@@ -166,42 +222,46 @@ export default function DashboardPage() {
 
       {/* Quick actions */}
       <div className="grid sm:grid-cols-3 gap-4">
-        <Link href="/meal-ai" className="card p-5 hover:border-brand-300 transition group">
-          <div className="w-10 h-10 gradient-brand rounded-xl flex items-center justify-center mb-3 group-hover:scale-110 transition">
+        <Link href="/meal-ai" className="card card-hover p-5 sm:p-6 group">
+          <div className="w-11 h-11 gradient-brand rounded-2xl flex items-center justify-center mb-4 shadow-brand group-hover:scale-110 transition-transform">
             <Brain className="w-5 h-5 text-white" />
           </div>
-          <p className="font-semibold text-sm">Gerar plano hoje</p>
-          <p className="text-xs text-slate-400 mt-1">Meal AI personalizado</p>
-          <ChevronRight className="w-4 h-4 text-brand-500 mt-3" />
+          <p className="font-bold text-sm">Gerar plano hoje</p>
+          <p className="text-xs text-slate-500 mt-1">Meal AI personalizado em segundos</p>
+          <ChevronRight className="w-4 h-4 text-brand-500 mt-4 group-hover:translate-x-1 transition-transform" />
         </Link>
 
-        <Link href="/challenge" className="card p-5 hover:border-orange-300 transition group">
-          <div className="w-10 h-10 bg-orange-100 rounded-xl flex items-center justify-center mb-3 group-hover:scale-110 transition">
+        <Link href="/challenge" className="card card-hover p-5 sm:p-6 group">
+          <div className="w-11 h-11 bg-orange-100 rounded-2xl flex items-center justify-center mb-4 group-hover:scale-110 transition-transform">
             <Flame className="w-5 h-5 text-orange-500" />
           </div>
-          <p className="font-semibold text-sm">Desafio 21 dias</p>
-          <p className="text-xs text-slate-400 mt-1">{streak > 0 ? `Dia ${streak} de 21` : "Comece agora!"}</p>
-          <ChevronRight className="w-4 h-4 text-orange-400 mt-3" />
+          <p className="font-bold text-sm">Desafio 21 dias</p>
+          <p className="text-xs text-slate-500 mt-1">{streak > 0 ? `Dia ${streak} de 21` : "Comece agora!"}</p>
+          <ChevronRight className="w-4 h-4 text-orange-400 mt-4 group-hover:translate-x-1 transition-transform" />
         </Link>
 
-        <Link href="/recipes" className="card p-5 hover:border-blue-300 transition group">
-          <div className="w-10 h-10 bg-blue-50 rounded-xl flex items-center justify-center mb-3 group-hover:scale-110 transition">
+        <Link href="/recipes" className="card card-hover p-5 sm:p-6 group">
+          <div className="w-11 h-11 bg-blue-50 rounded-2xl flex items-center justify-center mb-4 group-hover:scale-110 transition-transform">
             <Zap className="w-5 h-5 text-blue-500" />
           </div>
-          <p className="font-semibold text-sm">Receitas de hoje</p>
-          <p className="text-xs text-slate-400 mt-1">Explore receitas saudáveis</p>
-          <ChevronRight className="w-4 h-4 text-blue-400 mt-3" />
+          <p className="font-bold text-sm">Receitas de hoje</p>
+          <p className="text-xs text-slate-500 mt-1">Explore receitas saudáveis</p>
+          <ChevronRight className="w-4 h-4 text-blue-400 mt-4 group-hover:translate-x-1 transition-transform" />
         </Link>
       </div>
 
-      {/* Upgrade CTA for free users */}
+      {/* Upgrade CTA */}
       {!isPaid && (
-        <div className="mt-6 card p-5 gradient-brand text-white flex items-center justify-between gap-4 flex-wrap">
-          <div>
-            <p className="font-bold">Desbloqueie o potencial completo 🚀</p>
-            <p className="text-sm text-white/80 mt-0.5">Meal AI, receitas exclusivas e muito mais</p>
+        <div className="mt-6 card p-5 sm:p-6 gradient-brand text-white flex items-center justify-between gap-4 flex-wrap relative overflow-hidden shadow-premium">
+          <div className="absolute inset-0 bg-[radial-gradient(circle_at_top_right,rgba(255,255,255,0.18),transparent_60%)] pointer-events-none" />
+          <div className="relative">
+            <p className="font-extrabold text-lg tracking-tight">Desbloqueie o potencial completo 🚀</p>
+            <p className="text-sm text-white/85 mt-1">Meal AI ilimitado, receitas exclusivas e muito mais</p>
           </div>
-          <Link href="/membership" className="bg-white text-brand-700 font-bold px-5 py-2.5 rounded-full text-sm hover:bg-brand-50 transition shrink-0">
+          <Link
+            href="/membership"
+            className="relative bg-white text-brand-700 font-bold px-6 py-3 rounded-full text-sm hover:bg-brand-50 hover:-translate-y-0.5 transition-all duration-200 shrink-0 shadow-soft"
+          >
             Ver planos
           </Link>
         </div>
