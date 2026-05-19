@@ -4,6 +4,8 @@ import AppShell from "@/components/AppShell";
 import { Check, Zap, Crown, Star } from "lucide-react";
 import { useState } from "react";
 
+const CAKTO_START_URL = "https://pay.cakto.com.br/3aaao4n_890593";
+
 const plans = [
   {
     name: "Grátis",
@@ -48,6 +50,13 @@ export default function Membership() {
   const [loading, setLoading] = useState<string | null>(null);
 
   const checkout = async (plan: string) => {
+    // START vai para a Cakto (PIX + Cartão)
+    if (plan === "START") {
+      window.location.href = CAKTO_START_URL;
+      return;
+    }
+
+    // PREMIUM vai para o Stripe (assinatura mensal)
     setLoading(plan);
     try {
       const res = await fetch("/api/stripe/checkout", {
