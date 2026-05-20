@@ -17,11 +17,47 @@ export default function LoginPage() {
   const [error, setError] = useState<string | null>(null);
   const [success, setSuccess] = useState<string | null>(null);
   const [pendingConfirmationEmail, setPendingConfirmationEmail] = useState<string | null>(null);
+  const [existingAccountEmail, setExistingAccountEmail] = useState<string | null>(null);
+
+  const resetFeedback = () => {
+    setError(null);
+    setSuccess(null);
+    setExistingAccountEmail(null);
+  };
+
+  const goToLogin = (email?: string) => {
+    setMode("login");
+    resetFeedback();
+    setPendingConfirmationEmail(null);
+    if (email) setForm((current) => ({ ...current, email }));
+  };
+
+  const goToRegister = () => {
+    setMode("register");
+    resetFeedback();
+    setPendingConfirmationEmail(null);
+  };
+
+  const goToForgot = (email?: string) => {
+    setMode("forgot");
+    resetFeedback();
+    setPendingConfirmationEmail(null);
+    if (email) setForm((current) => ({ ...current, email }));
+  };
+
+  const isAlreadyRegisteredError = (message: string) => {
+    const normalized = message.toLowerCase();
+    return (
+      normalized.includes("already registered") ||
+      normalized.includes("already exists") ||
+      normalized.includes("user already") ||
+      normalized.includes("email already")
+    );
+  };
 
   const onSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
-    setError(null);
-    setSuccess(null);
+    resetFeedback();
     setLoading(true);
     try {
       if (mode === "login") {
@@ -43,7 +79,15 @@ export default function LoginPage() {
         setMode("login");
       }
     } catch (err: unknown) {
-      setError(err instanceof Error ? err.message : "Algo deu errado. Tente novamente.");
+      const message = err instanceof Error ? err.message : "Algo deu errado. Tente novamente.";
+
+      if (mode === "register" && isAlreadyRegisteredError(message)) {
+        const email = form.email.trim().toLowerCase();
+        setExistingAccountEmail(email);
+        setError("Essa conta já existe. Entre com sua senha ou recupere o acesso em poucos segundos.");
+      } else {
+        setError(message);
+      }
     } finally {
       setLoading(false);
     }
@@ -51,8 +95,7 @@ export default function LoginPage() {
 
   const resendConfirmation = async () => {
     if (!pendingConfirmationEmail) return;
-    setError(null);
-    setSuccess(null);
+    resetFeedback();
     setLoading(true);
     try {
       await auth.resendSignupConfirmation(pendingConfirmationEmail);
@@ -92,9 +135,29 @@ export default function LoginPage() {
 
           <form className="mt-8 space-y-4" onSubmit={onSubmit}>
             {error && (
-              <div className="flex items-center gap-2 rounded-xl bg-red-50 border border-red-200 px-4 py-3 text-sm text-red-700">
-                <AlertCircle className="w-4 h-4 shrink-0" />
-                {error}
+              <div className="rounded-xl bg-red-50 border border-red-200 px-4 py-3 text-sm text-red-700">
+                <div className="flex items-start gap-2">
+                  <AlertCircle className="w-4 h-4 shrink-0 mt-0.5" />
+                  <span>{error}</span>
+                </div>
+                {existingAccountEmail && (
+                  <div className="mt-3 flex flex-col sm:flex-row gap-2">
+                    <button
+                      type="button"
+                      onClick={() => goToLogin(existingAccountEmail)}
+                      className="rounded-lg bg-red-600 px-3 py-2 text-xs font-bold text-white"
+                    >
+                      Entrar agora
+                    </button>
+                    <button
+                      type="button"
+                      onClick={() => goToForgot(existingAccountEmail)}
+                      className="rounded-lg border border-red-200 bg-white px-3 py-2 text-xs font-bold text-red-700"
+                    >
+                      Esqueci minha senha
+                    </button>
+                  </div>
+                )}
               </div>
             )}
             {success && (
@@ -135,7 +198,7 @@ export default function LoginPage() {
                 value={form.password} onChange={v=>setForm({...form, password: v})}/>
             )}
             {mode === "login" && (
-              <button type="button" onClick={()=>{ setMode("forgot"); setError(null); setSuccess(null); setPendingConfirmationEmail(null); }} className="text-sm text-brand-700 font-semibold">Esqueceu a senha?</button>
+              <button type="button" onClick={()=>goToForgot(form.email)} className="text-sm text-brand-700 font-semibold">Esqueceu a senha?</button>
             )}
             <button type="submit" disabled={loading} className="btn-primary w-full mt-2 disabled:opacity-60">
               {loading ? "Aguarde..." :
@@ -157,9 +220,9 @@ export default function LoginPage() {
           )}
 
           <p className="mt-8 text-sm text-slate-600 text-center">
-            {mode === "login" && (<>Novo aqui? <button onClick={()=>{ setMode("register"); setError(null); setSuccess(null); setPendingConfirmationEmail(null); }} className="text-brand-700 font-semibold">Criar conta</button></>)}
-            {mode === "register" && (<>Já tem uma conta? <button onClick={()=>{ setMode("login"); setError(null); setSuccess(null); setPendingConfirmationEmail(null); }} className="text-brand-700 font-semibold">Entrar</button></>)}
-            {mode === "forgot" && (<button onClick={()=>{ setMode("login"); setError(null); setSuccess(null); setPendingConfirmationEmail(null); }} className="text-brand-700 font-semibold">Voltar para o login</button>)}
+            {mode === "login" && (<>Novo aqui? <button onClick={goToRegister} className="text-brand-700 font-semibold">Criar conta</button></>)}
+            {mode === "register" && (<>Já tem uma conta? <button onClick={()=>goToLogin(form.email)} className="text-brand-700 font-semibold">Entrar</button></>)}
+            {mode === "forgot" && (<button onClick={()=>goToLogin(form.email)} className="text-brand-700 font-semibold">Voltar para o login</button>)}
           </p>
         </div>
       </div>

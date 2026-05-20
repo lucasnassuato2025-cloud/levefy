@@ -49,22 +49,25 @@ self.addEventListener("fetch", (event) => {
   // Network-first for HTML navigation (pages)
   if (request.mode === "navigate") {
     event.respondWith(
-      fetch(request).catch(() => caches.match("/"))
+      fetch(request).catch(async () => (await caches.match("/")) || Response.redirect("/", 302))
     );
     return;
   }
 
   // Cache-first for static assets
   event.respondWith(
-    caches.match(request).then((cached) =>
-      cached ?? fetch(request).then((response) => {
-        if (response.ok) {
-          const clone = response.clone();
-          caches.open(CACHE_NAME).then((cache) => cache.put(request, clone));
-        }
-        return response;
-      })
-    )
+    caches.match(request).then((cached) => {
+      if (cached) return cached;
+      return fetch(request)
+        .then((response) => {
+          if (response.ok) {
+            const clone = response.clone();
+            caches.open(CACHE_NAME).then((cache) => cache.put(request, clone));
+          }
+          return response;
+        })
+        .catch(() => new Response("", { status: 204 }));
+    })
   );
 });
 
