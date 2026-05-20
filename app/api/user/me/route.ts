@@ -2,59 +2,75 @@ import { NextResponse } from "next/server";
 import { createServerSupabaseClient } from "@/lib/supabase-server";
 import { prisma } from "@/lib/prisma";
 
-function getProviderAvatar(metadata: any) {
-  return metadata?.avatar_url ?? metadata?.picture ?? metadata?.photoURL ?? null;
+function startOfToday() {
+  const d = new Date();
+  d.setHours(0, 0, 0, 0);
+  return d;
 }
 
 export async function GET() {
   try {
     const supabase = await createServerSupabaseClient();
     const { data: { user: supabaseUser } } = await supabase.auth.getUser();
-
     if (!supabaseUser?.email) return NextResponse.json({ user: null });
 
-    const providerName = supabaseUser.user_metadata?.full_name ?? supabaseUser.user_metadata?.name ?? null;
-    const providerAvatar = getProviderAvatar(supabaseUser.user_metadata);
+    const providerAvatar =
+      supabaseUser.user_metadata?.avatar_url ??
+      supabaseUser.user_metadata?.picture ??
+      supabaseUser.user_metadata?.photo_url ??
+      null;
 
-    const existingByEmail = await prisma.user.findUnique({ where: { email: supabaseUser.email } });
-    const existingById = existingByEmail ? null : await prisma.user.findUnique({ where: { id: supabaseUser.id } });
-    const existingUser = existingByEmail ?? existingById;
+    const providerName =
+      supabaseUser.user_metadata?.full_name ??
+      supabaseUser.user_metadata?.name ??
+      null;
 
-    const user = existingUser
-      ? await prisma.user.update({
-          where: { id: existingUser.id },
-          data: {
-            name: existingUser.name ?? providerName,
-            avatar: existingUser.avatar ?? providerAvatar,
-            lastActiveAt: new Date(),
-          },
-          include: {
-            progress: { orderBy: { loggedAt: "desc" }, take: 7 },
-            waterLogs: {
-              where: { loggedAt: { gte: new Date(new Date().setHours(0,0,0,0)) } },
-            },
-          },
-        })
-      : await prisma.user.create({
-          data: {
-            id: supabaseUser.id,
-            email: supabaseUser.email,
-            name: providerName,
-            avatar: providerAvatar,
-            lastActiveAt: new Date(),
-          },
-          include: {
-            progress: { orderBy: { loggedAt: "desc" }, take: 7 },
-            waterLogs: {
-              where: { loggedAt: { gte: new Date(new Date().setHours(0,0,0,0)) } },
-            },
-          },
-        });
+    const existingById = await prisma.user.findUnique({ where: { id: supabaseUser.id } });
+    const existingByEmail = existingById ? null : await prisma.user.findUnique({ where: { email: supabaseUser.email } });
 
-    const waterToday = user.waterLogs?.reduce((acc, w) => acc + w.amount, 0) ?? 0;
-    return NextResponse.json({ user, waterToday });
+    if (!existingById && existingByEmail) {
+      await prisma.user.update({
+        where: { email: supabaseUser.email },
+        data: {
+          id: supabaseUser.id,
+          name: existingByEmail.name ?? providerName,
+          avatar: existingByEmail.avatar ?? providerAvatar,
+        },
+      });
+    } else if (existingById && (!existingById.avatar || !existingById.name)) {
+      await prisma.user.update({
+        where: { id: supabaseUser.id },
+        data: {
+          name: existingById.name ?? providerName,
+          avatar: existingById.avatar ?? providerAvatar,
+        },
+      });
+    } else if (!existingById && !existingByEmail) {
+      await prisma.user.create({
+        data: {
+          id: supabaseUser.id,
+          email: supabaseUser.email,
+          name: providerName,
+          avatar: providerAvatar,
+        },
+      });
+    }
+
+    const user = await prisma.user.findUnique({
+      where: { id: supabaseUser.id },
+      include: {
+        progress: { orderBy: { loggedAt: "desc" }, take: 7 },
+        waterLogs: { where: { loggedAt: { gte: startOfToday() } } },
+        achievements: { orderBy: { earnedAt: "desc" }, take: 6 },
+        habits: { where: { type: "daily_checkin" }, orderBy: { loggedAt: "desc" }, take: 7 },
+      },
+    });
+
+    const waterToday = user?.waterLogs?.reduce((acc, w) => acc + w.amount, 0) ?? 0;
+    const checkinToday = user?.habits?.find(c => c.loggedAt >= startOfToday()) ?? null;
+
+    return NextResponse.json({ user, waterToday, checkinToday });
   } catch (error: any) {
-    console.error("[api/user/me]", error);
     return NextResponse.json({ user: null, error: error.message });
   }
 }
