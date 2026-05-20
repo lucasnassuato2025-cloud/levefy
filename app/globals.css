@@ -1,30 +1,44 @@
+@import url('https://fonts.googleapis.com/css2?family=Syne:wght@400;500;600;700;800&family=DM+Sans:ital,opsz,wght@0,9..40,300;0,9..40,400;0,9..40,500;0,9..40,600;0,9..40,700;1,9..40,400&display=swap');
+
 @tailwind base;
 @tailwind components;
 @tailwind utilities;
 
 :root {
-  --bg: #f8fafc;
-  --brand-50:  #f0fdf4;
-  --brand-100: #dcfce7;
-  --brand-200: #bbf7d0;
-  --brand-500: #22c55e;
-  --brand-600: #16a34a;
-  --brand-700: #15803d;
-  --brand-800: #166534;
-  --brand-900: #065f46;
+  --bg:          #f8fafc;
+  --brand-50:    #f0fdf4;
+  --brand-100:   #dcfce7;
+  --brand-200:   #bbf7d0;
+  --brand-300:   #86efac;
+  --brand-500:   #22c55e;
+  --brand-600:   #16a34a;
+  --brand-700:   #15803d;
+  --brand-800:   #166534;
+  --brand-900:   #065f46;
+  --glow-green:  #86efac;
+  --dark-base:   #030712;
+  --dark-surface:#0d1117;
 }
 
 html, body { height: 100%; }
 body {
   @apply bg-[#f8fafc] text-slate-900 antialiased;
-  font-family: Inter, ui-sans-serif, system-ui, -apple-system, "Segoe UI", sans-serif;
-  font-feature-settings: "cv11", "ss01", "ss03";
+  font-family: 'DM Sans', ui-sans-serif, system-ui, sans-serif;
+  font-feature-settings: "cv11", "ss01";
   letter-spacing: -0.01em;
 }
 
-/* ==========================================================
-   Brand gradients
-   ========================================================== */
+/* ============================================================
+   TYPOGRAPHY
+   ============================================================ */
+.font-display {
+  font-family: 'Syne', sans-serif;
+  letter-spacing: -0.03em;
+}
+
+/* ============================================================
+   BRAND GRADIENTS
+   ============================================================ */
 .gradient-brand        { background: linear-gradient(135deg, #22c55e 0%, #16a34a 55%, #065f46 100%); }
 .gradient-brand-soft   { background: linear-gradient(135deg, #f0fdf4 0%, #dcfce7 60%, #bbf7d0 100%); }
 .gradient-brand-glow   { background: radial-gradient(120% 120% at 0% 0%, rgba(34,197,94,0.18) 0%, rgba(34,197,94,0) 60%),
@@ -34,18 +48,39 @@ body {
 .text-gradient-soft    { background: linear-gradient(135deg, #15803d, #16a34a 60%, #22c55e);
                          -webkit-background-clip: text; background-clip: text; color: transparent; }
 
-/* ==========================================================
-   Surfaces
-   ========================================================== */
+/* Premium brand gradient for hero headlines */
+.text-gradient-brand {
+  background: linear-gradient(135deg, #4ade80 0%, #22c55e 30%, #16a34a 65%, #86efac 100%);
+  -webkit-background-clip: text;
+  background-clip: text;
+  color: transparent;
+}
+/* Dark version for dark sections */
+.text-gradient-dark {
+  background: linear-gradient(135deg, #86efac 0%, #4ade80 40%, #22c55e 100%);
+  -webkit-background-clip: text;
+  background-clip: text;
+  color: transparent;
+}
+
+/* ============================================================
+   SURFACES & CARDS
+   ============================================================ */
 .card {
   @apply bg-white rounded-3xl border border-slate-100;
   box-shadow: 0 1px 2px rgba(15,23,42,0.04), 0 6px 24px -12px rgba(15,23,42,0.06);
   transition: box-shadow .25s ease, transform .25s ease, border-color .25s ease;
 }
-.card-hover    { @apply hover:-translate-y-0.5 hover:shadow-md hover:border-slate-200; }
+.card-hover    { @apply hover:-translate-y-1 hover:shadow-lg hover:border-slate-200; }
+
+/* Glassmorphism premium card */
 .card-glass {
-  @apply rounded-3xl border border-white/60 bg-white/70 backdrop-blur-xl;
-  box-shadow: 0 10px 40px -10px rgba(6,95,70,0.10);
+  @apply rounded-3xl border border-white/50 bg-white/60 backdrop-blur-2xl;
+  box-shadow: 0 8px 40px -8px rgba(6,95,70,0.12), inset 0 1px 0 rgba(255,255,255,0.8);
+}
+.card-glass-dark {
+  @apply rounded-3xl border border-white/10 bg-white/5 backdrop-blur-2xl;
+  box-shadow: 0 8px 40px -8px rgba(0,0,0,0.4), inset 0 1px 0 rgba(255,255,255,0.08);
 }
 .card-premium {
   @apply rounded-3xl border border-brand-100 bg-white;
@@ -53,9 +88,9 @@ body {
   box-shadow: 0 1px 2px rgba(15,23,42,0.04), 0 18px 50px -20px rgba(22,163,74,0.20);
 }
 
-/* ==========================================================
-   Buttons
-   ========================================================== */
+/* ============================================================
+   BUTTONS
+   ============================================================ */
 .btn-primary {
   @apply inline-flex items-center justify-center rounded-full text-white font-semibold px-6 py-3
          transition-all duration-200 hover:-translate-y-0.5 active:translate-y-0;
@@ -64,10 +99,44 @@ body {
 }
 .btn-primary:hover { box-shadow: 0 18px 40px -14px rgba(22,163,74,0.65), inset 0 1px 0 rgba(255,255,255,0.25); }
 
+/* Premium CTA button */
+.btn-brand {
+  @apply inline-flex items-center justify-center rounded-full text-white font-bold tracking-tight
+         transition-all duration-300 active:scale-95;
+  font-family: 'Syne', sans-serif;
+  background: linear-gradient(135deg, #4ade80 0%, #16a34a 45%, #065f46 100%);
+  box-shadow:
+    0 0 0 1px rgba(134,239,172,0.35),
+    0 14px 50px -10px rgba(22,163,74,0.65),
+    0 6px 20px -4px rgba(22,163,74,0.45),
+    inset 0 1px 0 rgba(255,255,255,0.28),
+    inset 0 -1px 0 rgba(0,0,0,0.15);
+}
+.btn-brand:hover {
+  transform: translateY(-3px) scale(1.015);
+  box-shadow:
+    0 0 0 2px rgba(134,239,172,0.5),
+    0 24px 70px -12px rgba(22,163,74,0.75),
+    0 10px 30px -6px rgba(22,163,74,0.55),
+    inset 0 1px 0 rgba(255,255,255,0.35),
+    inset 0 -1px 0 rgba(0,0,0,0.1);
+}
+
 .btn-ghost {
   @apply inline-flex items-center justify-center rounded-full border border-slate-200 bg-white
          hover:border-brand-400 hover:text-brand-700 text-slate-700 font-semibold px-6 py-3
          transition-all duration-200 hover:-translate-y-0.5 hover:shadow-sm;
+}
+.btn-ghost-dark {
+  @apply inline-flex items-center justify-center rounded-full text-white/80 font-semibold px-6 py-3
+         transition-all duration-200 hover:-translate-y-0.5 hover:text-white;
+  border: 1px solid rgba(255,255,255,0.15);
+  background: rgba(255,255,255,0.06);
+  backdrop-filter: blur(12px);
+}
+.btn-ghost-dark:hover {
+  background: rgba(255,255,255,0.1);
+  border-color: rgba(255,255,255,0.25);
 }
 
 .btn-soft {
@@ -75,18 +144,18 @@ body {
          px-5 py-2.5 transition-all duration-200 hover:bg-brand-100;
 }
 
-/* ==========================================================
-   Inputs
-   ========================================================== */
+/* ============================================================
+   INPUTS
+   ============================================================ */
 .input-premium {
   @apply w-full rounded-2xl border border-slate-200 bg-white px-3.5 py-2.5 text-sm
          outline-none transition-all duration-200
          focus:border-brand-500 focus:ring-4 focus:ring-brand-100;
 }
 
-/* ==========================================================
-   Background washes
-   ========================================================== */
+/* ============================================================
+   BACKGROUND SYSTEMS
+   ============================================================ */
 .bg-noise {
   background-image:
     radial-gradient(circle at 20% 10%, rgba(34,197,94,0.10), transparent 40%),
@@ -100,24 +169,80 @@ body {
     #f8fafc;
 }
 
-/* ==========================================================
-   Shadows
-   ========================================================== */
+/* Grid pattern for hero */
+.bg-grid-fade {
+  background-image:
+    linear-gradient(rgba(15,23,42,0) 0%, rgba(15,23,42,0) 70%, #030712 100%),
+    url("data:image/svg+xml,%3Csvg width='40' height='40' xmlns='http://www.w3.org/2000/svg'%3E%3Cpath d='M0 40V0h1v40zM40 0H0v1h40z' fill='%2316a34a' fill-opacity='0.07'/%3E%3C/svg%3E");
+}
+.bg-grid-light {
+  background-image: url("data:image/svg+xml,%3Csvg width='40' height='40' xmlns='http://www.w3.org/2000/svg'%3E%3Cpath d='M0 40V0h1v40zM40 0H0v1h40z' fill='%2316a34a' fill-opacity='0.05'/%3E%3C/svg%3E");
+}
+
+/* ============================================================
+   GLOW EFFECTS
+   ============================================================ */
+.glow-green {
+  box-shadow:
+    0 0 60px rgba(34,197,94,0.3),
+    0 0 120px rgba(34,197,94,0.15),
+    0 0 200px rgba(22,163,74,0.08);
+}
+.glow-green-sm {
+  box-shadow: 0 0 30px rgba(34,197,94,0.25), 0 0 60px rgba(34,197,94,0.10);
+}
+
+/* ============================================================
+   SHADOWS
+   ============================================================ */
 .shadow-premium { box-shadow: 0 30px 60px -20px rgba(6,95,70,0.25), 0 10px 30px -10px rgba(34,197,94,0.15); }
 .shadow-brand   { box-shadow: 0 10px 30px -12px rgba(22,163,74,0.45); }
 .shadow-soft    { box-shadow: 0 1px 2px rgba(15,23,42,0.04), 0 8px 24px -10px rgba(15,23,42,0.08); }
 
-/* ==========================================================
-   Animations
-   ========================================================== */
-@keyframes floaty   { 0%,100% { transform: translateY(0) } 50% { transform: translateY(-10px) } }
-@keyframes fadeIn   { from { opacity: 0; transform: translateY(6px) } to { opacity: 1; transform: translateY(0) } }
-@keyframes pulseRing{ 0% { box-shadow: 0 0 0 0 rgba(34,197,94,.45) } 70% { box-shadow: 0 0 0 12px rgba(34,197,94,0) } 100% { box-shadow: 0 0 0 0 rgba(34,197,94,0) } }
-@keyframes shimmer  { 0% { background-position: -400px 0 } 100% { background-position: 400px 0 } }
+/* ============================================================
+   ANIMATIONS
+   ============================================================ */
+@keyframes floaty      { 0%,100% { transform: translateY(0px)   } 50% { transform: translateY(-12px) } }
+@keyframes floatyB     { 0%,100% { transform: translateY(0px)   } 50% { transform: translateY(-8px) } }
+@keyframes fadeIn      { from { opacity: 0; transform: translateY(8px)  } to { opacity: 1; transform: translateY(0) } }
+@keyframes fadeInUp    { from { opacity: 0; transform: translateY(24px) } to { opacity: 1; transform: translateY(0) } }
+@keyframes pulseRing   { 0% { box-shadow: 0 0 0 0 rgba(34,197,94,.45) } 70% { box-shadow: 0 0 0 14px rgba(34,197,94,0) } 100% { box-shadow: 0 0 0 0 rgba(34,197,94,0) } }
+@keyframes pulseGlow {
+  0%,100% {
+    box-shadow: 0 0 0 1px rgba(134,239,172,0.35), 0 14px 50px -10px rgba(22,163,74,0.65), 0 6px 20px -4px rgba(22,163,74,0.45), inset 0 1px 0 rgba(255,255,255,0.28);
+  }
+  50% {
+    box-shadow: 0 0 0 3px rgba(134,239,172,0.55), 0 20px 70px -8px rgba(22,163,74,0.85), 0 10px 30px -4px rgba(22,163,74,0.65), inset 0 1px 0 rgba(255,255,255,0.35);
+    transform: translateY(-1px);
+  }
+}
+@keyframes shimmer     { 0% { background-position: -400px 0 } 100% { background-position: 400px 0 } }
+@keyframes rotateHue   { from { filter: hue-rotate(0deg) } to { filter: hue-rotate(15deg) } }
+@keyframes borderGlow  { 0%,100% { border-color: rgba(134,239,172,0.3) } 50% { border-color: rgba(34,197,94,0.7) } }
+@keyframes tickerScroll{ 0% { transform: translateX(0) } 100% { transform: translateX(-50%) } }
 
-.animate-float    { animation: floaty 6s ease-in-out infinite; }
-.animate-fade-in  { animation: fadeIn .35s ease-out both; }
-.animate-pulse-ring { animation: pulseRing 2.2s ease-out infinite; }
+.animate-float        { animation: floaty  7s ease-in-out infinite; }
+.animate-float-y      { animation: floatyB 5s ease-in-out infinite; }
+.animate-float-b      { animation: floaty  9s ease-in-out infinite 1.5s; }
+.animate-fade-in      { animation: fadeIn    .45s ease-out both; }
+.animate-fade-in-up   { animation: fadeInUp  .6s  ease-out both; }
+.animate-pulse-ring   { animation: pulseRing 2.2s ease-out infinite; }
+.animate-pulse-glow   { animation: pulseGlow 2.8s ease-in-out infinite; }
+.animate-border-glow  { animation: borderGlow 3s  ease-in-out infinite; }
+
+/* Mobile safe area */
+@supports (padding-bottom: env(safe-area-inset-bottom)) {
+  .mobile-safe-bottom { padding-bottom: max(1rem, env(safe-area-inset-bottom)); }
+}
+
+/* Stagger delays */
+.delay-100  { animation-delay: 100ms; }
+.delay-200  { animation-delay: 200ms; }
+.delay-300  { animation-delay: 300ms; }
+.delay-400  { animation-delay: 400ms; }
+.delay-500  { animation-delay: 500ms; }
+.delay-700  { animation-delay: 700ms; }
+.delay-1000 { animation-delay: 1000ms; }
 
 /* Skeleton loader */
 .skeleton {
@@ -127,12 +252,47 @@ body {
   animation: shimmer 1.6s linear infinite;
 }
 
-/* ==========================================================
-   Scrollbar polish
-   ========================================================== */
+/* ============================================================
+   DARK SECTION SURFACES
+   ============================================================ */
+.dark-section {
+  background:
+    radial-gradient(ellipse 80% 50% at 50% -10%, rgba(34,197,94,0.15) 0%, transparent 60%),
+    radial-gradient(ellipse 60% 40% at 80% 100%, rgba(6,95,70,0.10) 0%, transparent 50%),
+    #030712;
+}
+.dark-section-mid {
+  background:
+    radial-gradient(ellipse 70% 60% at 20% 50%, rgba(22,163,74,0.08) 0%, transparent 60%),
+    #0d1117;
+}
+
+/* ============================================================
+   TICKER TAPE
+   ============================================================ */
+.ticker-wrap {
+  overflow: hidden;
+  -webkit-mask-image: linear-gradient(90deg, transparent 0%, #000 8%, #000 92%, transparent 100%);
+  mask-image: linear-gradient(90deg, transparent 0%, #000 8%, #000 92%, transparent 100%);
+}
+.ticker-inner {
+  display: flex;
+  width: max-content;
+  animation: tickerScroll 28s linear infinite;
+}
+.ticker-inner:hover { animation-play-state: paused; }
+
+/* ============================================================
+   SCROLLBAR
+   ============================================================ */
 *::-webkit-scrollbar { width: 10px; height: 10px; }
 *::-webkit-scrollbar-thumb { background: #e2e8f0; border-radius: 999px; border: 2px solid #f8fafc; }
 *::-webkit-scrollbar-thumb:hover { background: #cbd5e1; }
 
 /* Focus ring */
 :focus-visible { outline: 2px solid #16a34a; outline-offset: 2px; border-radius: 12px; }
+
+/* ============================================================
+   UTILITY PATCHES
+   ============================================================ */
+.text-balance { text-wrap: balance; }
