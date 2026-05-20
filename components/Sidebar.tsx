@@ -99,18 +99,19 @@ export default function Sidebar() {
       </nav>
 
       {/* PWA Block */}
-      <div className="mx-3 mb-3 p-4 rounded-2xl"
+      <div className="mx-3 mb-3 p-4 rounded-3xl"
         style={{
-          background: "rgba(34,197,94,0.08)",
-          border: "1px solid rgba(34,197,94,0.18)",
+          background: "linear-gradient(135deg, rgba(34,197,94,0.15) 0%, rgba(16,185,129,0.08) 100%)",
+          border: "1px solid rgba(74,222,128,0.26)",
+          boxShadow: "inset 0 1px 0 rgba(255,255,255,0.06), 0 18px 40px rgba(0,0,0,0.22)",
         }}
       >
         <div className="flex items-center gap-2 mb-1">
           <span className="text-base">📲</span>
-          <p className="text-xs font-bold" style={{ color: "#4ade80" }}>Instale o App</p>
+          <p className="text-xs font-black" style={{ color: "#86efac" }}>Instale o App</p>
         </div>
-        <p className="text-[11px] mb-3 leading-snug" style={{ color: "rgba(255,255,255,0.4)" }}>
-          Acesse offline, com performance nativa.
+        <p className="text-[11px] mb-3 leading-snug" style={{ color: "rgba(255,255,255,0.62)" }}>
+          Abra o Levefy como app, com acesso rápido e tela cheia.
         </p>
         <DownloadAppButton variant="compact" fullWidth />
       </div>
