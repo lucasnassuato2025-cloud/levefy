@@ -38,4 +38,3 @@ export async function POST(req: Request) {
     return NextResponse.json({ error: error.message ?? "Erro interno" }, { status: 500 });
   }
 }
-'@ | Set-Content -Encoding UTF8 app/api/user/update/route.ts

@@ -31,4 +31,3 @@ export async function GET() {
     return NextResponse.json({ user: null, error: error.message });
   }
 }
-'@ | Set-Content -Encoding UTF8 app/api/user/me/route.tsss
