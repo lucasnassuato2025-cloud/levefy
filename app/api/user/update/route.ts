@@ -1,6 +1,7 @@
 import { NextResponse } from "next/server";
 import { createServerSupabaseClient } from "@/lib/supabase-server";
 import { prisma } from "@/lib/prisma";
+import { syncUserToDatabase } from "@/lib/db-sync";
 
 export async function POST(req: Request) {
   try {
@@ -23,22 +24,13 @@ export async function POST(req: Request) {
     if (Array.isArray(restrictions))           updateData.restrictions  = restrictions;
     if (avatar && avatar !== "")               updateData.avatar        = avatar;
 
-    let existing = await prisma.user.findUnique({ where: { id: supabaseUser.id } });
-    if (!existing && supabaseUser.email) {
-      existing = await prisma.user.findUnique({ where: { email: supabaseUser.email } });
-    }
+    const user = await syncUserToDatabase(supabaseUser);
+    if (!user) return NextResponse.json({ error: "Erro ao sincronizar usuario" }, { status: 500 });
 
-    const updated = existing
-      ? await prisma.user.update({ where: { id: existing.id }, data: updateData })
-      : await prisma.user.create({
-          data: {
-            id: supabaseUser.id,
-            email: supabaseUser.email!,
-            name: supabaseUser.user_metadata?.full_name ?? name ?? null,
-            avatar: supabaseUser.user_metadata?.avatar_url ?? supabaseUser.user_metadata?.picture ?? null,
-            ...updateData,
-          },
-        });
+    const updated = await prisma.user.update({
+      where: { id: user.id },
+      data: updateData,
+    });
 
     return NextResponse.json({ success: true, user: updated });
   } catch (error: any) {

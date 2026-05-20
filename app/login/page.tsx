@@ -70,9 +70,22 @@ export default function LoginPage() {
     setLoading(true);
     try {
       if (mode === "login") {
-        await auth.signInWithEmail(form.email, form.password);
-        await syncCurrentUser();
+        const res = await fetch("/api/auth/login", {
+          method: "POST",
+          headers: { "Content-Type": "application/json" },
+          body: JSON.stringify({
+            email: form.email,
+            password: form.password,
+          }),
+        });
+
+        const data = await res.json();
+        if (!res.ok || data.error) {
+          throw new Error(data.error ?? "Nao foi possivel entrar. Tente novamente.");
+        }
+
         router.push("/dashboard");
+        router.refresh();
       } else if (mode === "register") {
         const result = await auth.signUp(form.name, form.email, form.password);
         if (result.session) {
