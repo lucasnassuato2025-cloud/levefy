@@ -55,7 +55,7 @@ export default function DownloadAppButton({
     setShowModal(true);
   };
 
-  const base = "group relative z-10 inline-flex items-center gap-2 font-semibold rounded-full transition-all duration-200 select-none focus:outline-none focus:ring-4 focus:ring-brand-200";
+  const base = "group relative inline-flex items-center gap-2 font-semibold rounded-full transition-all duration-200 select-none";
   const sizes = variant === "compact" ? "px-4 py-2 text-sm" : "px-6 py-3 text-sm lg:text-base";
   const wide = fullWidth ? "w-full justify-center" : "";
 
@@ -64,8 +64,6 @@ export default function DownloadAppButton({
       ? "border border-slate-200 text-slate-700 hover:border-brand-600 hover:text-brand-700 bg-white/70 backdrop-blur"
       : variant === "white"
       ? "bg-white text-brand-700 hover:bg-brand-50 shadow-lg shadow-black/10"
-      : variant === "compact"
-      ? "bg-white text-brand-700 hover:bg-brand-50 shadow-lg shadow-black/10 border border-white/20"
       : "bg-gradient-to-r from-brand-500 to-brand-700 text-white shadow-md shadow-brand-600/25 hover:shadow-lg hover:-translate-y-0.5";
 
   return (
@@ -92,14 +90,14 @@ export default function DownloadAppButton({
 
 function InstallModal({ device, onClose }: { device: Device; onClose: () => void }) {
   return (
-    <div className="fixed inset-0 z-[9999] flex items-end sm:items-center justify-center p-4"
-      style={{ background: "rgba(2,6,23,0.78)", backdropFilter: "blur(10px)" }}
+    <div className="fixed inset-0 z-[999] flex items-end sm:items-center justify-center p-4"
+      style={{ background: "rgba(0,0,0,0.6)", backdropFilter: "blur(8px)" }}
       onClick={(e) => e.target === e.currentTarget && onClose()}
     >
-      <div className="w-full max-w-md rounded-3xl bg-white text-slate-900 shadow-2xl overflow-hidden animate-fade-in border border-white/80">
+      <div className="w-full max-w-md rounded-3xl bg-white shadow-2xl overflow-hidden animate-fade-in">
         {/* Header */}
         <div className="gradient-brand p-6 relative">
-          <button type="button" onClick={onClose}
+          <button onClick={onClose}
             className="absolute top-4 right-4 w-8 h-8 bg-white/20 rounded-full flex items-center justify-center hover:bg-white/30 transition">
             <X className="w-4 h-4 text-white" />
           </button>
@@ -118,7 +116,7 @@ function InstallModal({ device, onClose }: { device: Device; onClose: () => void
         <div className="p-6">
           {device === "ios" ? <IosInstructions /> : device === "android" ? <AndroidInstructions /> : <DesktopInstructions />}
 
-          <button type="button" onClick={onClose}
+          <button onClick={onClose}
             className="mt-6 w-full btn-primary">
             Entendi!
           </button>

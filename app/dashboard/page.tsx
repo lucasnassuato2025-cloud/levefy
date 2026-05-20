@@ -111,19 +111,19 @@ export default function DashboardPage() {
       {/* Stats row */}
       <div className="grid grid-cols-2 lg:grid-cols-4 gap-3 sm:gap-4 mb-6">
         {[
-          { href: "/profile", icon: Target,     label: "Meta calórica", value: user?.goal ? "Definida" : "Não definida", sub: "configure no perfil", color: "text-brand-600", bg: "bg-brand-50" },
-          { href: "/profile", icon: TrendingUp, label: "Peso atual",    value: user?.currentWeight ? `${user.currentWeight}kg` : "—", sub: "atualize no perfil", color: "text-blue-600", bg: "bg-blue-50" },
-          { href: "/challenge", icon: Trophy,     label: "XP total",      value: `${xp} XP`, sub: level.title, color: "text-amber-600", bg: "bg-amber-50" },
-          { href: "/challenge", icon: Flame,      label: "Streak",        value: streak > 0 ? `${streak}d` : "0d", sub: "dias seguidos", color: "text-orange-500", bg: "bg-orange-50" },
+          { icon: Target,     label: "Meta calórica", value: user?.goal ? "Definida" : "Não definida", sub: "configure no perfil", color: "text-brand-600", bg: "bg-brand-50" },
+          { icon: TrendingUp, label: "Peso atual",    value: user?.currentWeight ? `${user.currentWeight}kg` : "—", sub: "atualize no perfil", color: "text-blue-600", bg: "bg-blue-50" },
+          { icon: Trophy,     label: "XP total",      value: `${xp} XP`, sub: level.title, color: "text-amber-600", bg: "bg-amber-50" },
+          { icon: Flame,      label: "Streak",        value: streak > 0 ? `${streak}d` : "0d", sub: "dias seguidos", color: "text-orange-500", bg: "bg-orange-50" },
         ].map(s => (
-          <Link key={s.label} href={s.href} className="card card-hover p-4 sm:p-5 group block focus:outline-none focus:ring-4 focus:ring-brand-100">
+          <div key={s.label} className="card card-hover p-4 sm:p-5 group">
             <div className={`w-10 h-10 rounded-2xl ${s.bg} flex items-center justify-center mb-3 transition-transform group-hover:scale-110`}>
               <s.icon className={`w-5 h-5 ${s.color}`} />
             </div>
             <p className="text-[11px] text-slate-400 font-semibold uppercase tracking-wider">{s.label}</p>
             <p className="text-xl sm:text-2xl font-extrabold mt-1 tracking-tight">{s.value}</p>
             <p className="text-[11px] text-slate-500 mt-0.5">{s.sub}</p>
-          </Link>
+          </div>
         ))}
       </div>
 

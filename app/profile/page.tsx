@@ -2,8 +2,9 @@
 
 import { useState, useEffect, useCallback } from "react";
 import AppShell from "@/components/AppShell";
-import { Save, Trophy, Camera, Crown, CreditCard, AlertTriangle, CheckCircle2, Loader2 } from "lucide-react";
+import { Save, Trophy, Camera, Crown, CreditCard, AlertTriangle, CheckCircle2, Loader2, UploadCloud } from "lucide-react";
 import { getLevelFromXP, MEDALS } from "@/lib/gamification";
+import { createClient } from "@/lib/supabase";
 
 const RESTRICTIONS_OPTIONS = [
   { id: "lactose",    label: "🥛 Intolerância à Lactose" },
@@ -64,6 +65,8 @@ export default function ProfilePage() {
   const [saved, setSaved]           = useState(false);
   const [saveError, setSaveError]   = useState("");
   const [activeTab, setActiveTab]   = useState<"personal" | "health">("personal");
+  const [avatarUrl, setAvatarUrl]   = useState("");
+  const [uploadingAvatar, setUploadingAvatar] = useState(false);
 
   // Formulário pessoal
   const [form, setForm] = useState({
@@ -88,6 +91,7 @@ export default function ProfilePage() {
       if (data.user) {
         const u = data.user;
         setUser(u);
+        setAvatarUrl(u.avatar ?? "");
         setForm({
           name:          u.name          ?? "",
           weight:        u.currentWeight?.toString() ?? "",
@@ -116,7 +120,7 @@ export default function ProfilePage() {
   const streak  = user?.streakDays ?? 0;
   const plan    = user?.plan       ?? "free";
   const level   = getLevelFromXP(xp);
-  const avatar  = user?.avatar;
+  const avatar  = avatarUrl || user?.avatar;
   const isPremium = plan === "premium";
   const isStart   = plan === "start";
 
@@ -151,6 +155,7 @@ export default function ProfilePage() {
           goal:          form.goal,
           activityLevel: form.activityLevel,
           restrictions,
+          avatar: avatarUrl,
         }),
       });
 
@@ -169,6 +174,77 @@ export default function ProfilePage() {
       setSaveError("Erro de conexão. Verifique sua internet.");
     } finally {
       setSaving(false);
+    }
+  };
+
+
+  const uploadAvatar = async (file?: File | null) => {
+    if (!file) return;
+
+    if (!file.type.startsWith("image/")) {
+      setSaveError("Envie uma imagem válida para a foto de perfil.");
+      return;
+    }
+
+    if (file.size > 3 * 1024 * 1024) {
+      setSaveError("A foto precisa ter no máximo 3MB.");
+      return;
+    }
+
+    setUploadingAvatar(true);
+    setSaveError("");
+
+    try {
+      const supabase = createClient();
+      const { data: authData } = await supabase.auth.getUser();
+      const authUser = authData.user;
+
+      if (!authUser) {
+        setSaveError("Faça login novamente para enviar a foto.");
+        return;
+      }
+
+      const ext = file.name.split(".").pop()?.toLowerCase() || "jpg";
+      const path = `${authUser.id}/avatar-${Date.now()}.${ext}`;
+
+      const { error: uploadError } = await supabase.storage
+        .from("avatars")
+        .upload(path, file, { cacheControl: "3600", upsert: true });
+
+      if (uploadError) {
+        setSaveError("Não consegui enviar a foto. Confirme se existe um bucket público chamado avatars no Supabase Storage.");
+        return;
+      }
+
+      const { data } = supabase.storage.from("avatars").getPublicUrl(path);
+      const publicUrl = data.publicUrl;
+
+      setAvatarUrl(publicUrl);
+      setUser((prev: any) => prev ? { ...prev, avatar: publicUrl } : prev);
+
+      const restrictions = serializeRestrictions(healthFlags, dietRestrictions, medicamentos, observacoes);
+      await fetch("/api/user/update", {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({
+          name: form.name,
+          weight: form.weight,
+          height: form.height,
+          age: form.age,
+          gender: form.gender,
+          goal: form.goal,
+          activityLevel: form.activityLevel,
+          restrictions,
+          avatar: publicUrl,
+        }),
+      });
+
+      setSaved(true);
+      setTimeout(() => setSaved(false), 4000);
+    } catch (err) {
+      setSaveError("Erro ao enviar foto. Tente novamente.");
+    } finally {
+      setUploadingAvatar(false);
     }
   };
 
@@ -204,7 +280,7 @@ export default function ProfilePage() {
           <div className="absolute -top-10 left-1/2 -translate-x-1/2 w-48 h-48 rounded-full bg-brand-100/40 blur-3xl pointer-events-none" />
 
           {/* Avatar */}
-          <div className="relative w-24 h-24 mx-auto mb-4">
+          <div className="relative w-24 h-24 mx-auto mb-4 group">
             {avatar ? (
               <img src={avatar} alt="Foto de perfil"
                 className="w-24 h-24 rounded-full object-cover border-4 border-white shadow-lg" />
@@ -213,10 +289,29 @@ export default function ProfilePage() {
                 {level.emoji}
               </div>
             )}
-            <div className="absolute -bottom-1 -right-1 w-8 h-8 bg-brand-600 rounded-full flex items-center justify-center shadow border-2 border-white">
-              <Camera className="w-3.5 h-3.5 text-white" />
-            </div>
+            <label className="absolute -bottom-1 -right-1 w-8 h-8 bg-brand-600 rounded-full flex items-center justify-center shadow border-2 border-white cursor-pointer hover:scale-110 active:scale-95 transition-transform" title="Trocar foto">
+              {uploadingAvatar ? <Loader2 className="w-3.5 h-3.5 text-white animate-spin" /> : <Camera className="w-3.5 h-3.5 text-white" />}
+              <input
+                type="file"
+                accept="image/*"
+                className="hidden"
+                disabled={uploadingAvatar}
+                onChange={(e) => uploadAvatar(e.target.files?.[0])}
+              />
+            </label>
           </div>
+
+          <label className="inline-flex items-center justify-center gap-2 text-xs font-bold text-brand-700 hover:text-brand-800 cursor-pointer mb-2">
+            <UploadCloud className="w-3.5 h-3.5" />
+            {uploadingAvatar ? "Enviando foto..." : "Trocar foto"}
+            <input
+              type="file"
+              accept="image/*"
+              className="hidden"
+              disabled={uploadingAvatar}
+              onChange={(e) => uploadAvatar(e.target.files?.[0])}
+            />
+          </label>
 
           <p className="font-extrabold text-xl tracking-tight">{form.name || "Usuário"}</p>
           <p className="text-sm text-slate-500 mt-0.5">{level.title} · Nível {level.level}</p>
