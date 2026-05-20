@@ -79,10 +79,10 @@ export default function DashboardPage() {
                 <span className="text-gradient-soft">{xp} XP</span>
               </p>
               {nextLevel && (
-  <p className="text-xs text-slate-500 mt-0.5">
-    Faltam <strong className="text-slate-700">{nextLevel.xpMin - xp} XP</strong> para o Nível {nextLevel.level}
-  </p>
-)}
+                <p className="text-xs text-slate-500 mt-0.5">
+                  Faltam <strong className="text-slate-700">{nextLevel.xpMin - xp} XP</strong> para o Nível {nextLevel.level}
+                </p>
+              )}
             </div>
           </div>
           <div className="flex items-center gap-2 px-4 py-2.5 rounded-full bg-white border border-orange-100 shadow-soft">

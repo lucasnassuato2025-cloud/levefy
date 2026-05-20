@@ -1,129 +1,180 @@
 "use client";
 
-import { useState, useEffect } from "react";
+import { useState, useEffect, useCallback } from "react";
 import AppShell from "@/components/AppShell";
-import { Save, Trophy, Camera, Crown, CreditCard, AlertTriangle, CheckCircle2 } from "lucide-react";
+import { Save, Trophy, Camera, Crown, CreditCard, AlertTriangle, CheckCircle2, Loader2 } from "lucide-react";
 import { getLevelFromXP, MEDALS } from "@/lib/gamification";
 
 const RESTRICTIONS_OPTIONS = [
-  { id: "lactose", label: "🥛 Intolerância à Lactose", category: "intolerância" },
-  { id: "gluten", label: "🌾 Intolerância ao Glúten", category: "intolerância" },
-  { id: "vegetariano", label: "🥦 Vegetariano", category: "preferência" },
-  { id: "vegano", label: "🌱 Vegano", category: "preferência" },
-  { id: "low_carb", label: "🥑 Low Carb", category: "preferência" },
-  { id: "sem_gluten", label: "🚫 Sem Glúten", category: "preferência" },
-  { id: "sem_lactose", label: "🚫 Sem Lactose", category: "preferência" },
-  { id: "frutos_mar", label: "🦐 Alergia a Frutos do Mar", category: "alergia" },
-  { id: "amendoim", label: "🥜 Alergia a Amendoim", category: "alergia" },
-  { id: "ovos", label: "🥚 Alergia a Ovos", category: "alergia" },
-  { id: "soja", label: "🫘 Alergia a Soja", category: "alergia" },
+  { id: "lactose",    label: "🥛 Intolerância à Lactose" },
+  { id: "gluten",     label: "🌾 Intolerância ao Glúten" },
+  { id: "vegetariano",label: "🥦 Vegetariano" },
+  { id: "vegano",     label: "🌱 Vegano" },
+  { id: "low_carb",   label: "🥑 Low Carb" },
+  { id: "frutos_mar", label: "🦐 Alergia a Frutos do Mar" },
+  { id: "amendoim",   label: "🥜 Alergia a Amendoim" },
+  { id: "ovos",       label: "🥚 Alergia a Ovos" },
+  { id: "soja",       label: "🫘 Alergia a Soja" },
 ];
 
-const TOGGLE_FIELDS = [
-  { id: "fumante", label: "Fumante", emoji: "🚬", category: "Estilo de vida" },
-  { id: "alcool", label: "Consumo de álcool", emoji: "🍷", category: "Estilo de vida" },
-  { id: "diabetes", label: "Diabetes", emoji: "💉", category: "Saúde" },
-  { id: "hipertensao", label: "Hipertensão", emoji: "❤️", category: "Saúde" },
-  { id: "lesoes", label: "Lesões/limitações físicas", emoji: "🩹", category: "Saúde" },
+const HEALTH_TOGGLES = [
+  { id: "fumante",    label: "Fumante",                    emoji: "🚬" },
+  { id: "alcool",     label: "Consumo de álcool",          emoji: "🍷" },
+  { id: "diabetes",   label: "Diabetes",                   emoji: "💉" },
+  { id: "hipertensao",label: "Hipertensão",                emoji: "❤️" },
+  { id: "lesoes",     label: "Lesões / limitações físicas", emoji: "🩹" },
 ];
+
+const HEALTH_FLAGS = ["fumante", "alcool", "diabetes", "hipertensao", "lesoes"];
+
+// Lê as flags de saúde e restrições alimentares do array restrictions
+function parseRestrictions(raw: string[]) {
+  const flags: Record<string, boolean> = {};
+  HEALTH_FLAGS.forEach(f => { flags[f] = raw.includes(f); });
+  const diet   = raw.filter(r => !HEALTH_FLAGS.includes(r) && !r.startsWith("med:") && !r.startsWith("obs:"));
+  const medEntry = raw.find(r => r.startsWith("med:"));
+  const obsEntry = raw.find(r => r.startsWith("obs:"));
+  return {
+    flags,
+    diet,
+    medicamentos: medEntry ? medEntry.replace("med:", "") : "",
+    observacoes:  obsEntry ? obsEntry.replace("obs:", "") : "",
+  };
+}
+
+// Serializa tudo de volta para o array restrictions
+function serializeRestrictions(
+  flags: Record<string, boolean>,
+  diet: string[],
+  medicamentos: string,
+  observacoes: string
+): string[] {
+  return [
+    ...diet,
+    ...HEALTH_FLAGS.filter(f => flags[f]),
+    ...(medicamentos.trim() ? [`med:${medicamentos.trim()}`] : []),
+    ...(observacoes.trim()  ? [`obs:${observacoes.trim()}`]  : []),
+  ];
+}
 
 export default function ProfilePage() {
-  const [user, setUser] = useState<any>(null);
-  const [form, setForm] = useState({
-    name: "", weight: "", height: "", age: "", gender: "feminino", goal: "emagrecimento",
-    activityLevel: "moderate",
-  });
-  const [healthForm, setHealthForm] = useState({
-    fumante: false, alcool: false, diabetes: false, hipertensao: false, lesoes: false,
-    medicamentos: "", observacoes: "",
-  });
-  const [restrictions, setRestrictions] = useState<string[]>([]);
-  const [saved, setSaved] = useState(false);
-  const [saving, setSaving] = useState(false);
-  const [loading, setLoading] = useState(true);
-  const [canceling, setCanceling] = useState(false);
-  const [showCancelConfirm, setShowCancelConfirm] = useState(false);
-  const [activeTab, setActiveTab] = useState<"personal" | "health">("personal");
+  const [user, setUser]             = useState<any>(null);
+  const [loading, setLoading]       = useState(true);
+  const [saving, setSaving]         = useState(false);
+  const [saved, setSaved]           = useState(false);
+  const [saveError, setSaveError]   = useState("");
+  const [activeTab, setActiveTab]   = useState<"personal" | "health">("personal");
 
-  useEffect(() => {
-    fetch("/api/user/me")
-      .then(r => r.json())
-      .then(d => {
-        if (d.user) {
-          setUser(d.user);
-          setForm({
-            name: d.user.name ?? "",
-            weight: d.user.currentWeight?.toString() ?? "",
-            height: d.user.height?.toString() ?? "",
-            age: d.user.age?.toString() ?? "",
-            gender: d.user.gender ?? "feminino",
-            goal: d.user.goal ?? "emagrecimento",
-            activityLevel: d.user.activityLevel ?? "moderate",
-          });
-          // Parse restrictions from DB
-          const dbRestrictions = d.user.restrictions ?? [];
-          const healthFlags = ["fumante", "alcool", "diabetes", "hipertensao", "lesoes"];
-          const healthObj: any = {};
-          healthFlags.forEach(f => {
-            healthObj[f] = dbRestrictions.includes(f);
-          });
-          const dietRestrictions = dbRestrictions.filter((r: string) => !healthFlags.includes(r) && !r.startsWith("med:") && !r.startsWith("obs:"));
-          const medEntry = dbRestrictions.find((r: string) => r.startsWith("med:"));
-          const obsEntry = dbRestrictions.find((r: string) => r.startsWith("obs:"));
-          setHealthForm({
-            ...healthObj,
-            medicamentos: medEntry ? medEntry.replace("med:", "") : "",
-            observacoes: obsEntry ? obsEntry.replace("obs:", "") : "",
-          });
-          setRestrictions(dietRestrictions);
-        }
-        setLoading(false);
-      });
+  // Formulário pessoal
+  const [form, setForm] = useState({
+    name: "", weight: "", height: "", age: "",
+    gender: "feminino", goal: "emagrecimento", activityLevel: "moderate",
+  });
+
+  // Formulário saúde
+  const [healthFlags, setHealthFlags]       = useState<Record<string, boolean>>({});
+  const [dietRestrictions, setDietRestrictions] = useState<string[]>([]);
+  const [medicamentos, setMedicamentos]     = useState("");
+  const [observacoes, setObservacoes]       = useState("");
+
+  const [showCancelConfirm, setShowCancelConfirm] = useState(false);
+  const [canceling, setCanceling]           = useState(false);
+
+  // Carrega dados do usuário
+  const loadUser = useCallback(async () => {
+    try {
+      const res  = await fetch("/api/user/me");
+      const data = await res.json();
+      if (data.user) {
+        const u = data.user;
+        setUser(u);
+        setForm({
+          name:          u.name          ?? "",
+          weight:        u.currentWeight?.toString() ?? "",
+          height:        u.height?.toString()        ?? "",
+          age:           u.age?.toString()            ?? "",
+          gender:        u.gender        ?? "feminino",
+          goal:          u.goal          ?? "emagrecimento",
+          activityLevel: u.activityLevel ?? "moderate",
+        });
+        const parsed = parseRestrictions(u.restrictions ?? []);
+        setHealthFlags(parsed.flags);
+        setDietRestrictions(parsed.diet);
+        setMedicamentos(parsed.medicamentos);
+        setObservacoes(parsed.observacoes);
+      }
+    } catch (err) {
+      console.error("Erro ao carregar usuário:", err);
+    } finally {
+      setLoading(false);
+    }
   }, []);
 
-  const xp = user?.xp ?? 0;
-  const streak = user?.streakDays ?? 0;
-  const plan = user?.plan ?? "free";
-  const level = getLevelFromXP(xp);
-  const avatar = user?.avatar;
-  const isPremium = plan === "premium";
-  const isStart = plan === "start";
+  useEffect(() => { loadUser(); }, [loadUser]);
 
-  const toggleRestriction = (id: string) => {
-    setRestrictions(prev =>
+  const xp      = user?.xp        ?? 0;
+  const streak  = user?.streakDays ?? 0;
+  const plan    = user?.plan       ?? "free";
+  const level   = getLevelFromXP(xp);
+  const avatar  = user?.avatar;
+  const isPremium = plan === "premium";
+  const isStart   = plan === "start";
+
+  const toggleDiet = (id: string) => {
+    setDietRestrictions(prev =>
       prev.includes(id) ? prev.filter(r => r !== id) : [...prev, id]
     );
   };
 
+  const toggleHealth = (id: string) => {
+    setHealthFlags(prev => ({ ...prev, [id]: !prev[id] }));
+  };
+
+  // SALVAR — envia tudo para a API e recarrega os dados confirmados do servidor
   const save = async () => {
     setSaving(true);
-    // Build combined restrictions array
-    const healthFlags = Object.entries(healthForm)
-      .filter(([k, v]) => typeof v === "boolean" && v)
-      .map(([k]) => k);
-    const allRestrictions = [
-      ...restrictions,
-      ...healthFlags,
-      ...(healthForm.medicamentos ? [`med:${healthForm.medicamentos}`] : []),
-      ...(healthForm.observacoes ? [`obs:${healthForm.observacoes}`] : []),
-    ];
+    setSaved(false);
+    setSaveError("");
 
-    await fetch("/api/user/update", {
-      method: "POST",
-      headers: { "Content-Type": "application/json" },
-      body: JSON.stringify({ ...form, restrictions: allRestrictions }),
-    });
-    setSaving(false);
-    setSaved(true);
-    // Refresh user data
-    const d = await fetch("/api/user/me").then(r => r.json());
-    if (d.user) setUser(d.user);
-    setTimeout(() => setSaved(false), 3000);
+    const restrictions = serializeRestrictions(healthFlags, dietRestrictions, medicamentos, observacoes);
+
+    try {
+      const res = await fetch("/api/user/update", {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({
+          name:          form.name,
+          weight:        form.weight,
+          height:        form.height,
+          age:           form.age,
+          gender:        form.gender,
+          goal:          form.goal,
+          activityLevel: form.activityLevel,
+          restrictions,
+        }),
+      });
+
+      const data = await res.json();
+
+      if (!res.ok || data.error) {
+        setSaveError(data.error ?? "Erro ao salvar. Tente novamente.");
+        return;
+      }
+
+      // Recarrega do servidor para garantir sincronização total com o Dashboard
+      await loadUser();
+      setSaved(true);
+      setTimeout(() => setSaved(false), 4000);
+    } catch (err: any) {
+      setSaveError("Erro de conexão. Verifique sua internet.");
+    } finally {
+      setSaving(false);
+    }
   };
 
   const cancelSubscription = async () => {
     setCanceling(true);
-    const res = await fetch("/api/stripe/cancel", { method: "POST" });
+    const res  = await fetch("/api/stripe/cancel", { method: "POST" });
     const data = await res.json();
     if (data.success) {
       alert("Assinatura cancelada. Você mantém o acesso até o fim do período atual.");
@@ -148,16 +199,17 @@ export default function ProfilePage() {
     <AppShell title="Perfil">
       <div className="grid lg:grid-cols-3 gap-5 lg:gap-6">
 
-        {/* Stats card */}
+        {/* ── Card lateral ── */}
         <div className="card p-7 text-center relative overflow-hidden">
           <div className="absolute -top-10 left-1/2 -translate-x-1/2 w-48 h-48 rounded-full bg-brand-100/40 blur-3xl pointer-events-none" />
 
+          {/* Avatar */}
           <div className="relative w-24 h-24 mx-auto mb-4">
             {avatar ? (
               <img src={avatar} alt="Foto de perfil"
-                className="w-24 h-24 rounded-full object-cover border-4 border-white shadow-premium" />
+                className="w-24 h-24 rounded-full object-cover border-4 border-white shadow-lg" />
             ) : (
-              <div className="w-24 h-24 rounded-full gradient-brand flex items-center justify-center text-5xl shadow-premium border-4 border-white">
+              <div className="w-24 h-24 rounded-full gradient-brand flex items-center justify-center text-5xl shadow-lg border-4 border-white">
                 {level.emoji}
               </div>
             )}
@@ -169,14 +221,14 @@ export default function ProfilePage() {
           <p className="font-extrabold text-xl tracking-tight">{form.name || "Usuário"}</p>
           <p className="text-sm text-slate-500 mt-0.5">{level.title} · Nível {level.level}</p>
 
-          <div className="mt-3 relative">
+          <div className="mt-3">
             {isPremium && (
               <span className="inline-flex items-center gap-1.5 px-3.5 py-1.5 rounded-full gradient-brand text-white text-[11px] font-extrabold tracking-wider uppercase shadow-brand">
                 <Crown className="w-3 h-3" /> PREMIUM
               </span>
             )}
             {isStart && (
-              <span className="inline-flex items-center gap-1.5 px-3.5 py-1.5 rounded-full bg-blue-600 text-white text-[11px] font-extrabold tracking-wider uppercase shadow-soft">
+              <span className="inline-flex items-center gap-1.5 px-3.5 py-1.5 rounded-full bg-blue-600 text-white text-[11px] font-extrabold tracking-wider uppercase">
                 ⚡ START
               </span>
             )}
@@ -187,6 +239,7 @@ export default function ProfilePage() {
             )}
           </div>
 
+          {/* XP e Streak */}
           <div className="grid grid-cols-2 gap-3 mt-6">
             <div className="rounded-2xl bg-brand-50 p-4">
               <p className="text-2xl font-extrabold text-brand-700">{xp}</p>
@@ -198,12 +251,12 @@ export default function ProfilePage() {
             </div>
           </div>
 
-          {/* Active restrictions summary */}
-          {restrictions.length > 0 && (
+          {/* Restrições ativas */}
+          {dietRestrictions.length > 0 && (
             <div className="mt-4 pt-4 border-t border-slate-100 text-left">
               <p className="text-[10px] font-bold text-slate-400 uppercase tracking-wider mb-2">Restrições ativas</p>
               <div className="flex flex-wrap gap-1">
-                {restrictions.slice(0, 4).map(r => {
+                {dietRestrictions.slice(0, 4).map(r => {
                   const opt = RESTRICTIONS_OPTIONS.find(o => o.id === r);
                   return opt ? (
                     <span key={r} className="text-[10px] px-2 py-0.5 bg-brand-50 text-brand-700 rounded-full font-medium">
@@ -211,28 +264,30 @@ export default function ProfilePage() {
                     </span>
                   ) : null;
                 })}
-                {restrictions.length > 4 && (
-                  <span className="text-[10px] px-2 py-0.5 bg-slate-100 text-slate-500 rounded-full">+{restrictions.length - 4}</span>
+                {dietRestrictions.length > 4 && (
+                  <span className="text-[10px] px-2 py-0.5 bg-slate-100 text-slate-500 rounded-full">
+                    +{dietRestrictions.length - 4}
+                  </span>
                 )}
               </div>
             </div>
           )}
 
+          {/* Cancelar assinatura */}
           {isPremium && (
             <div className="mt-6 pt-5 border-t border-slate-100">
-              <button
-                onClick={() => setShowCancelConfirm(true)}
-                className="flex items-center gap-2 text-xs text-slate-400 hover:text-red-500 transition mx-auto font-medium"
-              >
+              <button onClick={() => setShowCancelConfirm(true)}
+                className="flex items-center gap-2 text-xs text-slate-400 hover:text-red-500 transition mx-auto font-medium">
                 <CreditCard className="w-3.5 h-3.5" /> Cancelar assinatura
               </button>
             </div>
           )}
         </div>
 
-        {/* Form with tabs */}
+        {/* ── Formulário com abas ── */}
         <div className="lg:col-span-2 card p-7">
-          {/* Tabs */}
+
+          {/* Abas */}
           <div className="flex gap-2 mb-6 p-1 bg-slate-100 rounded-2xl">
             {[
               { id: "personal", label: "👤 Dados pessoais" },
@@ -249,31 +304,43 @@ export default function ProfilePage() {
             ))}
           </div>
 
+          {/* Aba: Dados pessoais */}
           {activeTab === "personal" && (
             <div className="space-y-5">
               <div>
                 <h3 className="font-extrabold text-lg tracking-tight">Dados pessoais</h3>
                 <p className="text-xs text-slate-500 mt-0.5">Mantenha seus dados atualizados para um plano mais preciso</p>
               </div>
+
               <div className="grid grid-cols-2 gap-4">
-                {[
-                  { k: "name",   l: "Nome completo",  t: "text",   p: "Seu nome",  span: 2 },
-                  { k: "weight", l: "Peso atual (kg)", t: "number", p: "70",        span: 1 },
-                  { k: "height", l: "Altura (cm)",     t: "number", p: "165",       span: 1 },
-                  { k: "age",    l: "Idade",           t: "number", p: "30",        span: 1 },
-                ].map(f => (
-                  <div key={f.k} className={f.span === 2 ? "col-span-2" : ""}>
-                    <label className="text-[11px] text-slate-500 mb-1 block font-medium">{f.l}</label>
-                    <input
-                      type={f.t} placeholder={f.p} value={form[f.k as keyof typeof form] as string}
-                      onChange={e => setForm(prev => ({ ...prev, [f.k]: e.target.value }))}
-                      className="input-premium"
-                    />
-                  </div>
-                ))}
+                <div className="col-span-2">
+                  <label className="text-[11px] text-slate-500 mb-1 block font-medium">Nome completo</label>
+                  <input type="text" placeholder="Seu nome" value={form.name}
+                    onChange={e => setForm(p => ({ ...p, name: e.target.value }))}
+                    className="input-premium" />
+                </div>
+                <div>
+                  <label className="text-[11px] text-slate-500 mb-1 block font-medium">Peso atual (kg)</label>
+                  <input type="number" placeholder="70" value={form.weight}
+                    onChange={e => setForm(p => ({ ...p, weight: e.target.value }))}
+                    className="input-premium" />
+                </div>
+                <div>
+                  <label className="text-[11px] text-slate-500 mb-1 block font-medium">Altura (cm)</label>
+                  <input type="number" placeholder="165" value={form.height}
+                    onChange={e => setForm(p => ({ ...p, height: e.target.value }))}
+                    className="input-premium" />
+                </div>
+                <div>
+                  <label className="text-[11px] text-slate-500 mb-1 block font-medium">Idade</label>
+                  <input type="number" placeholder="30" value={form.age}
+                    onChange={e => setForm(p => ({ ...p, age: e.target.value }))}
+                    className="input-premium" />
+                </div>
                 <div>
                   <label className="text-[11px] text-slate-500 mb-1 block font-medium">Sexo</label>
-                  <select value={form.gender} onChange={e => setForm(p => ({ ...p, gender: e.target.value }))}
+                  <select value={form.gender}
+                    onChange={e => setForm(p => ({ ...p, gender: e.target.value }))}
                     className="input-premium bg-white">
                     <option value="feminino">Feminino</option>
                     <option value="masculino">Masculino</option>
@@ -281,7 +348,8 @@ export default function ProfilePage() {
                 </div>
                 <div>
                   <label className="text-[11px] text-slate-500 mb-1 block font-medium">Objetivo</label>
-                  <select value={form.goal} onChange={e => setForm(p => ({ ...p, goal: e.target.value }))}
+                  <select value={form.goal}
+                    onChange={e => setForm(p => ({ ...p, goal: e.target.value }))}
                     className="input-premium bg-white">
                     <option value="emagrecimento">🔥 Emagrecimento</option>
                     <option value="hipertrofia">💪 Hipertrofia</option>
@@ -292,12 +360,13 @@ export default function ProfilePage() {
                 </div>
                 <div className="col-span-2">
                   <label className="text-[11px] text-slate-500 mb-1 block font-medium">Nível de atividade física</label>
-                  <select value={form.activityLevel} onChange={e => setForm(p => ({ ...p, activityLevel: e.target.value }))}
+                  <select value={form.activityLevel}
+                    onChange={e => setForm(p => ({ ...p, activityLevel: e.target.value }))}
                     className="input-premium bg-white">
                     <option value="sedentario">😴 Sedentário (sem exercícios)</option>
-                    <option value="leve">🚶 Levemente ativo (1-3x/semana)</option>
-                    <option value="moderate">🏃 Moderadamente ativo (3-5x/semana)</option>
-                    <option value="ativo">💪 Muito ativo (6-7x/semana)</option>
+                    <option value="leve">🚶 Levemente ativo (1–3x/semana)</option>
+                    <option value="moderate">🏃 Moderadamente ativo (3–5x/semana)</option>
+                    <option value="ativo">💪 Muito ativo (6–7x/semana)</option>
                     <option value="muito_ativo">🔥 Extremamente ativo (atleta)</option>
                   </select>
                 </div>
@@ -305,6 +374,7 @@ export default function ProfilePage() {
             </div>
           )}
 
+          {/* Aba: Saúde */}
           {activeTab === "health" && (
             <div className="space-y-6">
               <div>
@@ -312,14 +382,14 @@ export default function ProfilePage() {
                 <p className="text-xs text-slate-500 mt-0.5">Informações confidenciais para personalizar seu plano</p>
               </div>
 
-              {/* Toggle fields */}
+              {/* Toggles de saúde */}
               <div>
-                <p className="text-[11px] font-bold text-slate-400 uppercase tracking-wider mb-3">Condições de saúde</p>
+                <p className="text-[11px] font-bold text-slate-400 uppercase tracking-wider mb-3">Condições</p>
                 <div className="space-y-2">
-                  {TOGGLE_FIELDS.map(f => (
-                    <div key={f.id} onClick={() => setHealthForm(p => ({ ...p, [f.id]: !p[f.id as keyof typeof p] }))}
+                  {HEALTH_TOGGLES.map(f => (
+                    <div key={f.id} onClick={() => toggleHealth(f.id)}
                       className={`flex items-center justify-between p-4 rounded-2xl border-2 cursor-pointer transition-all duration-200 ${
-                        healthForm[f.id as keyof typeof healthForm]
+                        healthFlags[f.id]
                           ? "border-brand-300 bg-brand-50"
                           : "border-slate-100 bg-white hover:border-slate-200"
                       }`}>
@@ -327,11 +397,12 @@ export default function ProfilePage() {
                         <span className="text-xl">{f.emoji}</span>
                         <span className="text-sm font-semibold text-slate-700">{f.label}</span>
                       </div>
-                      <div className={`w-11 h-6 rounded-full transition-all duration-200 relative ${
-                        healthForm[f.id as keyof typeof healthForm] ? "bg-brand-500" : "bg-slate-200"
+                      {/* Toggle visual */}
+                      <div className={`w-11 h-6 rounded-full relative transition-all duration-200 ${
+                        healthFlags[f.id] ? "bg-brand-500" : "bg-slate-200"
                       }`}>
                         <div className={`absolute top-0.5 w-5 h-5 rounded-full bg-white shadow transition-all duration-200 ${
-                          healthForm[f.id as keyof typeof healthForm] ? "left-5" : "left-0.5"
+                          healthFlags[f.id] ? "left-5" : "left-0.5"
                         }`} />
                       </div>
                     </div>
@@ -339,14 +410,14 @@ export default function ProfilePage() {
                 </div>
               </div>
 
-              {/* Dietary restrictions */}
+              {/* Pills restrições alimentares */}
               <div>
                 <p className="text-[11px] font-bold text-slate-400 uppercase tracking-wider mb-3">Restrições alimentares e alergias</p>
                 <div className="flex flex-wrap gap-2">
                   {RESTRICTIONS_OPTIONS.map(opt => (
-                    <button key={opt.id} onClick={() => toggleRestriction(opt.id)}
+                    <button key={opt.id} onClick={() => toggleDiet(opt.id)}
                       className={`px-3 py-2 rounded-full text-xs font-bold transition-all duration-200 border-2 ${
-                        restrictions.includes(opt.id)
+                        dietRestrictions.includes(opt.id)
                           ? "gradient-brand text-white border-transparent shadow-sm"
                           : "border-slate-200 text-slate-600 hover:border-brand-300 bg-white"
                       }`}>
@@ -356,20 +427,20 @@ export default function ProfilePage() {
                 </div>
               </div>
 
-              {/* Text fields */}
+              {/* Campos extras */}
               <div className="space-y-4">
                 <div>
                   <label className="text-[11px] text-slate-500 mb-1 block font-medium">💊 Medicamentos em uso</label>
                   <input type="text" placeholder="Ex: metformina, losartana..."
-                    value={healthForm.medicamentos}
-                    onChange={e => setHealthForm(p => ({ ...p, medicamentos: e.target.value }))}
+                    value={medicamentos}
+                    onChange={e => setMedicamentos(e.target.value)}
                     className="input-premium" />
                 </div>
                 <div>
                   <label className="text-[11px] text-slate-500 mb-1 block font-medium">📝 Observações adicionais</label>
                   <textarea placeholder="Ex: tenho refluxo, dores nas articulações..."
-                    value={healthForm.observacoes}
-                    onChange={e => setHealthForm(p => ({ ...p, observacoes: e.target.value }))}
+                    value={observacoes}
+                    onChange={e => setObservacoes(e.target.value)}
                     rows={3}
                     className="input-premium resize-none" />
                 </div>
@@ -377,22 +448,30 @@ export default function ProfilePage() {
             </div>
           )}
 
-          {/* Save button */}
-          <div className="mt-6 pt-4 border-t border-slate-100">
+          {/* Botão salvar + feedback */}
+          <div className="mt-6 pt-5 border-t border-slate-100 space-y-3">
             {saved && (
-              <div className="flex items-center gap-2 text-brand-700 bg-brand-50 border border-brand-100 rounded-2xl px-4 py-3 mb-4 text-sm font-medium">
-                <CheckCircle2 className="w-4 h-4 shrink-0" />
-                Perfil salvo com sucesso! O Dashboard foi atualizado.
+              <div className="flex items-center gap-2 text-brand-700 bg-brand-50 border border-brand-100 rounded-2xl px-4 py-3 text-sm font-medium">
+                <CheckCircle2 className="w-4 h-4 shrink-0 text-brand-600" />
+                Perfil salvo com sucesso! Dados sincronizados com o Painel.
               </div>
             )}
-            <button onClick={save} disabled={saving} className="btn-primary gap-2 disabled:opacity-60">
-              <Save className="w-4 h-4" />
-              {saving ? "Salvando..." : saved ? "✓ Salvo!" : "Salvar perfil"}
+            {saveError && (
+              <div className="flex items-center gap-2 text-red-700 bg-red-50 border border-red-100 rounded-2xl px-4 py-3 text-sm font-medium">
+                <AlertTriangle className="w-4 h-4 shrink-0" />
+                {saveError}
+              </div>
+            )}
+            <button onClick={save} disabled={saving}
+              className="btn-primary gap-2 disabled:opacity-60 disabled:cursor-not-allowed">
+              {saving
+                ? <><Loader2 className="w-4 h-4 animate-spin" /> Salvando...</>
+                : <><Save className="w-4 h-4" /> Salvar perfil</>}
             </button>
           </div>
         </div>
 
-        {/* Medals */}
+        {/* ── Medalhas ── */}
         <div className="lg:col-span-3 card p-7">
           <div className="flex items-center justify-between mb-5">
             <h3 className="font-extrabold flex items-center gap-2 tracking-tight">
@@ -415,9 +494,10 @@ export default function ProfilePage() {
         </div>
       </div>
 
+      {/* Modal cancelar */}
       {showCancelConfirm && (
-        <div className="fixed inset-0 bg-slate-900/60 backdrop-blur-sm flex items-center justify-center z-50 p-4 animate-fade-in">
-          <div className="card p-6 max-w-sm w-full shadow-premium">
+        <div className="fixed inset-0 bg-slate-900/60 backdrop-blur-sm flex items-center justify-center z-50 p-4">
+          <div className="card p-6 max-w-sm w-full shadow-2xl">
             <div className="flex items-center gap-3 mb-4">
               <div className="w-11 h-11 bg-red-100 rounded-2xl flex items-center justify-center">
                 <AlertTriangle className="w-5 h-5 text-red-500" />
@@ -432,7 +512,7 @@ export default function ProfilePage() {
                 Manter plano
               </button>
               <button onClick={cancelSubscription} disabled={canceling}
-                className="flex-1 bg-gradient-to-r from-red-500 to-red-600 hover:from-red-600 hover:to-red-700 text-white font-bold py-3 px-4 rounded-full transition-all duration-200 hover:-translate-y-0.5 disabled:opacity-60 shadow-soft">
+                className="flex-1 bg-gradient-to-r from-red-500 to-red-600 text-white font-bold py-3 px-4 rounded-full transition-all duration-200 disabled:opacity-60">
                 {canceling ? "Cancelando..." : "Confirmar"}
               </button>
             </div>

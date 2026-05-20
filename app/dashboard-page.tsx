@@ -112,7 +112,7 @@ export default function DashboardPage() {
             <div className="text-white">
               <p className="text-xs font-bold uppercase tracking-widest text-white/70">{level.title}</p>
               <p className="text-2xl font-extrabold">Nível {level.level} · {xp} XP</p>
-              {nextLevel && <p className="text-sm text-white/80">Faltam {nextLevel.xpMin - xp} XP para o Nível {nextLevel.level}</p>}
+              {nextLevel && <p className="text-sm text-white/80">Faltam {nextLevel.minXP - xp} XP para o Nível {nextLevel.level}</p>}
             </div>
           </div>
           <button

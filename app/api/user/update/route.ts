@@ -7,27 +7,36 @@ export async function POST(req: Request) {
   try {
     const supabase = await createServerSupabaseClient();
     const { data: { user: supabaseUser } } = await supabase.auth.getUser();
-    if (!supabaseUser) return NextResponse.json({ error: "Não autenticado" }, { status: 401 });
+    if (!supabaseUser) {
+      return NextResponse.json({ error: "Não autenticado" }, { status: 401 });
+    }
 
     const body = await req.json();
     const { name, weight, height, age, gender, goal, activityLevel, restrictions } = body;
 
-    await prisma.user.update({
+    // Garante que o usuário existe antes de atualizar
+    const exists = await prisma.user.findUnique({ where: { id: supabaseUser.id }, select: { id: true } });
+    if (!exists) {
+      return NextResponse.json({ error: "Usuário não encontrado no banco de dados" }, { status: 404 });
+    }
+
+    const updated = await prisma.user.update({
       where: { id: supabaseUser.id },
       data: {
-        name: name || undefined,
-        currentWeight: weight ? parseFloat(weight) : undefined,
-        height: height ? parseFloat(height) : undefined,
-        age: age ? parseInt(age) : undefined,
-        gender: gender || undefined,
-        goal: goal || undefined,
-        activityLevel: activityLevel || undefined,
-        ...(Array.isArray(restrictions) ? { restrictions } : {}),
+        ...(name           !== undefined && name !== ""    ? { name }                            : {}),
+        ...(weight         !== undefined && weight !== ""  ? { currentWeight: parseFloat(weight) } : {}),
+        ...(height         !== undefined && height !== ""  ? { height: parseFloat(height) }       : {}),
+        ...(age            !== undefined && age !== ""     ? { age: parseInt(age) }               : {}),
+        ...(gender         !== undefined && gender !== ""  ? { gender }                           : {}),
+        ...(goal           !== undefined && goal !== ""    ? { goal }                             : {}),
+        ...(activityLevel  !== undefined && activityLevel !== "" ? { activityLevel }              : {}),
+        ...(Array.isArray(restrictions)                    ? { restrictions }                     : {}),
       },
     });
 
-    return NextResponse.json({ success: true });
+    return NextResponse.json({ success: true, user: updated });
   } catch (error: any) {
-    return NextResponse.json({ error: error.message }, { status: 500 });
+    console.error("[user/update] error:", error);
+    return NextResponse.json({ error: error.message ?? "Erro interno" }, { status: 500 });
   }
 }
