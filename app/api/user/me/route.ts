@@ -66,8 +66,8 @@ export async function GET() {
       },
     });
 
-    const waterToday = user?.waterLogs?.reduce((acc, w) => acc + w.amount, 0) ?? 0;
-    const checkinToday = user?.habits?.find(c => c.loggedAt >= startOfToday()) ?? null;
+    const waterToday = user?.waterLogs?.reduce((acc: number, w: { amount: number }) => acc + w.amount, 0) ?? 0;
+    const checkinToday = user?.habits?.find((c: { loggedAt: Date }) => c.loggedAt >= startOfToday()) ?? null;
 
     return NextResponse.json({ user, waterToday, checkinToday });
   } catch (error: any) {

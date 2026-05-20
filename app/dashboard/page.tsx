@@ -6,6 +6,7 @@ import { Flame, Droplets, Target, Trophy, TrendingUp, Zap, ChevronRight, Brain, 
 import { LineChart, Line, BarChart, Bar, XAxis, YAxis, CartesianGrid, Tooltip, ResponsiveContainer } from "recharts";
 import Link from "next/link";
 import { getLevelFromXP, getNextLevel, getXPProgress } from "@/lib/gamification";
+import PremiumConversionCard from "@/components/PremiumConversionCard";
 
 export default function DashboardPage() {
   const [user, setUser] = useState<any>(null);
@@ -260,6 +261,11 @@ export default function DashboardPage() {
         ))}
       </div>
 
+      {/* Premium conversion / FOMO */}
+      <div className="mb-6">
+        <PremiumConversionCard user={user} />
+      </div>
+
       {/* Water tracker */}
       <div className="card p-5 sm:p-6 mb-6">
         <div className="flex items-center justify-between mb-4">
@@ -388,8 +394,8 @@ export default function DashboardPage() {
         <div className="mt-6 card p-5 sm:p-6 gradient-brand text-white flex items-center justify-between gap-4 flex-wrap relative overflow-hidden shadow-premium">
           <div className="absolute inset-0 bg-[radial-gradient(circle_at_top_right,rgba(255,255,255,0.18),transparent_60%)] pointer-events-none" />
           <div className="relative">
-            <p className="font-extrabold text-lg tracking-tight">Desbloqueie o potencial completo 🚀</p>
-            <p className="text-sm text-white/85 mt-1">Meal AI ilimitado, receitas exclusivas e muito mais</p>
+            <p className="font-extrabold text-lg tracking-tight">Sua evolução avançada está bloqueada 🚀</p>
+            <p className="text-sm text-white/85 mt-1">Desbloqueie projeção 30/90 dias, IA emocional e ajustes premium.</p>
           </div>
           <Link
             href="/membership"
