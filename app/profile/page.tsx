@@ -2,7 +2,7 @@
 
 import { useState, useEffect, useCallback } from "react";
 import AppShell from "@/components/AppShell";
-import { Save, Trophy, Camera, Crown, CreditCard, AlertTriangle, CheckCircle2, Loader2 } from "lucide-react";
+import { Save, Trophy, Camera, Crown, CreditCard, AlertTriangle, CheckCircle2, Loader2, Trash2, XCircle } from "lucide-react";
 import { getLevelFromXP, MEDALS } from "@/lib/gamification";
 
 const RESTRICTIONS_OPTIONS = [
@@ -79,6 +79,10 @@ export default function ProfilePage() {
 
   const [showCancelConfirm, setShowCancelConfirm] = useState(false);
   const [canceling, setCanceling]           = useState(false);
+  const [showDeleteConfirm, setShowDeleteConfirm] = useState(false);
+  const [deleteConfirmation, setDeleteConfirmation] = useState("");
+  const [deletingAccount, setDeletingAccount] = useState(false);
+  const [deleteError, setDeleteError] = useState("");
 
   // Carrega dados do usuário
   const loadUser = useCallback(async () => {
@@ -184,6 +188,31 @@ export default function ProfilePage() {
       alert("Erro ao cancelar: " + data.error);
     }
     setCanceling(false);
+  };
+
+  const deleteAccount = async () => {
+    setDeletingAccount(true);
+    setDeleteError("");
+
+    try {
+      const res = await fetch("/api/user/delete", {
+        method: "DELETE",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({ confirmation: deleteConfirmation.trim() }),
+      });
+      const data = await res.json();
+
+      if (!res.ok || data.error) {
+        setDeleteError(data.error ?? "Erro ao excluir conta. Tente novamente.");
+        return;
+      }
+
+      window.location.href = "/login?deleted=1";
+    } catch {
+      setDeleteError("Erro de conexão. Verifique sua internet e tente novamente.");
+    } finally {
+      setDeletingAccount(false);
+    }
   };
 
   if (loading) return (
@@ -494,6 +523,34 @@ export default function ProfilePage() {
         </div>
       </div>
 
+
+
+      {/* Zona de perigo */}
+      <div className="mt-6 card p-6 border border-red-100 bg-red-50/40">
+        <div className="flex flex-col sm:flex-row sm:items-start sm:justify-between gap-4">
+          <div>
+            <div className="inline-flex items-center gap-2 px-3 py-1 rounded-full bg-red-100 text-red-700 text-[11px] font-extrabold uppercase tracking-wider mb-3">
+              <AlertTriangle className="w-3.5 h-3.5" /> Zona de perigo
+            </div>
+            <h3 className="font-extrabold text-slate-900">Excluir conta definitivamente</h3>
+            <p className="text-sm text-slate-600 mt-1 leading-relaxed max-w-2xl">
+              Isso remove seus dados do Levefy, apaga seu acesso e cancela qualquer mensalidade ativa para evitar novas cobranças.
+              Essa ação não pode ser desfeita.
+            </p>
+          </div>
+          <button
+            onClick={() => {
+              setDeleteError("");
+              setDeleteConfirmation("");
+              setShowDeleteConfirm(true);
+            }}
+            className="inline-flex items-center justify-center gap-2 px-4 py-3 rounded-2xl bg-white border border-red-200 text-red-600 hover:bg-red-600 hover:text-white transition font-extrabold text-sm shadow-sm"
+          >
+            <Trash2 className="w-4 h-4" /> Excluir conta
+          </button>
+        </div>
+      </div>
+
       {/* Modal cancelar */}
       {showCancelConfirm && (
         <div className="fixed inset-0 bg-slate-900/60 backdrop-blur-sm flex items-center justify-center z-50 p-4">
@@ -514,6 +571,67 @@ export default function ProfilePage() {
               <button onClick={cancelSubscription} disabled={canceling}
                 className="flex-1 bg-gradient-to-r from-red-500 to-red-600 text-white font-bold py-3 px-4 rounded-full transition-all duration-200 disabled:opacity-60">
                 {canceling ? "Cancelando..." : "Confirmar"}
+              </button>
+            </div>
+          </div>
+        </div>
+      )}
+
+      {showDeleteConfirm && (
+        <div className="fixed inset-0 bg-slate-950/70 backdrop-blur-sm flex items-center justify-center z-[9999] p-4">
+          <div className="bg-white rounded-[2rem] p-6 max-w-md w-full shadow-2xl border border-red-100">
+            <div className="flex items-start justify-between gap-4 mb-5">
+              <div className="flex items-center gap-3">
+                <div className="w-12 h-12 bg-red-100 rounded-2xl flex items-center justify-center shrink-0">
+                  <Trash2 className="w-5 h-5 text-red-600" />
+                </div>
+                <div>
+                  <h3 className="font-extrabold text-lg text-slate-900">Excluir conta?</h3>
+                  <p className="text-xs text-slate-500">Ação permanente</p>
+                </div>
+              </div>
+              <button onClick={() => setShowDeleteConfirm(false)} className="p-2 rounded-full hover:bg-slate-100">
+                <XCircle className="w-5 h-5 text-slate-400" />
+              </button>
+            </div>
+
+            <div className="rounded-2xl bg-red-50 border border-red-100 p-4 text-sm text-red-800 leading-relaxed mb-4">
+              <p className="font-bold mb-1">O que acontece ao confirmar:</p>
+              <ul className="list-disc list-inside space-y-1 text-xs">
+                <li>seus dados, progresso e check-ins serão removidos;</li>
+                <li>sua mensalidade ativa será cancelada imediatamente;</li>
+                <li>o login será removido do Supabase;</li>
+                <li>essa ação não poderá ser desfeita.</li>
+              </ul>
+            </div>
+
+            <label className="text-xs font-bold text-slate-500 uppercase tracking-wider mb-2 block">
+              Digite EXCLUIR para confirmar
+            </label>
+            <input
+              value={deleteConfirmation}
+              onChange={(e) => setDeleteConfirmation(e.target.value)}
+              placeholder="EXCLUIR"
+              className="input-premium mb-3"
+            />
+
+            {deleteError && (
+              <div className="flex items-center gap-2 text-red-700 bg-red-50 border border-red-100 rounded-2xl px-4 py-3 text-sm font-medium mb-3">
+                <AlertTriangle className="w-4 h-4 shrink-0" />
+                {deleteError}
+              </div>
+            )}
+
+            <div className="flex gap-3">
+              <button onClick={() => setShowDeleteConfirm(false)} className="flex-1 btn-ghost">
+                Manter conta
+              </button>
+              <button
+                onClick={deleteAccount}
+                disabled={deletingAccount || deleteConfirmation.trim() !== "EXCLUIR"}
+                className="flex-1 bg-gradient-to-r from-red-500 to-red-700 text-white font-extrabold py-3 px-4 rounded-full transition-all duration-200 disabled:opacity-50 disabled:cursor-not-allowed"
+              >
+                {deletingAccount ? "Excluindo..." : "Excluir agora"}
               </button>
             </div>
           </div>

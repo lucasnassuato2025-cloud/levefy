@@ -1,6 +1,6 @@
 "use client";
 import { useRouter } from "next/navigation";
-import { useState } from "react";
+import { useEffect, useState } from "react";
 import Logo from "@/components/Logo";
 import { GoogleButton } from "@/components/GoogleButton";
 import { auth } from "@/lib/auth";
@@ -18,6 +18,15 @@ export default function LoginPage() {
   const [success, setSuccess] = useState<string | null>(null);
   const [pendingConfirmationEmail, setPendingConfirmationEmail] = useState<string | null>(null);
   const [existingAccountEmail, setExistingAccountEmail] = useState<string | null>(null);
+
+  useEffect(() => {
+    if (typeof window === "undefined") return;
+    const params = new URLSearchParams(window.location.search);
+    if (params.get("deleted") === "1") {
+      setSuccess("Sua conta foi excluída com sucesso. Qualquer mensalidade ativa também foi cancelada.");
+      window.history.replaceState({}, "", "/login");
+    }
+  }, []);
 
   const resetFeedback = () => {
     setError(null);
