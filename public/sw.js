@@ -67,3 +67,33 @@ self.addEventListener("fetch", (event) => {
     )
   );
 });
+
+// Habit loop notifications: ready for future push reminders.
+self.addEventListener("push", (event) => {
+  let payload = { title: "Levefy", body: "Seu check-in de hoje está esperando por você 🔥", url: "/dashboard" };
+  try {
+    if (event.data) payload = { ...payload, ...event.data.json() };
+  } catch {}
+
+  event.waitUntil(
+    self.registration.showNotification(payload.title, {
+      body: payload.body,
+      icon: "/favicon.ico",
+      badge: "/favicon.ico",
+      data: { url: payload.url || "/dashboard" },
+    })
+  );
+});
+
+self.addEventListener("notificationclick", (event) => {
+  event.notification.close();
+  const url = event.notification.data?.url || "/dashboard";
+  event.waitUntil(
+    clients.matchAll({ type: "window", includeUncontrolled: true }).then((clientList) => {
+      for (const client of clientList) {
+        if (client.url.includes(url) && "focus" in client) return client.focus();
+      }
+      if (clients.openWindow) return clients.openWindow(url);
+    })
+  );
+});

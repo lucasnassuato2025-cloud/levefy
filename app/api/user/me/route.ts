@@ -39,7 +39,7 @@ export async function GET() {
           },
         });
 
-    const waterToday = user.waterLogs?.reduce((acc, w) => acc + w.amount, 0) ?? 0;
+    const waterToday = user.waterLogs?.reduce((acc: number, w: { amount: number }) => acc + w.amount, 0) ?? 0;
     return NextResponse.json({ user, waterToday });
   } catch (error: any) {
     return NextResponse.json({ user: null, error: error.message });

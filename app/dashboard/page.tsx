@@ -2,6 +2,7 @@
 
 import { useState, useEffect } from "react";
 import AppShell from "@/components/AppShell";
+import HabitLoopCenter from "@/components/HabitLoopCenter";
 import { Flame, Droplets, Target, Trophy, TrendingUp, Zap, ChevronRight, Brain, Lock, Sparkles, ArrowRight } from "lucide-react";
 import { LineChart, Line, BarChart, Bar, XAxis, YAxis, CartesianGrid, Tooltip, ResponsiveContainer } from "recharts";
 import Link from "next/link";
@@ -155,6 +156,8 @@ export default function DashboardPage() {
           </div>
         ))}
       </div>
+
+      <HabitLoopCenter user={user} />
 
       {/* Water tracker */}
       <div className="card p-5 sm:p-6 mb-6">
