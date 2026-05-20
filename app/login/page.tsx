@@ -16,6 +16,7 @@ export default function LoginPage() {
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState<string | null>(null);
   const [success, setSuccess] = useState<string | null>(null);
+  const [pendingConfirmationEmail, setPendingConfirmationEmail] = useState<string | null>(null);
 
   const onSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
@@ -28,15 +29,36 @@ export default function LoginPage() {
         await syncCurrentUser();
         router.push("/dashboard");
       } else if (mode === "register") {
-        await auth.signUp(form.name, form.email, form.password);
-        setSuccess("Conta criada! Verifique seu e-mail para confirmar o cadastro.");
+        const result = await auth.signUp(form.name, form.email, form.password);
+        if (result.session) {
+          await syncCurrentUser();
+          router.push("/onboarding");
+          return;
+        }
+        setPendingConfirmationEmail(form.email);
+        setSuccess("Conta criada! Enviamos o link de confirmação para seu e-mail. Depois de confirmar, você será levado ao onboarding.");
       } else {
         await auth.sendPasswordReset(form.email);
-        setSuccess("Link de redefinição enviado! Cheque sua caixa de entrada.");
+        setSuccess("Link de redefinição enviado! Cheque sua caixa de entrada e também o spam.");
         setMode("login");
       }
     } catch (err: unknown) {
       setError(err instanceof Error ? err.message : "Algo deu errado. Tente novamente.");
+    } finally {
+      setLoading(false);
+    }
+  };
+
+  const resendConfirmation = async () => {
+    if (!pendingConfirmationEmail) return;
+    setError(null);
+    setSuccess(null);
+    setLoading(true);
+    try {
+      await auth.resendSignupConfirmation(pendingConfirmationEmail);
+      setSuccess("Reenviamos o e-mail de confirmação. Confira a caixa de entrada, spam e promoções.");
+    } catch (err: unknown) {
+      setError(err instanceof Error ? err.message : "Não conseguimos reenviar agora. Tente novamente em instantes.");
     } finally {
       setLoading(false);
     }
@@ -76,9 +98,30 @@ export default function LoginPage() {
               </div>
             )}
             {success && (
-              <div className="flex items-center gap-2 rounded-xl bg-green-50 border border-green-200 px-4 py-3 text-sm text-green-700">
-                <CheckCircle className="w-4 h-4 shrink-0" />
-                {success}
+              <div className="rounded-xl bg-green-50 border border-green-200 px-4 py-3 text-sm text-green-700">
+                <div className="flex items-start gap-2">
+                  <CheckCircle className="w-4 h-4 shrink-0 mt-0.5" />
+                  <span>{success}</span>
+                </div>
+                {mode === "register" && pendingConfirmationEmail && (
+                  <div className="mt-3 flex flex-col sm:flex-row gap-2">
+                    <button
+                      type="button"
+                      onClick={resendConfirmation}
+                      disabled={loading}
+                      className="rounded-lg bg-green-600 px-3 py-2 text-xs font-bold text-white disabled:opacity-60"
+                    >
+                      Reenviar e-mail
+                    </button>
+                    <button
+                      type="button"
+                      onClick={() => setMode("login")}
+                      className="rounded-lg border border-green-200 px-3 py-2 text-xs font-bold text-green-800"
+                    >
+                      Já confirmei, entrar
+                    </button>
+                  </div>
+                )}
               </div>
             )}
             {mode === "register" && (
@@ -92,7 +135,7 @@ export default function LoginPage() {
                 value={form.password} onChange={v=>setForm({...form, password: v})}/>
             )}
             {mode === "login" && (
-              <button type="button" onClick={()=>setMode("forgot")} className="text-sm text-brand-700 font-semibold">Esqueceu a senha?</button>
+              <button type="button" onClick={()=>{ setMode("forgot"); setError(null); setSuccess(null); setPendingConfirmationEmail(null); }} className="text-sm text-brand-700 font-semibold">Esqueceu a senha?</button>
             )}
             <button type="submit" disabled={loading} className="btn-primary w-full mt-2 disabled:opacity-60">
               {loading ? "Aguarde..." :
@@ -114,9 +157,9 @@ export default function LoginPage() {
           )}
 
           <p className="mt-8 text-sm text-slate-600 text-center">
-            {mode === "login" && (<>Novo aqui? <button onClick={()=>setMode("register")} className="text-brand-700 font-semibold">Criar conta</button></>)}
-            {mode === "register" && (<>Já tem uma conta? <button onClick={()=>setMode("login")} className="text-brand-700 font-semibold">Entrar</button></>)}
-            {mode === "forgot" && (<button onClick={()=>setMode("login")} className="text-brand-700 font-semibold">Voltar para o login</button>)}
+            {mode === "login" && (<>Novo aqui? <button onClick={()=>{ setMode("register"); setError(null); setSuccess(null); setPendingConfirmationEmail(null); }} className="text-brand-700 font-semibold">Criar conta</button></>)}
+            {mode === "register" && (<>Já tem uma conta? <button onClick={()=>{ setMode("login"); setError(null); setSuccess(null); setPendingConfirmationEmail(null); }} className="text-brand-700 font-semibold">Entrar</button></>)}
+            {mode === "forgot" && (<button onClick={()=>{ setMode("login"); setError(null); setSuccess(null); setPendingConfirmationEmail(null); }} className="text-brand-700 font-semibold">Voltar para o login</button>)}
           </p>
         </div>
       </div>

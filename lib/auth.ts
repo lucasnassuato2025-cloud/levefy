@@ -3,7 +3,15 @@ import { createClient } from "@/lib/supabase";
 
 export type AuthError = { message: string };
 
-const siteUrl = process.env.NEXT_PUBLIC_SITE_URL || "https://levefy-mu.vercel.app";
+function getSiteUrl() {
+  return (
+    process.env.NEXT_PUBLIC_SITE_URL ||
+    process.env.NEXT_PUBLIC_APP_URL ||
+    "https://levefy-mu.vercel.app"
+  ).replace(/\/$/, "");
+}
+
+const siteUrl = getSiteUrl();
 
 export const auth = {
   async signInWithEmail(email: string, password: string) {
@@ -14,10 +22,29 @@ export const auth = {
 
   async signUp(name: string, email: string, password: string) {
     const supabase = createClient();
-    const { error } = await supabase.auth.signUp({
-      email,
+    const { data, error } = await supabase.auth.signUp({
+      email: email.trim().toLowerCase(),
       password,
-      options: { data: { full_name: name } },
+      options: {
+        data: {
+          full_name: name.trim(),
+          name: name.trim(),
+        },
+        emailRedirectTo: `${siteUrl}/auth/callback?next=/onboarding`,
+      },
+    });
+    if (error) throw new Error(error.message);
+    return data;
+  },
+
+  async resendSignupConfirmation(email: string) {
+    const supabase = createClient();
+    const { error } = await supabase.auth.resend({
+      type: "signup",
+      email: email.trim().toLowerCase(),
+      options: {
+        emailRedirectTo: `${siteUrl}/auth/callback?next=/onboarding`,
+      },
     });
     if (error) throw new Error(error.message);
   },
@@ -39,7 +66,7 @@ export const auth = {
 
   async sendPasswordReset(email: string) {
     const supabase = createClient();
-    const { error } = await supabase.auth.resetPasswordForEmail(email, {
+    const { error } = await supabase.auth.resetPasswordForEmail(email.trim().toLowerCase(), {
       redirectTo: `${siteUrl}/auth/callback?next=/profile`,
     });
     if (error) throw new Error(error.message);
