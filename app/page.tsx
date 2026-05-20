@@ -657,6 +657,10 @@ export default function LandingPage() {
         <div className="max-w-6xl mx-auto px-5 py-8 flex flex-col sm:flex-row items-center justify-between gap-4">
           <Logo light />
           <div className="flex flex-col items-center sm:items-end gap-1 text-center sm:text-right">
+            <div className="mb-1 flex items-center gap-4 text-xs font-semibold text-slate-600">
+              <Link href="/privacy" className="hover:text-slate-300">Privacidade</Link>
+              <Link href="/terms" className="hover:text-slate-300">Termos</Link>
+            </div>
             <p className="text-slate-600 text-xs">© {new Date().getFullYear()} Levefy · Todos os direitos reservados</p>
             <p className="text-slate-700 text-xs font-medium">
               Lucas Nassuato da Silva

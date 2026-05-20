@@ -7,6 +7,7 @@ import { Flame, Droplets, Target, Trophy, TrendingUp, Zap, ChevronRight, Brain, 
 import { LineChart, Line, BarChart, Bar, XAxis, YAxis, CartesianGrid, Tooltip, ResponsiveContainer } from "recharts";
 import Link from "next/link";
 import { getLevelFromXP, getNextLevel, getXPProgress } from "@/lib/gamification";
+import { trackConversion } from "@/lib/tracking";
 
 export default function DashboardPage() {
   const [user, setUser] = useState<any>(null);
@@ -22,6 +23,28 @@ export default function DashboardPage() {
         setLoading(false);
       })
       .catch(() => setLoading(false));
+  }, []);
+
+  useEffect(() => {
+    if (typeof window === "undefined") return;
+
+    const params = new URLSearchParams(window.location.search);
+    const checkoutSuccess = params.get("checkout") === "success" || params.get("success") === "true";
+    if (!checkoutSuccess) return;
+
+    const trackingKey = `levefy_purchase_${window.location.search}`;
+    if (window.sessionStorage.getItem(trackingKey)) return;
+    window.sessionStorage.setItem(trackingKey, "1");
+
+    const planFromUrl = (params.get("plan") ?? "PREMIUM").toUpperCase();
+    const value = planFromUrl === "START" ? 27 : 19;
+    trackConversion("Purchase", {
+      content_name: `Levefy ${planFromUrl}`,
+      currency: "BRL",
+      value,
+    });
+
+    window.history.replaceState({}, "", window.location.pathname);
   }, []);
 
   const xp = user?.xp ?? 0;

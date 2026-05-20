@@ -5,6 +5,7 @@ import Link from "next/link";
 import { useRouter } from "next/navigation";
 import { ArrowLeft, ArrowRight, Brain, CheckCircle2, Flame, Lock, Sparkles, Target, Trophy, Zap } from "lucide-react";
 import { buildEmotionalInsight, estimateProjection, getDifficultyLabel, getGoalLabel } from "@/lib/onboarding";
+import { trackConversion } from "@/lib/tracking";
 
 type Step = 0 | 1 | 2 | 3 | 4 | 5;
 
@@ -110,6 +111,7 @@ export default function OnboardingPage() {
       });
       const data = await res.json();
       if (!res.ok || data.error) throw new Error(data.error || "Erro ao salvar onboarding");
+      trackConversion("CompleteRegistration", { method: "onboarding" });
       router.push("/dashboard?onboarding=complete");
       router.refresh();
     } catch (err: any) {

@@ -1,10 +1,12 @@
 "use client";
 import { useRouter } from "next/navigation";
+import Link from "next/link";
 import { useEffect, useState } from "react";
 import Logo from "@/components/Logo";
 import { GoogleButton } from "@/components/GoogleButton";
 import { auth } from "@/lib/auth";
 import { syncCurrentUser } from "@/app/actions/sync-user";
+import { trackConversion } from "@/lib/tracking";
 import { Mail, Lock, User, AlertCircle, CheckCircle } from "lucide-react";
 
 type Mode = "login" | "register" | "forgot";
@@ -90,9 +92,11 @@ export default function LoginPage() {
         const result = await auth.signUp(form.name, form.email, form.password);
         if (result.session) {
           await syncCurrentUser();
+          trackConversion("Lead", { method: "email" });
           router.push("/onboarding");
           return;
         }
+        trackConversion("Lead", { method: "email_confirmation" });
         setPendingConfirmationEmail(form.email);
         setSuccess("Conta criada! Enviamos o link de confirmação para seu e-mail. Depois de confirmar, você será levado ao onboarding.");
       } else {
@@ -245,6 +249,12 @@ export default function LoginPage() {
             {mode === "login" && (<>Novo aqui? <button onClick={goToRegister} className="text-brand-700 font-semibold">Criar conta</button></>)}
             {mode === "register" && (<>Já tem uma conta? <button onClick={()=>goToLogin(form.email)} className="text-brand-700 font-semibold">Entrar</button></>)}
             {mode === "forgot" && (<button onClick={()=>goToLogin(form.email)} className="text-brand-700 font-semibold">Voltar para o login</button>)}
+          </p>
+          <p className="mt-4 text-center text-[11px] leading-relaxed text-slate-400">
+            Ao continuar, você concorda com{" "}
+            <Link href="/terms" className="font-semibold text-slate-500 hover:text-brand-700">Termos</Link>
+            {" "}e{" "}
+            <Link href="/privacy" className="font-semibold text-slate-500 hover:text-brand-700">Privacidade</Link>.
           </p>
         </div>
       </div>

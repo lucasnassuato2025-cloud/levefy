@@ -23,7 +23,7 @@ export async function POST(req: Request) {
     const sessionData: any = {
       line_items: [{ price: planConfig.priceId, quantity: 1 }],
       mode: planConfig.mode,
-      success_url: `${siteUrl}/dashboard?success=true`,
+      success_url: `${siteUrl}/dashboard?checkout=success&plan=${encodeURIComponent(plan)}`,
       cancel_url: `${siteUrl}/membership`,
       customer_email: user?.email ?? undefined,
       metadata: { userId: user?.id ?? "", plan },

@@ -4,6 +4,7 @@ import AppShell from "@/components/AppShell";
 import { Check, Zap, Crown, Star, ShieldCheck, Lock, TrendingUp, Sparkles, Brain } from "lucide-react";
 import { useState } from "react";
 import { FREE_VALUE_STACK, PREMIUM_VALUE_STACK } from "@/lib/plan-access";
+import { trackConversion } from "@/lib/tracking";
 
 const CAKTO_START_URL = "https://pay.cakto.com.br/3aaao4n_890593";
 
@@ -54,6 +55,13 @@ export default function Membership() {
   const [loading, setLoading] = useState<string | null>(null);
 
   const checkout = async (plan: string) => {
+    const value = plan === "START" ? 27 : 19;
+    trackConversion("InitiateCheckout", {
+      content_name: `Levefy ${plan}`,
+      currency: "BRL",
+      value,
+    });
+
     if (plan === "START") {
       window.location.href = CAKTO_START_URL;
       return;

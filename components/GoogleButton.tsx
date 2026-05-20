@@ -1,6 +1,7 @@
 "use client";
 import { useState } from "react";
 import { auth } from "@/lib/auth";
+import { trackConversion } from "@/lib/tracking";
 
 export function GoogleButton({ label = "Continuar com Google" }: { label?: string }) {
   const [loading, setLoading] = useState(false);
@@ -15,6 +16,7 @@ export function GoogleButton({ label = "Continuar com Google" }: { label?: strin
           setLoading(true);
           setError(null);
           try {
+            trackConversion("Lead", { method: "google" });
             await auth.signInWithGoogle();
             // Supabase redireciona para /auth/callback — nenhum router.push necessário
           } catch (err: unknown) {
