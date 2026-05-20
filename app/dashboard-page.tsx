@@ -7,6 +7,7 @@ import { LineChart, Line, BarChart, Bar, XAxis, YAxis, CartesianGrid, Tooltip, R
 import Link from "next/link";
 import { useRouter } from "next/navigation";
 import { getLevelFromXP, getNextLevel, getXPProgress } from "@/lib/gamification";
+import { normalizePlan, PREMIUM_VALUE_STACK } from "@/lib/plan-access";
 
 const EXPERTS = [
   {
@@ -64,8 +65,8 @@ export default function DashboardPage() {
 
   const xp = user?.xp ?? 0;
   const streak = user?.streakDays ?? 0;
-  const plan = user?.plan ?? "free";
-  const isPaid = plan === "premium" || plan === "start";
+  const plan = normalizePlan(user?.plan);
+  const isPaid = plan !== "free";
 
   const level = getLevelFromXP(xp);
   const nextLevel = getNextLevel(xp);
@@ -156,6 +157,63 @@ export default function DashboardPage() {
             <p className="text-xs text-slate-400 mt-0.5">{s.sub}</p>
           </div>
         ))}
+      </div>
+
+
+
+      {/* Free/Premium activation */}
+      <div className="grid lg:grid-cols-2 gap-5 mb-6">
+        <div className="bg-white rounded-3xl border border-slate-100 p-6 shadow-sm relative overflow-hidden">
+          <div className="absolute top-0 right-0 w-32 h-32 bg-brand-50 rounded-full blur-3xl opacity-80" />
+          <div className="relative">
+            <div className="flex items-center gap-3 mb-4">
+              <div className="w-10 h-10 rounded-2xl gradient-brand flex items-center justify-center text-white shadow-brand">
+                <BadgeCheck className="w-5 h-5" />
+              </div>
+              <div>
+                <h3 className="font-extrabold">Check-in diário</h3>
+                <p className="text-xs text-slate-500">O hábito que faz o usuário voltar amanhã.</p>
+              </div>
+            </div>
+            <div className="grid grid-cols-3 gap-2 mb-4">
+              {["Alimentei bem", "Bebi água", "Segui plano"].map((item, i) => (
+                <button key={item} className="rounded-2xl border border-slate-100 bg-slate-50 p-3 text-center hover:border-brand-200 hover:bg-brand-50 transition-colors">
+                  <span className="block text-xl mb-1">{["🥗", "💧", "🔥"][i]}</span>
+                  <span className="text-[10px] font-bold text-slate-600 leading-tight">{item}</span>
+                </button>
+              ))}
+            </div>
+            <p className="text-xs text-brand-700 font-bold bg-brand-50 border border-brand-100 rounded-2xl p-3">
+              +30 XP por check-in completo · mantenha seu streak ativo
+            </p>
+          </div>
+        </div>
+
+        <div className={`rounded-3xl p-6 shadow-sm relative overflow-hidden ${isPaid ? "gradient-brand text-white" : "bg-slate-950 text-white"}`}>
+          <div className="absolute inset-0 bg-[radial-gradient(circle_at_top_right,rgba(34,197,94,0.35),transparent_60%)]" />
+          <div className="relative">
+            <div className="flex items-center justify-between gap-3 mb-4">
+              <div>
+                <p className="text-xs font-extrabold uppercase tracking-widest text-white/60">{isPaid ? "Premium ativo" : "Upgrade inteligente"}</p>
+                <h3 className="font-extrabold text-xl mt-1">{isPaid ? "Seu plano está acelerado" : "Desbloqueie sua transformação guiada"}</h3>
+              </div>
+              <Star className="w-8 h-8 text-amber-300 fill-amber-300" />
+            </div>
+            <ul className="space-y-2 mb-5">
+              {PREMIUM_VALUE_STACK.slice(0, 4).map(item => (
+                <li key={item} className="flex items-start gap-2 text-sm text-white/80">
+                  <span className="mt-1 w-1.5 h-1.5 rounded-full bg-emerald-300 shrink-0" />
+                  {item}
+                </li>
+              ))}
+            </ul>
+            {!isPaid && (
+              <Link href="/membership" className="inline-flex items-center gap-2 bg-white text-slate-950 font-extrabold px-5 py-3 rounded-full text-sm hover:-translate-y-0.5 transition-transform">
+                Ver planos <ChevronRight className="w-4 h-4" />
+              </Link>
+            )}
+          </div>
+        </div>
       </div>
 
       {/* Hidratação */}

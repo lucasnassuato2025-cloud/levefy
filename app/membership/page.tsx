@@ -1,8 +1,9 @@
 "use client";
 
 import AppShell from "@/components/AppShell";
-import { Check, Zap, Crown, Star, ShieldCheck } from "lucide-react";
+import { Check, Zap, Crown, Star, ShieldCheck, Lock, TrendingUp, Sparkles, Brain } from "lucide-react";
 import { useState } from "react";
+import { FREE_VALUE_STACK, PREMIUM_VALUE_STACK } from "@/lib/plan-access";
 
 const CAKTO_START_URL = "https://pay.cakto.com.br/3aaao4n_890593";
 
@@ -11,7 +12,8 @@ const plans = [
     name: "Grátis",
     price: "R$ 0",
     per: "para sempre",
-    features: ["Receitas básicas", "Controle de peso", "Dashboard simples"],
+    description: "Para sentir o valor do Levefy e criar o primeiro hábito.",
+    features: FREE_VALUE_STACK,
     cta: "Plano atual",
     disabled: true,
   },
@@ -19,8 +21,9 @@ const plans = [
     name: "START",
     price: "R$ 27",
     per: "pagamento único",
+    description: "Entrada de baixo risco para quem quer começar hoje.",
     icon: Zap,
-    features: ["Meal AI (5 gerações)", "Receitas exclusivas", "Plano alimentar", "Desafio 7 dias", "Acesso vitalício"],
+    features: ["5 gerações Meal AI", "Receitas exclusivas", "Plano alimentar inicial", "Desafio 7 dias", "Acesso vitalício ao START"],
     cta: "Comprar START",
     plan: "START",
     pix: true,
@@ -29,21 +32,22 @@ const plans = [
     name: "PREMIUM",
     price: "R$ 19",
     per: "/mês",
+    description: "Transformação guiada com IA, rotina e progresso contínuo.",
     icon: Crown,
-    features: [
-      "Meal AI ilimitado",
-      "Dashboard avançado + gráficos",
-      "Plano semanal completo",
-      "Lista de compras automática",
-      "Histórico e progresso",
-      "Streak diário + gamificação",
-      "Receitas premium",
-      "Suporte prioritário",
-    ],
+    features: PREMIUM_VALUE_STACK,
     cta: "Assinar PREMIUM",
     plan: "PREMIUM",
     featured: true,
   },
+];
+
+const comparison = [
+  ["Plano IA semanal", "1x", "5x", "Ilimitado"],
+  ["Check-in diário + streak", "Sim", "Sim", "Sim"],
+  ["Receitas premium", "Prévia", "Selecionadas", "Ilimitadas"],
+  ["Lista de compras", "Simples", "Semanal", "Automática"],
+  ["Projeção de evolução", "Bloqueada", "30 dias", "30 e 90 dias"],
+  ["Insights avançados", "Bloqueado", "Básico", "Completo"],
 ];
 
 export default function Membership() {
@@ -73,18 +77,39 @@ export default function Membership() {
 
   return (
     <AppShell title="Área Premium">
-      <div className="max-w-2xl mb-10">
-        <p className="text-slate-600 text-base sm:text-lg leading-relaxed">
-          Desbloqueie todo o potencial do Levefy com um plano premium.
-        </p>
-        <div className="mt-3 inline-flex items-center gap-2 px-3.5 py-1.5 rounded-full bg-brand-50 border border-brand-100">
-          <span className="relative flex h-2 w-2">
-            <span className="animate-ping absolute inline-flex h-full w-full rounded-full bg-brand-500 opacity-75" />
-            <span className="relative inline-flex rounded-full h-2 w-2 bg-brand-600" />
-          </span>
-          <span className="text-xs font-bold text-brand-700">
-            Mais de 2.800 pessoas já transformaram sua alimentação
-          </span>
+      <div className="relative overflow-hidden rounded-[2rem] gradient-brand text-white p-6 sm:p-8 mb-8 shadow-premium">
+        <div className="absolute inset-0 bg-[radial-gradient(circle_at_top_right,rgba(255,255,255,0.25),transparent_55%)]" />
+        <div className="relative grid lg:grid-cols-[1.4fr_.8fr] gap-6 items-center">
+          <div>
+            <div className="inline-flex items-center gap-2 px-3 py-1 rounded-full bg-white/15 border border-white/20 text-xs font-extrabold uppercase tracking-wider mb-4">
+              <Sparkles className="w-3.5 h-3.5" /> Upgrade inteligente
+            </div>
+            <h2 className="text-2xl sm:text-4xl font-extrabold tracking-tight leading-tight">
+              Free cria o hábito. Premium acelera a transformação.
+            </h2>
+            <p className="mt-3 text-white/80 max-w-2xl">
+              O Levefy foi organizado para entregar valor rápido no grátis e destravar personalização, recorrência e acompanhamento profundo no pago.
+            </p>
+          </div>
+          <div className="bg-white/12 backdrop-blur rounded-3xl p-5 border border-white/15">
+            <div className="flex items-center gap-3 mb-3">
+              <Brain className="w-8 h-8 text-emerald-100" />
+              <div>
+                <p className="font-extrabold">Momento WOW Premium</p>
+                <p className="text-xs text-white/70">Projeção personalizada para o usuário sentir o valor.</p>
+              </div>
+            </div>
+            <div className="grid grid-cols-2 gap-3 text-center">
+              <div className="rounded-2xl bg-white/12 p-3">
+                <p className="text-2xl font-extrabold">30 dias</p>
+                <p className="text-xs text-white/70">rota de evolução</p>
+              </div>
+              <div className="rounded-2xl bg-white/12 p-3">
+                <p className="text-2xl font-extrabold">90 dias</p>
+                <p className="text-xs text-white/70">visão de resultado</p>
+              </div>
+            </div>
+          </div>
         </div>
       </div>
 
@@ -100,7 +125,7 @@ export default function Membership() {
           >
             {p.featured && (
               <span className="absolute -top-3 left-1/2 -translate-x-1/2 px-4 py-1.5 rounded-full gradient-brand text-white text-[11px] font-extrabold tracking-wider uppercase flex items-center gap-1 shadow-brand">
-                <Star className="w-3 h-3 fill-current" /> Mais popular
+                <Star className="w-3 h-3 fill-current" /> Melhor para resultado
               </span>
             )}
             {p.pix && (
@@ -110,14 +135,21 @@ export default function Membership() {
             )}
 
             <div className="flex items-center gap-2.5 mb-4">
-              {p.icon && (
+              {p.icon ? (
                 <div className={`w-10 h-10 rounded-2xl flex items-center justify-center ${
                   p.featured ? "gradient-brand shadow-brand" : "bg-brand-50"
                 }`}>
                   <p.icon className={`w-5 h-5 ${p.featured ? "text-white" : "text-brand-600"}`} />
                 </div>
+              ) : (
+                <div className="w-10 h-10 rounded-2xl bg-slate-100 flex items-center justify-center">
+                  <Lock className="w-5 h-5 text-slate-400" />
+                </div>
               )}
-              <h3 className="font-extrabold text-xl tracking-tight">{p.name}</h3>
+              <div>
+                <h3 className="font-extrabold text-xl tracking-tight">{p.name}</h3>
+                <p className="text-xs text-slate-500 mt-0.5">{p.description}</p>
+              </div>
             </div>
 
             <p className="mb-2 leading-none">
@@ -155,6 +187,32 @@ export default function Membership() {
             </button>
           </div>
         ))}
+      </div>
+
+      <div className="mt-10 card overflow-hidden">
+        <div className="p-5 sm:p-6 border-b border-slate-100 flex items-center gap-2">
+          <TrendingUp className="w-5 h-5 text-brand-600" />
+          <h3 className="font-extrabold">Comparação clara: Free x START x PREMIUM</h3>
+        </div>
+        <div className="overflow-x-auto">
+          <table className="w-full text-sm">
+            <thead className="bg-slate-50 text-slate-500">
+              <tr>
+                <th className="text-left p-4 font-bold">Recurso</th>
+                <th className="text-left p-4 font-bold">Free</th>
+                <th className="text-left p-4 font-bold">START</th>
+                <th className="text-left p-4 font-bold text-brand-700">PREMIUM</th>
+              </tr>
+            </thead>
+            <tbody>
+              {comparison.map(row => (
+                <tr key={row[0]} className="border-t border-slate-100">
+                  {row.map((cell, i) => <td key={i} className={`p-4 ${i === 0 ? "font-semibold text-slate-800" : "text-slate-600"}`}>{cell}</td>)}
+                </tr>
+              ))}
+            </tbody>
+          </table>
+        </div>
       </div>
 
       <div className="mt-10 card p-6 sm:p-7 gradient-brand-soft border border-brand-100">

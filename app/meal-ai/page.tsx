@@ -2,8 +2,9 @@
 
 import { useState, useEffect } from "react";
 import AppShell from "@/components/AppShell";
-import { Sparkles, Brain, Loader2, ChevronDown, RefreshCw, Calendar, Star, BadgeCheck, Gift } from "lucide-react";
+import { Sparkles, Brain, Loader2, ChevronDown, RefreshCw, Calendar, Star, BadgeCheck, Gift, Crown, Lock } from "lucide-react";
 import type { MealSlot, MacroResult } from "@/lib/meal-engine";
+import Link from "next/link";
 
 const LOADING_STEPS = [
   "Analisando perfil nutricional...",
@@ -298,6 +299,37 @@ export default function MealAIPage() {
                       {m.u && <p className="text-[10px] opacity-60">{m.u}</p>}
                     </div>
                   ))}
+                </div>
+              </div>
+
+              {/* WOW projection */}
+              <div className="grid sm:grid-cols-2 gap-4">
+                <div className="card p-5 bg-gradient-to-br from-brand-50 to-emerald-50 border-brand-100">
+                  <div className="flex items-center gap-2 mb-3">
+                    <Sparkles className="w-4 h-4 text-brand-700" />
+                    <h3 className="font-extrabold text-sm text-brand-900">Projeção de 30 dias</h3>
+                  </div>
+                  <p className="text-3xl font-extrabold text-brand-700 leading-none">
+                    {form.goal === "hipertrofia" ? "+1 a +3kg" : "-2 a -5kg"}
+                  </p>
+                  <p className="text-xs text-slate-600 mt-2 leading-relaxed">
+                    Estimativa educativa baseada em consistência, macros e check-ins. O Premium acompanha e ajusta essa rota todos os dias.
+                  </p>
+                </div>
+                <div className="card p-5 bg-slate-950 text-white relative overflow-hidden">
+                  <div className="absolute inset-0 bg-[radial-gradient(circle_at_top_right,rgba(34,197,94,0.35),transparent_60%)]" />
+                  <div className="relative">
+                    <div className="flex items-center gap-2 mb-3">
+                      <Crown className="w-4 h-4 text-amber-300" />
+                      <h3 className="font-extrabold text-sm">Premium desbloqueia ajustes diários</h3>
+                    </div>
+                    <p className="text-xs text-white/70 leading-relaxed mb-4">
+                      Troque refeições, gere novos dias, monte lista de compras e veja a rota de 90 dias sem limite.
+                    </p>
+                    <Link href="/membership" className="inline-flex items-center gap-2 bg-white text-slate-950 px-4 py-2 rounded-full text-xs font-extrabold">
+                      <Lock className="w-3.5 h-3.5" /> Desbloquear Premium
+                    </Link>
+                  </div>
                 </div>
               </div>
 
