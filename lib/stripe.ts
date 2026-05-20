@@ -23,7 +23,7 @@ export function getStripe(): Stripe {
     const key = process.env.STRIPE_SECRET_KEY;
     if (!key) throw new Error("STRIPE_SECRET_KEY não configurada.");
     _stripe = new Stripe(key, {
-      apiVersion: "2024-06-20",
+      apiVersion: "2025-02-24.acacia",
       typescript: true,
     });
   }
