@@ -2,73 +2,26 @@
 
 import { useState, useEffect } from "react";
 import AppShell from "@/components/AppShell";
-import { Flame, Droplets, Target, Trophy, TrendingUp, Zap, ChevronRight, Brain, Lock } from "lucide-react";
+import { Flame, Droplets, Target, Trophy, TrendingUp, Zap, ChevronRight, Brain, Lock, Sparkles, ArrowRight } from "lucide-react";
 import { LineChart, Line, BarChart, Bar, XAxis, YAxis, CartesianGrid, Tooltip, ResponsiveContainer } from "recharts";
 import Link from "next/link";
 import { getLevelFromXP, getNextLevel, getXPProgress } from "@/lib/gamification";
-import PremiumConversionCard from "@/components/PremiumConversionCard";
 
 export default function DashboardPage() {
   const [user, setUser] = useState<any>(null);
   const [loading, setLoading] = useState(true);
   const [water, setWater] = useState(0);
-  const [checkin, setCheckin] = useState<any>(null);
-  const [checkinLoading, setCheckinLoading] = useState(false);
-  const [checkinMessage, setCheckinMessage] = useState("");
-  const [daily, setDaily] = useState({ water: false, workout: false, diet: false, mood: "" });
 
   useEffect(() => {
-    Promise.all([
-      fetch("/api/user/me").then(r => r.json()),
-      fetch("/api/checkin/today").then(r => r.ok ? r.json() : null).catch(() => null),
-    ])
-      .then(([d, c]) => {
-        setUser(d.user ?? c?.user ?? null);
+    fetch("/api/user/me")
+      .then(r => r.json())
+      .then(d => {
+        setUser(d.user ?? null);
         setWater(d.waterToday ?? 0);
-        if (c?.checkin) {
-          setCheckin(c.checkin);
-          setDaily({
-            water: Boolean(c.checkin.water),
-            workout: Boolean(c.checkin.workout),
-            diet: Boolean(c.checkin.diet),
-            mood: c.checkin.mood ?? "",
-          });
-        }
         setLoading(false);
       })
       .catch(() => setLoading(false));
   }, []);
-
-  const toggleDaily = (key: "water" | "workout" | "diet") => {
-    if (checkin) return;
-    setDaily(prev => ({ ...prev, [key]: !prev[key] }));
-  };
-
-  const submitCheckin = async () => {
-    if (checkin || checkinLoading) return;
-    setCheckinLoading(true);
-    setCheckinMessage("");
-    try {
-      const res = await fetch("/api/checkin/today", {
-        method: "POST",
-        headers: { "Content-Type": "application/json" },
-        body: JSON.stringify(daily),
-      });
-      const data = await res.json();
-      if (!res.ok || data.error) {
-        setCheckinMessage(data.error ?? "Não foi possível salvar seu check-in.");
-        return;
-      }
-      setCheckin(data.checkin);
-      if (data.user) setUser(data.user);
-      setCheckinMessage(data.message ?? `+${data.xpEarned ?? 0} XP adicionados hoje!`);
-      if (daily.water && water < 2500) setWater(2500);
-    } catch {
-      setCheckinMessage("Erro de conexão. Tente novamente.");
-    } finally {
-      setCheckinLoading(false);
-    }
-  };
 
   const xp = user?.xp ?? 0;
   const streak = user?.streakDays ?? 0;
@@ -93,6 +46,8 @@ export default function DashboardPage() {
   })) ?? [];
 
   const hasProgress = weightData.length > 0;
+  const onboardingComplete = Boolean(user?.currentWeight && user?.height && user?.age && user?.goal && user?.activityLevel);
+  const firstName = user?.name?.split(" ")?.[0] || "Você";
 
   if (loading) return (
     <AppShell title="Painel">
@@ -155,92 +110,32 @@ export default function DashboardPage() {
         )}
       </div>
 
-
-
-      {/* Daily Check-in */}
-      <div className="card p-5 sm:p-6 mb-6 relative overflow-hidden border-brand-100">
-        <div className="absolute -top-12 -left-12 w-40 h-40 bg-brand-100/50 rounded-full blur-3xl pointer-events-none" />
-        <div className="relative flex items-start justify-between gap-4 flex-wrap mb-4">
-          <div>
-            <p className="text-[11px] text-brand-700 font-bold uppercase tracking-[0.16em]">Check-in diário</p>
-            <h2 className="font-extrabold text-xl tracking-tight mt-1">
-              {checkin ? "Missão de hoje concluída 🔥" : "Ganhe XP cuidando de você hoje"}
-            </h2>
-            <p className="text-sm text-slate-500 mt-1">
-              {checkin
-                ? "Volte amanhã para manter sua sequência viva."
-                : "Marque o que você já fez e construa seu hábito diário."}
-            </p>
+      {/* Onboarding conversion banner */}
+      {!onboardingComplete && (
+        <Link
+          href="/onboarding"
+          className="group block mb-6 rounded-[2rem] bg-slate-950 text-white p-5 sm:p-7 relative overflow-hidden shadow-2xl hover:-translate-y-0.5 transition-all duration-300"
+        >
+          <div className="absolute inset-0 bg-[radial-gradient(circle_at_top_right,rgba(34,197,94,0.38),transparent_60%)]" />
+          <div className="relative flex items-center justify-between gap-5 flex-wrap">
+            <div className="flex items-start gap-4">
+              <div className="w-12 h-12 rounded-2xl gradient-brand flex items-center justify-center shadow-brand shrink-0">
+                <Sparkles className="w-6 h-6 text-white" />
+              </div>
+              <div>
+                <p className="text-xs font-extrabold uppercase tracking-widest text-emerald-300 mb-1">Ative sua transformação IA</p>
+                <h2 className="text-xl sm:text-2xl font-extrabold tracking-tight">{firstName}, falta seu quiz de 60 segundos.</h2>
+                <p className="text-sm text-white/70 mt-1 max-w-xl">
+                  Complete seu perfil emocional para liberar projeção 30/90 dias, metas reais e um painel feito para seu objetivo.
+                </p>
+              </div>
+            </div>
+            <span className="inline-flex items-center gap-2 rounded-full bg-white text-slate-950 px-5 py-3 text-sm font-extrabold group-hover:scale-105 transition-transform">
+              Começar quiz <ArrowRight className="w-4 h-4" />
+            </span>
           </div>
-          <div className="px-3 py-2 rounded-2xl bg-orange-50 text-orange-700 text-xs font-extrabold border border-orange-100">
-            {checkin ? `+${checkin.xpEarned ?? 0} XP hoje` : "Até +75 XP"}
-          </div>
-        </div>
-
-        <div className="grid sm:grid-cols-3 gap-3 relative">
-          {[
-            { key: "water", emoji: "💧", title: "Bebi água", desc: "Hidratação em dia" },
-            { key: "workout", emoji: "🏋️", title: "Me movimentei", desc: "Treino ou caminhada" },
-            { key: "diet", emoji: "🥗", title: "Segui o plano", desc: "Alimentação consciente" },
-          ].map(item => {
-            const active = Boolean((daily as any)[item.key]);
-            return (
-              <button
-                key={item.key}
-                type="button"
-                onClick={() => toggleDaily(item.key as "water" | "workout" | "diet")}
-                className={`text-left p-4 rounded-2xl border-2 transition-all duration-200 ${
-                  active
-                    ? "border-brand-300 bg-brand-50 shadow-soft"
-                    : "border-slate-100 bg-white hover:border-brand-200 hover:-translate-y-0.5"
-                } ${checkin ? "cursor-default" : "cursor-pointer"}`}
-              >
-                <div className="flex items-center justify-between gap-3">
-                  <span className="text-2xl">{item.emoji}</span>
-                  <span className={`w-6 h-6 rounded-full flex items-center justify-center text-xs font-black ${active ? "bg-brand-600 text-white" : "bg-slate-100 text-slate-300"}`}>
-                    ✓
-                  </span>
-                </div>
-                <p className="font-bold text-sm mt-3">{item.title}</p>
-                <p className="text-xs text-slate-500 mt-0.5">{item.desc}</p>
-              </button>
-            );
-          })}
-        </div>
-
-        <div className="relative mt-4 grid sm:grid-cols-[1fr_auto] gap-3 items-center">
-          <select
-            disabled={Boolean(checkin)}
-            value={daily.mood}
-            onChange={e => setDaily(prev => ({ ...prev, mood: e.target.value }))}
-            className="input-premium bg-white disabled:opacity-70"
-          >
-            <option value="">Como você está se sentindo hoje?</option>
-            <option value="motivado">😄 Motivado(a)</option>
-            <option value="normal">🙂 Normal</option>
-            <option value="cansado">😴 Cansado(a)</option>
-            <option value="ansioso">😟 Ansioso(a)</option>
-            <option value="orgulhoso">🔥 Orgulhoso(a)</option>
-          </select>
-          <button
-            type="button"
-            onClick={submitCheckin}
-            disabled={Boolean(checkin) || checkinLoading}
-            className="btn-primary px-6 py-3 disabled:opacity-60 disabled:cursor-not-allowed"
-          >
-            {checkinLoading ? "Salvando..." : checkin ? "Concluído" : "Salvar check-in"}
-          </button>
-        </div>
-
-        {(checkinMessage || checkin) && (
-          <div className="relative mt-4 rounded-2xl bg-slate-50 border border-slate-100 p-4 text-sm text-slate-700">
-            <strong className="text-brand-700">Levefy IA:</strong>{" "}
-            {checkinMessage || (streak > 1
-              ? `Você manteve sua sequência por ${streak} dias. Seu hábito está ficando mais forte.`
-              : "Você concluiu a missão de hoje. Amanhã tem mais XP esperando por você.")}
-          </div>
-        )}
-      </div>
+        </Link>
+      )}
 
       {/* Stats row */}
       <div className="grid grid-cols-2 lg:grid-cols-4 gap-3 sm:gap-4 mb-6">
@@ -259,11 +154,6 @@ export default function DashboardPage() {
             <p className="text-[11px] text-slate-500 mt-0.5">{s.sub}</p>
           </div>
         ))}
-      </div>
-
-      {/* Premium conversion / FOMO */}
-      <div className="mb-6">
-        <PremiumConversionCard user={user} />
       </div>
 
       {/* Water tracker */}
@@ -394,8 +284,8 @@ export default function DashboardPage() {
         <div className="mt-6 card p-5 sm:p-6 gradient-brand text-white flex items-center justify-between gap-4 flex-wrap relative overflow-hidden shadow-premium">
           <div className="absolute inset-0 bg-[radial-gradient(circle_at_top_right,rgba(255,255,255,0.18),transparent_60%)] pointer-events-none" />
           <div className="relative">
-            <p className="font-extrabold text-lg tracking-tight">Sua evolução avançada está bloqueada 🚀</p>
-            <p className="text-sm text-white/85 mt-1">Desbloqueie projeção 30/90 dias, IA emocional e ajustes premium.</p>
+            <p className="font-extrabold text-lg tracking-tight">Desbloqueie o potencial completo 🚀</p>
+            <p className="text-sm text-white/85 mt-1">Meal AI ilimitado, receitas exclusivas e muito mais</p>
           </div>
           <Link
             href="/membership"

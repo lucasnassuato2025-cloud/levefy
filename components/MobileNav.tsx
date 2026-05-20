@@ -1,12 +1,12 @@
 "use client";
 import Link from "next/link";
 import { usePathname, useRouter } from "next/navigation";
-import { LayoutDashboard, UtensilsCrossed, Trophy, User, Crown, LogOut } from "lucide-react";
+import { LayoutDashboard, UtensilsCrossed, Trophy, User, Crown, LogOut, Sparkles } from "lucide-react";
 import { auth } from "@/lib/auth";
 
 const items = [
   { href: "/dashboard",  icon: LayoutDashboard, label: "Painel" },
-  { href: "/recipes",    icon: UtensilsCrossed, label: "Receitas" },
+  { href: "/onboarding", icon: Sparkles,        label: "Quiz" },
   { href: "/challenge",  icon: Trophy,           label: "Desafio" },
   { href: "/profile",    icon: User,             label: "Perfil" },
   { href: "/membership", icon: Crown,            label: "Premium" },

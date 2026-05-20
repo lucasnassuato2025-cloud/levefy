@@ -1,7 +1,7 @@
 "use client";
 import Link from "next/link";
 import { usePathname, useRouter } from "next/navigation";
-import { LayoutDashboard, UtensilsCrossed, Trophy, User, Crown, Shield, LogOut, Brain } from "lucide-react";
+import { LayoutDashboard, UtensilsCrossed, Trophy, User, Crown, Shield, LogOut, Brain, Sparkles } from "lucide-react";
 import Logo from "./Logo";
 import DownloadAppButton from "./DownloadAppButton";
 import { auth } from "@/lib/auth";
@@ -9,6 +9,7 @@ import { auth } from "@/lib/auth";
 const nav = [
   { href: "/dashboard",  label: "Painel",          icon: LayoutDashboard, emoji: "📊" },
   { href: "/meal-ai",    label: "Meal AI",         icon: Brain,           emoji: "🧠" },
+  { href: "/onboarding", label: "Quiz IA",          icon: Sparkles,        emoji: "✨" },
   { href: "/recipes",    label: "Receitas",        icon: UtensilsCrossed, emoji: "🍽️" },
   { href: "/challenge",  label: "Desafio 21 Dias", icon: Trophy,          emoji: "🏆" },
   { href: "/profile",    label: "Perfil",          icon: User,            emoji: "👤" },

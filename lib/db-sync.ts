@@ -7,17 +7,28 @@ import type { User as SupabaseUser } from "@supabase/supabase-js";
 
 export async function syncUserToDatabase(supabaseUser: SupabaseUser): Promise<void> {
   try {
-    await prisma.user.upsert({
-      where: { email: supabaseUser.email! },
-      update: {
-        name: supabaseUser.user_metadata?.full_name ?? undefined,
-        avatar: supabaseUser.user_metadata?.avatar_url ?? undefined,
-      },
-      create: {
+    const existing = await prisma.user.findFirst({
+      where: { OR: [{ id: supabaseUser.id }, { email: supabaseUser.email! }] },
+    });
+
+    const avatar = supabaseUser.user_metadata?.avatar_url ?? supabaseUser.user_metadata?.picture ?? null;
+    if (existing) {
+      await prisma.user.update({
+        where: { id: existing.id },
+        data: {
+          name: existing.name ?? supabaseUser.user_metadata?.full_name ?? undefined,
+          avatar: existing.avatar ?? avatar ?? undefined,
+        },
+      });
+      return;
+    }
+
+    await prisma.user.create({
+      data: {
         id: supabaseUser.id,
         email: supabaseUser.email!,
         name: supabaseUser.user_metadata?.full_name ?? null,
-        avatar: supabaseUser.user_metadata?.avatar_url ?? null,
+        avatar,
       },
     });
   } catch (error) {

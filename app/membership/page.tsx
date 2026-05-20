@@ -2,9 +2,8 @@
 
 import AppShell from "@/components/AppShell";
 import { Check, Zap, Crown, Star, ShieldCheck, Lock, TrendingUp, Sparkles, Brain } from "lucide-react";
-import { useEffect, useState } from "react";
+import { useState } from "react";
 import { FREE_VALUE_STACK, PREMIUM_VALUE_STACK } from "@/lib/plan-access";
-import PremiumConversionCard from "@/components/PremiumConversionCard";
 
 const CAKTO_START_URL = "https://pay.cakto.com.br/3aaao4n_890593";
 
@@ -22,9 +21,9 @@ const plans = [
     name: "START",
     price: "R$ 27",
     per: "pagamento único",
-    description: "Desafio de baixo risco para sair do zero hoje.",
+    description: "Entrada de baixo risco para quem quer começar hoje.",
     icon: Zap,
-    features: ["5 gerações Meal AI", "Projeção de 30 dias liberada", "Receitas exclusivas", "Plano alimentar inicial", "Desafio 7 dias", "Acesso vitalício ao START"],
+    features: ["5 gerações Meal AI", "Receitas exclusivas", "Plano alimentar inicial", "Desafio 7 dias", "Acesso vitalício ao START"],
     cta: "Comprar START",
     plan: "START",
     pix: true,
@@ -33,7 +32,7 @@ const plans = [
     name: "PREMIUM",
     price: "R$ 19",
     per: "/mês",
-    description: "Transformação guiada com IA emocional, rotina e progresso contínuo.",
+    description: "Transformação guiada com IA, rotina e progresso contínuo.",
     icon: Crown,
     features: PREMIUM_VALUE_STACK,
     cta: "Assinar PREMIUM",
@@ -53,14 +52,6 @@ const comparison = [
 
 export default function Membership() {
   const [loading, setLoading] = useState<string | null>(null);
-  const [user, setUser] = useState<any>(null);
-
-  useEffect(() => {
-    fetch("/api/user/me")
-      .then(r => r.ok ? r.json() : null)
-      .then(data => setUser(data?.user ?? null))
-      .catch(() => setUser(null));
-  }, []);
 
   const checkout = async (plan: string) => {
     if (plan === "START") {
@@ -97,7 +88,7 @@ export default function Membership() {
               Free cria o hábito. Premium acelera a transformação.
             </h2>
             <p className="mt-3 text-white/80 max-w-2xl">
-              O Free cria consistência. O START tira você do zero. O Premium desbloqueia projeções, ajustes diários e uma IA que acompanha sua transformação.
+              O Levefy foi organizado para entregar valor rápido no grátis e destravar personalização, recorrência e acompanhamento profundo no pago.
             </p>
           </div>
           <div className="bg-white/12 backdrop-blur rounded-3xl p-5 border border-white/15">
@@ -120,10 +111,6 @@ export default function Membership() {
             </div>
           </div>
         </div>
-      </div>
-
-      <div className="mb-8">
-        <PremiumConversionCard user={user} variant="membership" />
       </div>
 
       <div className="grid md:grid-cols-3 gap-5 lg:gap-6 items-stretch">
