@@ -9,7 +9,8 @@ export async function POST(req: Request) {
     const { data: { user: supabaseUser } } = await supabase.auth.getUser();
     if (!supabaseUser) return NextResponse.json({ error: "Não autenticado" }, { status: 401 });
 
-    const { name, weight, height, age, gender, goal } = await req.json();
+    const body = await req.json();
+    const { name, weight, height, age, gender, goal, activityLevel, restrictions } = body;
 
     await prisma.user.update({
       where: { id: supabaseUser.id },
@@ -20,6 +21,8 @@ export async function POST(req: Request) {
         age: age ? parseInt(age) : undefined,
         gender: gender || undefined,
         goal: goal || undefined,
+        activityLevel: activityLevel || undefined,
+        ...(Array.isArray(restrictions) ? { restrictions } : {}),
       },
     });
 

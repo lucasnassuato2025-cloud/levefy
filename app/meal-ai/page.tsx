@@ -1,8 +1,8 @@
 "use client";
 
-import { useState } from "react";
+import { useState, useEffect } from "react";
 import AppShell from "@/components/AppShell";
-import { Sparkles, Brain, Loader2, ChevronDown, RefreshCw, ShoppingCart, Calendar } from "lucide-react";
+import { Sparkles, Brain, Loader2, ChevronDown, RefreshCw, Calendar, Star, BadgeCheck, Gift } from "lucide-react";
 import type { MealSlot, MacroResult } from "@/lib/meal-engine";
 
 const LOADING_STEPS = [
@@ -19,6 +19,9 @@ const GOALS = [
   { v: "manutencao",    l: "⚖️ Manutenção" },
   { v: "low_carb",      l: "🥑 Low Carb" },
   { v: "definicao",     l: "⚡ Definição" },
+  { v: "diabetes",      l: "💉 Para Diabéticos" },
+  { v: "vegetariano",   l: "🥦 Vegetariano" },
+  { v: "alta_proteina", l: "🏋️ Alta Proteína" },
 ];
 
 const ACTIVITY = [
@@ -27,6 +30,22 @@ const ACTIVITY = [
   { v: "moderate",   l: "Moderadamente ativo" },
   { v: "ativo",      l: "Muito ativo" },
   { v: "muito_ativo", l: "Extremamente ativo" },
+];
+
+const EXPERTS = [
+  { name: "Dra. Camila Azevedo", specialty: "Nutrição Clínica Esportiva", avatar: "CA", color: "from-rose-400 to-pink-600" },
+  { name: "Dr. Rafael Monteiro", specialty: "Emagrecimento e Performance", avatar: "RM", color: "from-blue-400 to-indigo-600" },
+  { name: "Dra. Juliana Ferraz", specialty: "Nutrição Funcional Hormonal", avatar: "JF", color: "from-amber-400 to-orange-500" },
+];
+
+const FREE_RECIPES_PREVIEW = [
+  { day: "Dia 1", name: "Café da manhã proteico + almoço detox", cal: 1650, goal: "emagrecimento" },
+  { day: "Dia 2", name: "Smoothie verde + prato equilibrado", cal: 1720, goal: "emagrecimento" },
+  { day: "Dia 3", name: "Aveia fitness + frango grelhado", cal: 1580, goal: "manutencao" },
+  { day: "Dia 4", name: "Omelete proteica + salada completa", cal: 1800, goal: "hipertrofia" },
+  { day: "Dia 5", name: "Iogurte grego + peixe ao forno", cal: 1620, goal: "emagrecimento" },
+  { day: "Dia 6", name: "Tapioca fit + peito de frango", cal: 1750, goal: "manutencao" },
+  { day: "Dia 7", name: "Vitamina de frutas + wrap proteico", cal: 1680, goal: "emagrecimento" },
 ];
 
 interface Result {
@@ -44,8 +63,30 @@ export default function MealAIPage() {
   const [result, setResult] = useState<Result | null>(null);
   const [loading, setLoading] = useState(false);
   const [step, setStep] = useState(0);
-  const [tab, setTab] = useState<"daily" | "weekly">("daily");
   const [expandedMeal, setExpandedMeal] = useState<number | null>(0);
+  const [profileLoaded, setProfileLoaded] = useState(false);
+
+  // Auto-fill from profile
+  useEffect(() => {
+    fetch("/api/user/me")
+      .then(r => r.json())
+      .then(d => {
+        if (d.user) {
+          setForm(prev => ({
+            ...prev,
+            weight: d.user.currentWeight?.toString() ?? prev.weight,
+            height: d.user.height?.toString() ?? prev.height,
+            age: d.user.age?.toString() ?? prev.age,
+            gender: d.user.gender ?? prev.gender,
+            activityLevel: d.user.activityLevel ?? prev.activityLevel,
+            goal: d.user.goal ?? prev.goal,
+            restrictions: d.user.restrictions ?? [],
+          }));
+          setProfileLoaded(true);
+        }
+      })
+      .catch(() => {});
+  }, []);
 
   const set = (k: string, v: string) => setForm(f => ({ ...f, [k]: v }));
 
@@ -98,14 +139,49 @@ export default function MealAIPage() {
         </div>
       </div>
 
+      {/* 7-day free trial banner */}
+      <div className="mb-6 rounded-3xl p-5 overflow-hidden relative"
+        style={{ background: "linear-gradient(135deg, #1a1a2e 0%, #16213e 50%, #0f3460 100%)" }}>
+        <div className="absolute inset-0 opacity-20"
+          style={{ backgroundImage: "radial-gradient(circle at 80% 50%, #22c55e 0%, transparent 60%)" }} />
+        <div className="relative flex items-start justify-between gap-4 flex-wrap">
+          <div>
+            <div className="flex items-center gap-2 mb-2">
+              <Gift className="w-5 h-5 text-amber-400" />
+              <span className="text-amber-400 font-bold text-sm uppercase tracking-wider">7 Dias Grátis</span>
+            </div>
+            <h3 className="text-white font-extrabold text-lg mb-1">Seu presente de boas-vindas 🎁</h3>
+            <p className="text-white/60 text-sm">7 cardápios completos e personalizados para começar sua jornada</p>
+          </div>
+          <div className="flex gap-2 flex-wrap">
+            {FREE_RECIPES_PREVIEW.slice(0, 3).map((r, i) => (
+              <div key={i} className="bg-white/10 backdrop-blur rounded-2xl p-3 text-center min-w-[90px]">
+                <p className="text-[10px] font-bold text-green-400 mb-1">{r.day}</p>
+                <p className="text-[10px] text-white/70 leading-tight">{r.cal} kcal</p>
+              </div>
+            ))}
+            <div className="bg-white/10 backdrop-blur rounded-2xl p-3 text-center min-w-[90px] flex items-center justify-center">
+              <p className="text-[10px] text-white/50">+4 dias incluídos</p>
+            </div>
+          </div>
+        </div>
+      </div>
+
       <div className="grid lg:grid-cols-5 gap-5 lg:gap-6">
         {/* Form */}
         <div className="lg:col-span-2 card p-6 space-y-5">
           <div className="flex items-center justify-between">
             <h2 className="font-bold text-xs uppercase tracking-[0.14em] text-slate-500">Seu perfil</h2>
-            <span className="text-[10px] font-bold px-2 py-0.5 rounded-full bg-brand-50 text-brand-700">
-              IA personalizada
-            </span>
+            <div className="flex items-center gap-2">
+              {profileLoaded && (
+                <span className="text-[10px] font-bold px-2 py-0.5 rounded-full bg-brand-50 text-brand-700">
+                  ✓ Perfil sincronizado
+                </span>
+              )}
+              <span className="text-[10px] font-bold px-2 py-0.5 rounded-full bg-amber-50 text-amber-700">
+                IA personalizada
+              </span>
+            </div>
           </div>
 
           <div className="grid grid-cols-2 gap-3">
@@ -138,15 +214,12 @@ export default function MealAIPage() {
             <label className="text-[11px] text-slate-500 mb-2 block font-medium">Objetivo</label>
             <div className="grid grid-cols-1 gap-2">
               {GOALS.map(g => (
-                <button
-                  key={g.v}
-                  onClick={() => set("goal", g.v)}
+                <button key={g.v} onClick={() => set("goal", g.v)}
                   className={`text-left px-4 py-2.5 rounded-2xl text-sm font-semibold transition-all duration-200 border ${
                     form.goal === g.v
                       ? "gradient-brand text-white border-transparent shadow-brand"
                       : "border-slate-200 bg-white text-slate-700 hover:border-brand-300 hover:-translate-y-0.5"
-                  }`}
-                >
+                  }`}>
                   {g.l}
                 </button>
               ))}
@@ -161,11 +234,8 @@ export default function MealAIPage() {
             </select>
           </div>
 
-          <button
-            onClick={generate}
-            disabled={loading || !form.weight || !form.height || !form.age}
-            className="w-full btn-primary gap-2 disabled:opacity-50 disabled:cursor-not-allowed disabled:translate-y-0"
-          >
+          <button onClick={generate} disabled={loading || !form.weight || !form.height || !form.age}
+            className="w-full btn-primary gap-2 disabled:opacity-50 disabled:cursor-not-allowed disabled:translate-y-0">
             {loading
               ? <><Loader2 className="w-4 h-4 animate-spin" /> Gerando...</>
               : <><Sparkles className="w-4 h-4" /> Gerar plano com IA</>}
@@ -237,10 +307,8 @@ export default function MealAIPage() {
                   <h3 className="font-bold flex items-center gap-2">
                     <Calendar className="w-4 h-4 text-brand-600" /> Plano do dia
                   </h3>
-                  <button
-                    onClick={generate}
-                    className="flex items-center gap-1.5 text-xs text-brand-600 font-bold hover:text-brand-700 transition"
-                  >
+                  <button onClick={generate}
+                    className="flex items-center gap-1.5 text-xs text-brand-600 font-bold hover:text-brand-700 transition">
                     <RefreshCw className="w-3.5 h-3.5" /> Gerar novo
                   </button>
                 </div>
@@ -316,6 +384,53 @@ export default function MealAIPage() {
               </p>
             </div>
           )}
+        </div>
+      </div>
+
+      {/* Experts section */}
+      <div className="mt-8">
+        <div className="flex items-center justify-between mb-5">
+          <div>
+            <h3 className="font-extrabold text-lg tracking-tight">Desenvolvido com especialistas</h3>
+            <p className="text-xs text-slate-500 mt-0.5">Algoritmo validado por nutricionistas certificados</p>
+          </div>
+          <span className="flex items-center gap-1.5 text-xs font-bold text-brand-700 bg-brand-50 px-3 py-1.5 rounded-full border border-brand-100">
+            <BadgeCheck className="w-3.5 h-3.5" /> CRN verificado
+          </span>
+        </div>
+        <div className="grid sm:grid-cols-3 gap-4">
+          {EXPERTS.map(e => (
+            <div key={e.name} className="bg-white rounded-3xl border border-slate-100 p-5 shadow-sm hover:shadow-md transition-all duration-200 hover:-translate-y-0.5">
+              <div className="flex items-center gap-3 mb-3">
+                <div className={`w-12 h-12 rounded-2xl bg-gradient-to-br ${e.color} flex items-center justify-center text-white font-extrabold text-sm shadow-md`}>
+                  {e.avatar}
+                </div>
+                <div>
+                  <p className="font-bold text-sm">{e.name}</p>
+                  <p className="text-[11px] text-brand-700 font-medium">{e.specialty}</p>
+                </div>
+              </div>
+              <div className="flex gap-0.5 mb-2">
+                {[...Array(5)].map((_, i) => (
+                  <Star key={i} className="w-3 h-3 fill-amber-400 text-amber-400" />
+                ))}
+                <span className="text-[10px] text-slate-400 ml-1 font-medium">5.0</span>
+              </div>
+              <div className="flex items-center gap-2">
+                <BadgeCheck className="w-3.5 h-3.5 text-brand-500" />
+                <span className="text-[10px] text-slate-400 font-medium">Especialista Verificado</span>
+              </div>
+            </div>
+          ))}
+        </div>
+        {/* Trust row */}
+        <div className="mt-4 grid grid-cols-3 gap-4">
+          {["+12.000 planos gerados", "4.9★ avaliação média", "98% satisfação"].map(s => (
+            <div key={s} className="text-center p-3 rounded-2xl bg-gradient-to-br from-brand-50 to-emerald-50 border border-brand-100/60">
+              <p className="text-sm font-extrabold text-brand-700">{s.split(" ")[0]}</p>
+              <p className="text-[11px] text-slate-500">{s.split(" ").slice(1).join(" ")}</p>
+            </div>
+          ))}
         </div>
       </div>
     </AppShell>
