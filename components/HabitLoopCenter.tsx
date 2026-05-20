@@ -110,21 +110,20 @@ export default function HabitLoopCenter({ user }: { user: any }) {
     : "O objetivo é simples: aparecer hoje, ganhar XP e voltar amanhã.";
 
   return (
-    <section className="mb-6 grid lg:grid-cols-[1.35fr_.85fr] gap-4 sm:gap-5">
-      <div className="card p-5 sm:p-6 relative overflow-hidden border-brand-100">
-        <div className="absolute -top-20 -right-20 w-56 h-56 rounded-full bg-brand-100 blur-3xl opacity-80 pointer-events-none" />
-        <div className="relative flex items-start justify-between gap-4 mb-5">
+    <section className="mb-4 sm:mb-6 grid lg:grid-cols-[1.35fr_.85fr] gap-3 sm:gap-5">
+      <div className="card p-4 sm:p-6 relative overflow-hidden border-brand-100">
+        <div className="relative flex items-start justify-between gap-4 mb-4 sm:mb-5">
           <div>
             <p className="text-[11px] font-extrabold uppercase tracking-[0.18em] text-brand-700">Loop diário</p>
-            <h2 className="text-xl sm:text-2xl font-extrabold tracking-tight mt-1">Check-in de 30 segundos</h2>
-            <p className="text-sm text-slate-500 mt-1 max-w-xl">{state?.message ?? "Marque pequenas vitórias para manter XP, sequência e vontade de voltar amanhã."}</p>
+            <h2 className="text-lg sm:text-2xl font-extrabold tracking-tight mt-1">Check-in de 30 segundos</h2>
+            <p className="text-xs sm:text-sm text-slate-500 mt-1 max-w-xl">{state?.message ?? "Marque pequenas vitórias para manter XP, sequência e vontade de voltar amanhã."}</p>
           </div>
           <div className="hidden sm:flex items-center gap-2 rounded-full bg-orange-50 text-orange-700 px-3 py-2 text-xs font-extrabold border border-orange-100">
             <Flame className="w-4 h-4" /> {streak}d streak
           </div>
         </div>
 
-        <div className="grid grid-cols-2 sm:grid-cols-4 gap-2.5 mb-5 relative">
+        <div className="grid grid-cols-2 sm:grid-cols-4 gap-2 sm:gap-2.5 mb-4 sm:mb-5 relative">
           {ACTIONS.map(action => {
             const checked = selectedSet.has(action.id);
             const already = completedSet.has(action.id);
@@ -133,22 +132,22 @@ export default function HabitLoopCenter({ user }: { user: any }) {
                 key={action.id}
                 type="button"
                 onClick={() => toggle(action.id)}
-                className={`text-left rounded-3xl border-2 p-3.5 transition-all duration-200 ${checked
+                className={`text-left rounded-2xl sm:rounded-3xl border-2 p-3 sm:p-3.5 transition-all duration-200 ${checked
                   ? "border-brand-500 bg-brand-50 shadow-brand/20 shadow-lg -translate-y-0.5"
                   : "border-slate-100 bg-white hover:border-brand-200 hover:bg-brand-50/40"}`}
               >
                 <div className="flex items-center justify-between mb-2">
-                  <span className="text-2xl">{action.emoji}</span>
+                  <span className="text-xl sm:text-2xl">{action.emoji}</span>
                   {checked || already ? <CheckCircle2 className="w-5 h-5 text-brand-600" /> : <span className="text-[10px] font-bold text-slate-400">+{action.xp} XP</span>}
                 </div>
                 <p className="font-extrabold text-sm text-slate-900">{action.title}</p>
-                <p className="text-[11px] text-slate-500">{action.desc}</p>
+                <p className="hidden sm:block text-[11px] text-slate-500">{action.desc}</p>
               </button>
             );
           })}
         </div>
 
-        <div className="relative mb-5">
+        <div className="relative mb-4 sm:mb-5">
           <div className="flex justify-between text-xs font-bold text-slate-500 mb-1.5">
             <span>Check-in de hoje</span>
             <span className="text-brand-700">{progress}%</span>
@@ -163,14 +162,14 @@ export default function HabitLoopCenter({ user }: { user: any }) {
           type="button"
           onClick={saveCheckin}
           disabled={saving || selected.length === 0}
-          className="w-full btn-primary disabled:opacity-50 disabled:cursor-not-allowed"
+          className="w-full min-h-11 btn-primary disabled:opacity-50 disabled:cursor-not-allowed"
         >
           {saving ? "Salvando..." : "Salvar check-in e proteger streak"}
         </button>
       </div>
 
-      <div className="space-y-4">
-        <div className={`rounded-3xl p-5 border ${state?.streakRisk ? "bg-orange-50 border-orange-200" : "bg-slate-950 text-white border-slate-900"}`}>
+      <div className="space-y-3 sm:space-y-4">
+        <div className={`rounded-3xl p-4 sm:p-5 border ${state?.streakRisk ? "bg-orange-50 border-orange-200" : "bg-slate-950 text-white border-slate-900"}`}>
           <div className="flex items-center gap-3 mb-3">
             <div className={`w-11 h-11 rounded-2xl flex items-center justify-center ${state?.streakRisk ? "bg-orange-100" : "bg-white/10"}`}>
               <Zap className={`w-5 h-5 ${state?.streakRisk ? "text-orange-600" : "text-emerald-300"}`} />
@@ -183,7 +182,7 @@ export default function HabitLoopCenter({ user }: { user: any }) {
           <p className={`text-sm ${state?.streakRisk ? "text-orange-800" : "text-white/75"}`}>{fomoText}</p>
         </div>
 
-        <div className="card p-5">
+        <div className="card p-4 sm:p-5">
           <div className="flex items-start gap-3">
             <div className="w-11 h-11 rounded-2xl bg-blue-50 flex items-center justify-center shrink-0">
               <Bell className="w-5 h-5 text-blue-600" />
@@ -205,7 +204,7 @@ export default function HabitLoopCenter({ user }: { user: any }) {
         </div>
 
         {!isPaid && (
-          <Link href="/membership" className="block card p-5 bg-gradient-to-br from-slate-950 to-slate-800 text-white border-slate-800 hover:-translate-y-0.5 transition-transform">
+          <Link href="/membership" className="block card p-4 sm:p-5 bg-gradient-to-br from-slate-950 to-slate-800 text-white border-slate-800 hover:-translate-y-0.5 transition-transform">
             <div className="flex items-center gap-3 mb-3">
               <div className="w-11 h-11 rounded-2xl bg-white/10 flex items-center justify-center">
                 <Lock className="w-5 h-5 text-amber-300" />
@@ -221,7 +220,7 @@ export default function HabitLoopCenter({ user }: { user: any }) {
         )}
 
         {isPaid && (
-          <div className="card p-5 bg-brand-50 border-brand-100">
+          <div className="card p-4 sm:p-5 bg-brand-50 border-brand-100">
             <div className="flex items-center gap-3">
               <Trophy className="w-5 h-5 text-brand-700" />
               <p className="text-sm font-bold text-brand-900">Premium ativo: seus check-ins alimentam insights mais inteligentes.</p>

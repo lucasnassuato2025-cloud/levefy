@@ -6,11 +6,11 @@ export default function AppShell({ children, title }: { children: React.ReactNod
   return (
     <div className="min-h-screen flex bg-app">
       <Sidebar />
-      <main className="flex-1 pb-28 lg:pb-10 flex flex-col min-w-0">
-        <div className="max-w-6xl mx-auto px-4 sm:px-6 lg:px-10 py-6 lg:py-10 flex-1 w-full animate-fade-in">
+      <main className="flex-1 pb-36 lg:pb-10 flex flex-col min-w-0">
+        <div className="max-w-6xl mx-auto px-3.5 sm:px-6 lg:px-10 py-4 sm:py-6 lg:py-10 flex-1 w-full animate-fade-in">
           {title && (
-            <div className="mb-7 lg:mb-9">
-              <h1 className="text-[26px] sm:text-3xl lg:text-4xl font-extrabold tracking-tight text-slate-900">
+            <div className="mb-4 sm:mb-7 lg:mb-9">
+              <h1 className="text-2xl sm:text-3xl lg:text-4xl font-extrabold tracking-tight text-slate-900">
                 {title}
               </h1>
               <div className="mt-2 flex items-center gap-2">
@@ -22,7 +22,9 @@ export default function AppShell({ children, title }: { children: React.ReactNod
           )}
           {children}
         </div>
-        <Footer />
+        <div className="hidden lg:block">
+          <Footer />
+        </div>
       </main>
       <MobileNav />
     </div>
