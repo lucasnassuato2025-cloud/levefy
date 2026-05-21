@@ -22,6 +22,9 @@ cp .env.example .env
 - **STRIPE_PRICE_START**: Price ID do produto START (R$27, pagamento único)
 - **STRIPE_PRICE_PREMIUM**: Price ID do produto PREMIUM (R$19/mês, recorrente)
 - **STRIPE_WEBHOOK_SECRET**: Secret do webhook Stripe
+- **CAKTO_WEBHOOK_SECRET**: Chave secreta do webhook Cakto para liberar START automaticamente
+- **CAKTO_START_PRODUCT_ID**: ID do produto START na Cakto (opcional, recomendado)
+- **CAKTO_START_OFFER_ID**: ID da oferta START na Cakto (opcional, recomendado)
 - **ADMIN_EMAIL**: Email do administrador
 
 ---
@@ -62,7 +65,17 @@ npm run db:seed
 
 ---
 
-## 5. Deploy no Render
+## 5. Configurar Cakto
+
+1. Configure o webhook da Cakto apontando para `https://seu-dominio.com/api/cakto/webhook`
+2. Eventos recomendados: `purchase_approved`, `refund`, `chargeback`
+3. Copie a chave secreta do webhook para `CAKTO_WEBHOOK_SECRET`
+4. Se possivel, preencha `CAKTO_START_PRODUCT_ID` e `CAKTO_START_OFFER_ID` para aceitar somente o produto START
+5. O comprador precisa usar o mesmo e-mail da conta Levefy para liberar o plano automaticamente
+
+---
+
+## 6. Deploy no Render
 
 ```bash
 # O render.yaml já está configurado
@@ -75,7 +88,7 @@ No Render, adicione as variáveis de ambiente da mesma forma que no `.env`.
 
 ---
 
-## 6. Rodar localmente
+## 7. Rodar localmente
 
 ```bash
 npm run dev
@@ -84,7 +97,7 @@ npm run dev
 
 ---
 
-## 7. Tracking (opcional)
+## 8. Tracking (opcional)
 
 Para Meta Ads / Google Ads:
 - `NEXT_PUBLIC_META_PIXEL_ID` → ID do seu Meta Pixel

@@ -166,6 +166,11 @@ export default function Membership() {
               </span>
               <span className="text-slate-500 text-sm ml-1.5 font-medium">{p.per}</span>
             </p>
+            {p.plan === "START" && (
+              <p className="mt-3 rounded-2xl bg-blue-50 px-4 py-3 text-xs font-semibold leading-relaxed text-blue-700">
+                Use o mesmo e-mail da sua conta Levefy para liberar o START automaticamente.
+              </p>
+            )}
 
             <ul className="mt-6 space-y-3 flex-1">
               {p.features.map(f => (
