@@ -5,6 +5,7 @@ export type Goal = "emagrecimento" | "hipertrofia" | "manutencao" | "low_carb" |
 export type ActivityLevel = "sedentario" | "leve" | "moderate" | "ativo" | "muito_ativo";
 export type Gender = "masculino" | "feminino";
 export type MealType = "cafe" | "almoco" | "jantar" | "lanche1" | "lanche2";
+export type FastingProtocol = "none" | "12_12" | "14_10" | "16_8";
 
 export interface UserProfile {
   weight: number;
@@ -14,6 +15,7 @@ export interface UserProfile {
   activityLevel: ActivityLevel;
   goal: Goal;
   restrictions: string[];
+  fastingProtocol?: FastingProtocol;
 }
 
 export interface MacroResult {
@@ -62,6 +64,12 @@ export interface ShoppingItem {
   amount: string;
   category: string;
 }
+
+type MealScheduleItem = {
+  type: MealType;
+  label?: string;
+  time?: string;
+};
 
 // ---- MACRO ENGINE ----
 
@@ -231,7 +239,13 @@ function pickRandom<T>(arr: T[], seed: number): T {
 }
 
 // ---- MEAL SLOT BUILDER ----
-function buildMealSlot(type: MealType, macros: MacroResult, goal: Goal, seed: number): MealSlot {
+function buildMealSlot(
+  type: MealType,
+  macros: MacroResult,
+  goal: Goal,
+  seed: number,
+  schedule?: Pick<MealScheduleItem, "label" | "time">
+): MealSlot {
   const labels: Record<MealType, { label: string; time: string }> = {
     cafe:    { label: "Café da manhã",  time: "7:00" },
     lanche1: { label: "Lanche da manhã", time: "10:00" },
@@ -274,8 +288,8 @@ function buildMealSlot(type: MealType, macros: MacroResult, goal: Goal, seed: nu
 
   return {
     type,
-    label: labels[type].label,
-    time: labels[type].time,
+    label: schedule?.label ?? labels[type].label,
+    time: schedule?.time ?? labels[type].time,
     items,
     totalCals,
     totalProtein,
@@ -312,16 +326,52 @@ export function calculateScore(plan: MealSlot[], macros: MacroResult): number {
   return Math.min(100, score);
 }
 
+function getMealSchedule(profile: UserProfile): MealScheduleItem[] {
+  switch (profile.fastingProtocol) {
+    case "16_8":
+      return [
+        { type: "almoco", label: "Quebra do jejum", time: "12:00" },
+        { type: "lanche2", label: "Lanche da janela", time: "16:00" },
+        { type: "jantar", label: "Última refeição", time: "19:30" },
+      ];
+    case "14_10":
+      return [
+        { type: "cafe", label: "Quebra do jejum", time: "10:00" },
+        { type: "almoco", time: "13:30" },
+        { type: "lanche2", label: "Lanche da janela", time: "16:30" },
+        { type: "jantar", label: "Última refeição", time: "19:30" },
+      ];
+    case "12_12":
+      return [
+        { type: "cafe", label: "Primeira refeição", time: "8:00" },
+        { type: "almoco", time: "12:30" },
+        { type: "lanche2", label: "Lanche da janela", time: "16:30" },
+        { type: "jantar", label: "Última refeição", time: "20:00" },
+      ];
+    default:
+      return [
+        { type: "cafe" },
+        { type: "lanche1" },
+        { type: "almoco" },
+        { type: "lanche2" },
+        { type: "jantar" },
+      ];
+  }
+}
+
 // ---- GENERATE DAILY PLAN ----
 export function generateDailyPlan(profile: UserProfile, dateSeed?: number): { meals: MealSlot[]; macros: MacroResult; score: number } {
   const macros = calculateMacros(profile);
   const seed = dateSeed ?? Date.now();
+  const schedule = getMealSchedule(profile);
 
-  const mealTypes: MealType[] = profile.goal === "hipertrofia"
-    ? ["cafe", "lanche1", "almoco", "lanche2", "jantar"]
-    : ["cafe", "lanche1", "almoco", "lanche2", "jantar"];
-
-  const meals = mealTypes.map((type, i) => buildMealSlot(type, macros, profile.goal, seed + i * 100));
+  const meals = schedule.map((item, i) => buildMealSlot(
+    item.type,
+    macros,
+    profile.goal,
+    seed + i * 100,
+    item
+  ));
   const score = calculateScore(meals, macros);
 
   return { meals, macros, score };

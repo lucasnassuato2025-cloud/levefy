@@ -2,8 +2,9 @@
 
 import { useState, useEffect } from "react";
 import AppShell from "@/components/AppShell";
-import { Sparkles, Brain, Loader2, ChevronDown, RefreshCw, Calendar, Star, BadgeCheck, Gift, Crown, Lock } from "lucide-react";
-import type { MealSlot, MacroResult } from "@/lib/meal-engine";
+import { Sparkles, Brain, Loader2, ChevronDown, RefreshCw, Calendar, Star, BadgeCheck, Gift, Crown, Lock, AlertCircle } from "lucide-react";
+import type { FastingProtocol, MealSlot, MacroResult } from "@/lib/meal-engine";
+import { PLAN_LIMITS, normalizePlan, type LevefyPlan } from "@/lib/plan-access";
 import Link from "next/link";
 
 const LOADING_STEPS = [
@@ -33,6 +34,13 @@ const ACTIVITY = [
   { v: "muito_ativo", l: "Extremamente ativo" },
 ];
 
+const FASTING_OPTIONS: { value: FastingProtocol; label: string; description: string }[] = [
+  { value: "none", label: "Sem jejum", description: "5 refeicoes ao longo do dia" },
+  { value: "12_12", label: "12/12", description: "Janela leve para comecar" },
+  { value: "14_10", label: "14/10", description: "Rotina moderada START" },
+  { value: "16_8", label: "16/8", description: "Janela premium mais focada" },
+];
+
 const EXPERTS = [
   { name: "Dra. Camila Azevedo", specialty: "Nutrição Clínica Esportiva", avatar: "CA", color: "from-rose-400 to-pink-600" },
   { name: "Dr. Rafael Monteiro", specialty: "Emagrecimento e Performance", avatar: "RM", color: "from-blue-400 to-indigo-600" },
@@ -54,18 +62,24 @@ interface Result {
   meals: MealSlot[];
   score: number;
   habits: string[];
+  fastingProtocol?: FastingProtocol;
+  usage?: { used: number; limit: number | null; plan: LevefyPlan };
 }
 
 export default function MealAIPage() {
   const [form, setForm] = useState({
     weight: "", height: "", age: "", gender: "feminino",
     activityLevel: "moderate", goal: "emagrecimento", restrictions: [] as string[],
+    fastingProtocol: "none" as FastingProtocol,
   });
   const [result, setResult] = useState<Result | null>(null);
   const [loading, setLoading] = useState(false);
   const [step, setStep] = useState(0);
   const [expandedMeal, setExpandedMeal] = useState<number | null>(0);
   const [profileLoaded, setProfileLoaded] = useState(false);
+  const [plan, setPlan] = useState<LevefyPlan>("free");
+  const [usage, setUsage] = useState<Result["usage"] | null>(null);
+  const [error, setError] = useState("");
 
   // Auto-fill from profile
   useEffect(() => {
@@ -73,6 +87,7 @@ export default function MealAIPage() {
       .then(r => r.json())
       .then(d => {
         if (d.user) {
+          setPlan(normalizePlan(d.user.plan));
           setForm(prev => ({
             ...prev,
             weight: d.user.currentWeight?.toString() ?? prev.weight,
@@ -95,6 +110,7 @@ export default function MealAIPage() {
     if (!form.weight || !form.height || !form.age) return;
     setLoading(true);
     setResult(null);
+    setError("");
     setStep(0);
 
     for (let i = 0; i < LOADING_STEPS.length; i++) {
@@ -109,9 +125,16 @@ export default function MealAIPage() {
         body: JSON.stringify({ ...form, mode: "daily" }),
       });
       const data = await res.json();
-      if (data.success) setResult(data);
+      if (!res.ok || !data.success) {
+        setError(data.error ?? "Nao foi possivel gerar seu plano agora.");
+        if (data.usage) setUsage(data.usage);
+        return;
+      }
+      setResult(data);
+      if (data.usage) setUsage(data.usage);
     } catch (e) {
       console.error(e);
+      setError("Nao foi possivel gerar seu plano agora.");
     } finally {
       setLoading(false);
     }
@@ -119,6 +142,13 @@ export default function MealAIPage() {
 
   const scoreColor = (s: number) => s >= 85 ? "text-brand-600" : s >= 70 ? "text-amber-600" : "text-red-500";
   const scoreLabel = (s: number) => s >= 85 ? "Excelente" : s >= 70 ? "Bom" : "Regular";
+  const isPaid = plan === "start" || plan === "premium";
+  const planLimit = PLAN_LIMITS[plan].mealAiGenerationsPerWeek;
+  const usageLabel = usage
+    ? `${usage.used}/${usage.limit ?? "∞"} usados esta semana`
+    : planLimit === "ilimitado"
+      ? "Ilimitado no Premium"
+      : `${planLimit} gerações por semana`;
 
   return (
     <AppShell title="">
@@ -137,6 +167,21 @@ export default function MealAIPage() {
             Meal <span className="text-gradient-soft">AI</span>
           </h1>
           <p className="text-sm text-slate-500">Plano alimentar personalizado em segundos</p>
+        </div>
+      </div>
+
+      <div className="mb-5 grid gap-3 sm:grid-cols-3">
+        <div className="rounded-2xl border border-brand-100 bg-brand-50/70 px-4 py-3">
+          <p className="text-[10px] font-extrabold uppercase tracking-widest text-brand-700">Seu plano</p>
+          <p className="mt-1 text-sm font-extrabold text-slate-900">{PLAN_LIMITS[plan].label}</p>
+        </div>
+        <div className="rounded-2xl border border-slate-100 bg-white px-4 py-3 shadow-sm">
+          <p className="text-[10px] font-extrabold uppercase tracking-widest text-slate-400">Meal AI</p>
+          <p className="mt-1 text-sm font-extrabold text-slate-900">{usageLabel}</p>
+        </div>
+        <div className="rounded-2xl border border-slate-100 bg-white px-4 py-3 shadow-sm">
+          <p className="text-[10px] font-extrabold uppercase tracking-widest text-slate-400">Jejum</p>
+          <p className="mt-1 text-sm font-extrabold text-slate-900">{isPaid ? "Liberado" : "START/Premium"}</p>
         </div>
       </div>
 
@@ -234,6 +279,52 @@ export default function MealAIPage() {
               {ACTIVITY.map(a => <option key={a.v} value={a.v}>{a.l}</option>)}
             </select>
           </div>
+
+          <div>
+            <div className="mb-2 flex items-center justify-between gap-2">
+              <label className="text-[11px] text-slate-500 block font-medium">Jejum intermitente</label>
+              {!isPaid && (
+                <Link href="/membership" className="inline-flex items-center gap-1 text-[10px] font-extrabold text-amber-700">
+                  <Lock className="h-3 w-3" /> START/Premium
+                </Link>
+              )}
+            </div>
+            <div className="grid grid-cols-2 gap-2">
+              {FASTING_OPTIONS.map(option => {
+                const locked = option.value !== "none" && !isPaid;
+                const active = form.fastingProtocol === option.value;
+                return (
+                  <button
+                    key={option.value}
+                    type="button"
+                    disabled={locked}
+                    onClick={() => setForm(current => ({ ...current, fastingProtocol: option.value }))}
+                    className={`rounded-2xl border px-3 py-3 text-left transition-all ${
+                      active
+                        ? "border-transparent gradient-brand text-white shadow-brand"
+                        : locked
+                          ? "border-slate-100 bg-slate-50 text-slate-300"
+                          : "border-slate-200 bg-white text-slate-700 hover:border-brand-300"
+                    }`}
+                  >
+                    <span className="block text-xs font-extrabold">{option.label}</span>
+                    <span className={`mt-0.5 block text-[10px] leading-tight ${active ? "text-white/75" : "text-slate-400"}`}>
+                      {option.description}
+                    </span>
+                  </button>
+                );
+              })}
+            </div>
+          </div>
+
+          {error && (
+            <div className="rounded-2xl border border-red-100 bg-red-50 px-4 py-3 text-sm font-semibold text-red-700">
+              <div className="flex items-start gap-2">
+                <AlertCircle className="mt-0.5 h-4 w-4 shrink-0" />
+                <span>{error}</span>
+              </div>
+            </div>
+          )}
 
           <button onClick={generate} disabled={loading || !form.weight || !form.height || !form.age}
             className="w-full btn-primary gap-2 disabled:opacity-50 disabled:cursor-not-allowed disabled:translate-y-0">

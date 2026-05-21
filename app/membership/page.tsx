@@ -24,7 +24,7 @@ const plans = [
     per: "pagamento único",
     description: "Entrada de baixo risco para quem quer começar hoje.",
     icon: Zap,
-    features: ["5 gerações Meal AI", "Receitas exclusivas", "Plano alimentar inicial", "Desafio 7 dias", "Acesso vitalício ao START"],
+    features: ["5 gerações Meal AI", "Jejum intermitente liberado", "Receitas exclusivas", "Bolos fit e sobremesas", "Desafio 7 dias", "Acesso vitalício ao START"],
     cta: "Comprar START",
     plan: "START",
     pix: true,

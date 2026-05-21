@@ -7,7 +7,7 @@ import { GoogleButton } from "@/components/GoogleButton";
 import { auth } from "@/lib/auth";
 import { syncCurrentUser } from "@/app/actions/sync-user";
 import { trackConversion } from "@/lib/tracking";
-import { Mail, Lock, User, AlertCircle, CheckCircle } from "lucide-react";
+import { Mail, Lock, User, AlertCircle, CheckCircle, Brain, ShieldCheck, Sparkles } from "lucide-react";
 
 type Mode = "login" | "register" | "forgot";
 
@@ -135,14 +135,45 @@ export default function LoginPage() {
 
   return (
     <div className="min-h-screen grid lg:grid-cols-2">
-      <div className="hidden lg:block relative gradient-brand">
-        <div className="absolute inset-0 p-12 flex flex-col justify-between text-white">
+      <div className="hidden lg:block relative overflow-hidden bg-slate-950">
+        <div className="absolute inset-0 bg-[url('/images/login-meal-prep.png')] bg-cover bg-center" />
+        <div className="absolute inset-0 bg-gradient-to-br from-emerald-950/95 via-brand-700/82 to-slate-950/88" />
+        <div className="absolute inset-0 bg-[radial-gradient(circle_at_75%_72%,rgba(255,255,255,0.12),transparent_34%)]" />
+        <div className="relative z-10 p-12 flex h-full flex-col justify-between text-white">
           <Logo light />
-          <div>
-            <h2 className="text-4xl font-bold leading-tight">Emagreça sem dietas impossíveis.</h2>
-            <p className="mt-4 text-white/85">Bem-vindo de volta. Sua sequência está esperando.</p>
+          <div className="max-w-md">
+            <span className="inline-flex items-center gap-2 rounded-full border border-white/25 bg-white/15 px-4 py-2 text-xs font-extrabold uppercase tracking-[0.16em] text-white/90">
+              <Sparkles className="h-4 w-4" />
+              Comece grátis
+            </span>
+            <h2 className="mt-6 text-4xl font-bold leading-tight">
+              Organize sua alimentação sem complicar a rotina.
+            </h2>
+            <p className="mt-4 text-lg font-medium leading-8 text-white/90">
+              Receitas e planos com IA, com apoio técnico de nutricionistas.
+            </p>
+            <div className="mt-8 grid gap-3">
+              {[
+                { icon: Brain, label: "Meal AI para montar ideias de refeições" },
+                { icon: ShieldCheck, label: "Login seguro e dados protegidos" },
+                { icon: CheckCircle, label: "Receitas, hábitos e dashboard no mesmo lugar" },
+              ].map((item) => {
+                const Icon = item.icon;
+                return (
+                  <div
+                    key={item.label}
+                    className="flex items-center gap-3 rounded-2xl border border-white/15 bg-white/10 px-4 py-3 text-sm font-bold text-white/90 backdrop-blur"
+                  >
+                    <span className="flex h-9 w-9 shrink-0 items-center justify-center rounded-xl bg-white text-brand-700">
+                      <Icon className="h-4 w-4" />
+                    </span>
+                    {item.label}
+                  </div>
+                );
+              })}
+            </div>
           </div>
-          <p className="text-sm text-white/70">© Levefy</p>
+          <p className="text-sm text-white/70">© 2026 Levefy</p>
         </div>
       </div>
       <div className="flex items-center justify-center p-6 lg:p-12 bg-white">

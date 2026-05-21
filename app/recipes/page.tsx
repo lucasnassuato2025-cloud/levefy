@@ -1,179 +1,533 @@
 "use client";
 
-import { useState, useEffect } from "react";
+import { useEffect, useMemo, useState } from "react";
 import AppShell from "@/components/AppShell";
 import { Clock, Flame, Crown, Lock, Download, X, ChevronRight, Search } from "lucide-react";
 import Link from "next/link";
 
-const RECIPES = [
-  { title: "Bowl de frango grelhado com quinoa", cal: 420, time: 20, diff: "Fácil", goal: ["emagrecimento","manutencao"], emoji: "🥗", premium: false, ingredients: ["150g frango grelhado", "80g quinoa cozida", "Folhas verdes a gosto", "6 tomates cereja", "1 fio de azeite", "Suco de ½ limão", "Sal e pimenta"], steps: ["Cozinhe a quinoa em água com sal por 15 min.", "Tempere o frango com limão, sal e pimenta e grelhe.", "Monte o bowl com as folhas, quinoa e frango fatiado.", "Finalize com azeite e tomates cereja."], macros: { protein: 42, carbs: 38, fat: 12 } },
-  { title: "Omelete de espinafre e cottage", cal: 280, time: 10, diff: "Fácil", goal: ["emagrecimento","low_carb"], emoji: "🍳", premium: false, ingredients: ["3 ovos inteiros", "50g espinafre fresco", "3 colheres de cottage", "Sal e pimenta a gosto", "1 fio de azeite"], steps: ["Bata os ovos com sal e pimenta.", "Refogue o espinafre no azeite por 2 min.", "Despeje os ovos e adicione o cottage.", "Dobre o omelete e sirva quente."], macros: { protein: 28, carbs: 4, fat: 16 } },
-  { title: "Batata doce assada com atum", cal: 350, time: 30, diff: "Fácil", goal: ["emagrecimento","hipertrofia"], emoji: "🍠", premium: false, ingredients: ["200g batata doce", "1 lata de atum em água", "1 colher de azeite", "Alecrim a gosto", "Sal a gosto"], steps: ["Pré-aqueça o forno a 200°C.", "Corte a batata, tempere com azeite e alecrim.", "Asse por 25 minutos até dourar.", "Sirva com o atum escorrido por cima."], macros: { protein: 32, carbs: 42, fat: 6 } },
-  { title: "Panqueca de aveia com banana", cal: 310, time: 15, diff: "Fácil", goal: ["manutencao"], emoji: "🥞", premium: false, ingredients: ["2 bananas maduras", "2 ovos", "4 colheres de aveia", "Canela a gosto", "Mel para finalizar"], steps: ["Amasse as bananas com um garfo.", "Adicione os ovos, aveia e canela e misture.", "Frite colheradas na frigideira antiaderente.", "Sirva com mel a gosto."], macros: { protein: 14, carbs: 52, fat: 8 } },
-  { title: "Marmita de frango com legumes no vapor", cal: 480, time: 35, diff: "Médio", goal: ["hipertrofia"], emoji: "🍱", premium: true, ingredients: ["200g peito de frango", "Brócolis a gosto", "1 cenoura média", "100g vagem", "80g arroz integral", "Temperos naturais"], steps: ["Cozinhe o arroz integral.", "Marine o frango com ervas e grelhe.", "Cozinhe os legumes no vapor por 8 min.", "Monte a marmita e refrigere."], macros: { protein: 48, carbs: 45, fat: 10 } },
-  { title: "Salada César fit com grão-de-bico", cal: 390, time: 15, diff: "Fácil", goal: ["emagrecimento"], emoji: "🥙", premium: true, ingredients: ["Alface romana a gosto", "100g grão-de-bico cozido", "30g parmesão ralado", "Croutons integrais", "Molho César light"], steps: ["Lave e rasgue a alface romana.", "Misture com o grão-de-bico cozido.", "Adicione o parmesão ralado.", "Finalize com molho e croutons."], macros: { protein: 22, carbs: 44, fat: 14 } },
-  { title: "Carne moída com abobrinha refogada", cal: 440, time: 25, diff: "Médio", goal: ["low_carb","definicao"], emoji: "🥩", premium: true, ingredients: ["200g carne moída", "2 abobrinhas médias", "2 dentes de alho", "1 tomate picado", "Azeite e temperos"], steps: ["Refogue o alho no azeite.", "Doure a carne moída e tempere.", "Adicione abobrinha em cubos e tomate.", "Cozinhe tampado por 10 min."], macros: { protein: 38, carbs: 12, fat: 28 } },
-  { title: "Smoothie proteico de morango", cal: 240, time: 5, diff: "Fácil", goal: ["hipertrofia"], emoji: "🍓", premium: true, ingredients: ["200ml leite desnatado", "100g morango", "1 scoop whey protein", "1 banana pequena", "Mel a gosto"], steps: ["Coloque todos os ingredientes no liquidificador.", "Bata por 1 minuto até ficar cremoso.", "Sirva imediatamente gelado."], macros: { protein: 30, carbs: 32, fat: 3 } },
+type RecipeCategory = "Refeições" | "Lanches" | "Bolos fit" | "Sobremesas" | "Low carb";
+
+type Recipe = {
+  title: string;
+  description: string;
+  category: RecipeCategory;
+  cal: number;
+  time: number;
+  diff: "Fácil" | "Médio";
+  goal: string[];
+  premium: boolean;
+  image: string;
+  ingredients: string[];
+  steps: string[];
+  macros: { protein: number; carbs: number; fat: number };
+};
+
+const img = (id: string) => `https://images.unsplash.com/${id}?auto=format&fit=crop&w=900&q=82`;
+
+const RECIPES: Recipe[] = [
+  {
+    title: "Bowl de frango grelhado com quinoa",
+    description: "Almoço proteico, colorido e fácil de montar.",
+    category: "Refeições",
+    cal: 420,
+    time: 20,
+    diff: "Fácil",
+    goal: ["Emagrecimento", "Manutenção"],
+    premium: false,
+    image: img("photo-1546069901-ba9599a7e63c"),
+    ingredients: ["150g frango grelhado", "80g quinoa cozida", "Folhas verdes", "Tomate cereja", "1 fio de azeite", "Limão, sal e pimenta"],
+    steps: ["Cozinhe a quinoa por 15 minutos.", "Tempere e grelhe o frango.", "Monte o bowl com folhas, quinoa e frango.", "Finalize com azeite, limão e tomates."],
+    macros: { protein: 42, carbs: 38, fat: 12 },
+  },
+  {
+    title: "Omelete de espinafre e cottage",
+    description: "Café da manhã rápido com boa saciedade.",
+    category: "Low carb",
+    cal: 280,
+    time: 10,
+    diff: "Fácil",
+    goal: ["Low carb", "Emagrecimento"],
+    premium: false,
+    image: img("photo-1525351484163-7529414344d8"),
+    ingredients: ["3 ovos", "50g espinafre", "3 colheres de cottage", "1 fio de azeite", "Sal e pimenta"],
+    steps: ["Bata os ovos com sal e pimenta.", "Refogue o espinafre rapidamente.", "Adicione os ovos e o cottage.", "Dobre o omelete e sirva quente."],
+    macros: { protein: 28, carbs: 4, fat: 16 },
+  },
+  {
+    title: "Batata doce assada com atum",
+    description: "Lanche reforçado para rotina corrida.",
+    category: "Lanches",
+    cal: 350,
+    time: 30,
+    diff: "Fácil",
+    goal: ["Emagrecimento", "Hipertrofia"],
+    premium: false,
+    image: img("photo-1511690656952-34342bb7c2f2"),
+    ingredients: ["200g batata doce", "1 lata de atum em água", "1 colher de azeite", "Alecrim", "Sal"],
+    steps: ["Corte a batata doce em cubos.", "Tempere com azeite, sal e alecrim.", "Asse por 25 minutos.", "Sirva com atum escorrido por cima."],
+    macros: { protein: 32, carbs: 42, fat: 6 },
+  },
+  {
+    title: "Panqueca de aveia com banana",
+    description: "Doce simples, sem exagero e pronto em minutos.",
+    category: "Sobremesas",
+    cal: 310,
+    time: 15,
+    diff: "Fácil",
+    goal: ["Manutenção"],
+    premium: false,
+    image: img("photo-1567620905732-2d1ec7ab7445"),
+    ingredients: ["2 bananas maduras", "2 ovos", "4 colheres de aveia", "Canela", "Mel opcional"],
+    steps: ["Amasse as bananas.", "Misture ovos, aveia e canela.", "Doure pequenas porções na frigideira.", "Sirva com um fio de mel se desejar."],
+    macros: { protein: 14, carbs: 52, fat: 8 },
+  },
+  {
+    title: "Tapioca com cottage e tomate",
+    description: "Opção leve para café ou lanche.",
+    category: "Lanches",
+    cal: 290,
+    time: 10,
+    diff: "Fácil",
+    goal: ["Emagrecimento", "Manutenção"],
+    premium: false,
+    image: img("photo-1490645935967-10de6ba17061"),
+    ingredients: ["60g goma de tapioca", "80g cottage", "Tomate picado", "Orégano", "Sal"],
+    steps: ["Aqueça a goma na frigideira.", "Vire quando firmar.", "Recheie com cottage e tomate.", "Finalize com orégano."],
+    macros: { protein: 18, carbs: 42, fat: 5 },
+  },
+  {
+    title: "Arroz integral, feijão e frango",
+    description: "Clássico brasileiro equilibrado.",
+    category: "Refeições",
+    cal: 520,
+    time: 30,
+    diff: "Fácil",
+    goal: ["Manutenção", "Hipertrofia"],
+    premium: false,
+    image: img("photo-1604908176997-125f25cc6f3d"),
+    ingredients: ["100g arroz integral", "100g feijão", "120g frango grelhado", "Salada verde", "Temperos naturais"],
+    steps: ["Cozinhe arroz e feijão.", "Grelhe o frango.", "Monte o prato com salada.", "Ajuste sal e temperos."],
+    macros: { protein: 42, carbs: 58, fat: 8 },
+  },
+  {
+    title: "Wrap integral de frango",
+    description: "Prático para levar e comer bem fora de casa.",
+    category: "Lanches",
+    cal: 360,
+    time: 15,
+    diff: "Fácil",
+    goal: ["Emagrecimento", "Definição"],
+    premium: false,
+    image: img("photo-1626700051175-6818013e1d4f"),
+    ingredients: ["1 wrap integral", "120g frango desfiado", "Alface", "Tomate", "Iogurte natural", "Mostarda"],
+    steps: ["Misture iogurte e mostarda.", "Recheie o wrap com frango e vegetais.", "Enrole firme.", "Doure rapidamente na frigideira."],
+    macros: { protein: 32, carbs: 36, fat: 9 },
+  },
+  {
+    title: "Iogurte grego com frutas e granola",
+    description: "Lanche fresco para segurar a fome.",
+    category: "Lanches",
+    cal: 260,
+    time: 5,
+    diff: "Fácil",
+    goal: ["Manutenção"],
+    premium: false,
+    image: img("photo-1488477181946-6428a0291777"),
+    ingredients: ["170g iogurte grego", "Morangos", "Banana", "25g granola sem açúcar", "Canela"],
+    steps: ["Coloque o iogurte em uma tigela.", "Adicione frutas picadas.", "Finalize com granola e canela.", "Sirva gelado."],
+    macros: { protein: 18, carbs: 34, fat: 6 },
+  },
+  {
+    title: "Marmita de frango com legumes no vapor",
+    description: "Base semanal para quem quer constância.",
+    category: "Refeições",
+    cal: 480,
+    time: 35,
+    diff: "Médio",
+    goal: ["Hipertrofia", "Manutenção"],
+    premium: true,
+    image: img("photo-1543352634-a1c51d9f1fa7"),
+    ingredients: ["200g peito de frango", "Brócolis", "Cenoura", "Vagem", "80g arroz integral", "Temperos naturais"],
+    steps: ["Cozinhe o arroz integral.", "Marine e grelhe o frango.", "Cozinhe os legumes no vapor.", "Monte a marmita e refrigere."],
+    macros: { protein: 48, carbs: 45, fat: 10 },
+  },
+  {
+    title: "Salada César fit com grão-de-bico",
+    description: "Crocante, leve e rica em proteína.",
+    category: "Refeições",
+    cal: 390,
+    time: 15,
+    diff: "Fácil",
+    goal: ["Emagrecimento"],
+    premium: true,
+    image: img("photo-1512621776951-a57141f2eefd"),
+    ingredients: ["Alface romana", "100g grão-de-bico", "Frango grelhado", "Parmesão ralado", "Molho leve de iogurte"],
+    steps: ["Lave e rasgue a alface.", "Misture grão-de-bico e frango.", "Adicione parmesão.", "Finalize com molho leve."],
+    macros: { protein: 34, carbs: 34, fat: 12 },
+  },
+  {
+    title: "Carne moída com abobrinha",
+    description: "Jantar low carb de alto sabor.",
+    category: "Low carb",
+    cal: 440,
+    time: 25,
+    diff: "Médio",
+    goal: ["Low carb", "Definição"],
+    premium: true,
+    image: img("photo-1555939594-58d7cb561ad1"),
+    ingredients: ["200g patinho moído", "2 abobrinhas", "Alho", "Tomate picado", "Azeite", "Temperos"],
+    steps: ["Refogue o alho no azeite.", "Doure a carne e tempere.", "Adicione abobrinha e tomate.", "Cozinhe tampado por 10 minutos."],
+    macros: { protein: 38, carbs: 12, fat: 28 },
+  },
+  {
+    title: "Smoothie proteico de morango",
+    description: "Cremoso para pós-treino ou lanche.",
+    category: "Lanches",
+    cal: 240,
+    time: 5,
+    diff: "Fácil",
+    goal: ["Hipertrofia"],
+    premium: true,
+    image: img("photo-1553530666-ba11a7da3888"),
+    ingredients: ["200ml leite desnatado", "100g morango", "1 scoop whey", "1 banana pequena", "Gelo"],
+    steps: ["Coloque tudo no liquidificador.", "Bata por 1 minuto.", "Ajuste gelo ou água se necessário.", "Sirva imediatamente."],
+    macros: { protein: 30, carbs: 32, fat: 3 },
+  },
+  {
+    title: "Bolo fit de banana com aveia",
+    description: "Bolo sem farinha branca para matar vontade de doce.",
+    category: "Bolos fit",
+    cal: 180,
+    time: 35,
+    diff: "Fácil",
+    goal: ["Manutenção", "Emagrecimento"],
+    premium: true,
+    image: img("photo-1578985545062-69928b1d9587"),
+    ingredients: ["3 bananas maduras", "2 ovos", "1 xícara de aveia", "Canela", "1 colher de fermento", "Castanhas opcionais"],
+    steps: ["Amasse as bananas.", "Misture ovos, aveia e canela.", "Adicione fermento.", "Asse por 30 minutos a 180°C."],
+    macros: { protein: 7, carbs: 28, fat: 5 },
+  },
+  {
+    title: "Brownie fit de cacau",
+    description: "Sobremesa intensa com poucos ingredientes.",
+    category: "Sobremesas",
+    cal: 210,
+    time: 30,
+    diff: "Fácil",
+    goal: ["Manutenção"],
+    premium: true,
+    image: img("photo-1606313564200-e75d5e30476c"),
+    ingredients: ["2 ovos", "2 bananas", "3 colheres de cacau", "4 colheres de aveia", "Chocolate 70% picado"],
+    steps: ["Bata ovos e banana.", "Misture cacau e aveia.", "Adicione chocolate 70%.", "Asse por 22 minutos."],
+    macros: { protein: 8, carbs: 29, fat: 8 },
+  },
+  {
+    title: "Cheesecake proteico de frutas vermelhas",
+    description: "Doce gelado com proteína e visual premium.",
+    category: "Sobremesas",
+    cal: 230,
+    time: 20,
+    diff: "Médio",
+    goal: ["Manutenção", "Hipertrofia"],
+    premium: true,
+    image: img("photo-1533134242443-d4fd215305ad"),
+    ingredients: ["Iogurte grego", "Cream cheese light", "Whey baunilha", "Frutas vermelhas", "Base de aveia"],
+    steps: ["Misture iogurte, cream cheese e whey.", "Monte sobre a base de aveia.", "Cubra com frutas vermelhas.", "Geladeira por 2 horas."],
+    macros: { protein: 22, carbs: 24, fat: 7 },
+  },
+  {
+    title: "Mousse de chocolate com abacate",
+    description: "Textura cremosa sem creme de leite.",
+    category: "Sobremesas",
+    cal: 250,
+    time: 10,
+    diff: "Fácil",
+    goal: ["Low carb"],
+    premium: true,
+    image: img("photo-1488477304112-4944851de03d"),
+    ingredients: ["1 abacate pequeno", "2 colheres de cacau", "Adoçante ou mel", "Baunilha", "Chocolate 70% ralado"],
+    steps: ["Bata abacate, cacau e baunilha.", "Adoce aos poucos.", "Leve para gelar.", "Finalize com chocolate ralado."],
+    macros: { protein: 5, carbs: 18, fat: 19 },
+  },
+  {
+    title: "Muffin integral de maçã",
+    description: "Porção individual para lanche doce controlado.",
+    category: "Bolos fit",
+    cal: 170,
+    time: 28,
+    diff: "Fácil",
+    goal: ["Manutenção"],
+    premium: true,
+    image: img("photo-1607958996333-41aef7caefaa"),
+    ingredients: ["Maçã picada", "Aveia", "Ovo", "Canela", "Fermento", "Iogurte natural"],
+    steps: ["Misture os ingredientes úmidos.", "Adicione aveia, maçã e canela.", "Coloque em forminhas.", "Asse por 22 minutos."],
+    macros: { protein: 6, carbs: 27, fat: 5 },
+  },
+  {
+    title: "Pudim de chia com manga",
+    description: "Sobremesa fria rica em fibras.",
+    category: "Sobremesas",
+    cal: 190,
+    time: 8,
+    diff: "Fácil",
+    goal: ["Emagrecimento"],
+    premium: true,
+    image: img("photo-1488477181946-6428a0291777"),
+    ingredients: ["200ml leite vegetal", "2 colheres de chia", "Manga em cubos", "Canela", "Iogurte opcional"],
+    steps: ["Misture leite e chia.", "Descanse por 4 horas na geladeira.", "Adicione manga.", "Finalize com canela."],
+    macros: { protein: 7, carbs: 26, fat: 7 },
+  },
+  {
+    title: "Panqueca proteica de chocolate",
+    description: "Doce pós-treino com boa proteína.",
+    category: "Bolos fit",
+    cal: 320,
+    time: 15,
+    diff: "Fácil",
+    goal: ["Hipertrofia"],
+    premium: true,
+    image: img("photo-1528207776546-365bb710ee93"),
+    ingredients: ["1 ovo", "1 banana", "1 scoop whey chocolate", "2 colheres de aveia", "Cacau", "Morangos"],
+    steps: ["Misture todos os ingredientes.", "Doure em fogo baixo.", "Vire com cuidado.", "Sirva com morangos."],
+    macros: { protein: 31, carbs: 38, fat: 6 },
+  },
 ];
 
-const GOAL_LABELS: Record<string,string> = { emagrecimento:"🔥 Emagrecimento", hipertrofia:"💪 Hipertrofia", manutencao:"⚖️ Manutenção", low_carb:"🥑 Low Carb", definicao:"⚡ Definição" };
+const CATEGORIES = ["Todas", "Refeições", "Lanches", "Bolos fit", "Sobremesas", "Low carb", "Premium"] as const;
 
 export default function RecipesPage() {
   const [plan, setPlan] = useState("free");
-  const [filter, setFilter] = useState("Todas");
-  const [selected, setSelected] = useState<typeof RECIPES[0] | null>(null);
+  const [filter, setFilter] = useState<(typeof CATEGORIES)[number]>("Todas");
+  const [query, setQuery] = useState("");
+  const [selected, setSelected] = useState<Recipe | null>(null);
 
   useEffect(() => {
     fetch("/api/user/me").then(r => r.json()).then(d => setPlan(d.user?.plan ?? "free"));
   }, []);
 
-  const canAccess = (r: typeof RECIPES[0]) => !r.premium || plan === "premium" || plan === "start";
-  const filtered = RECIPES.filter(r => filter === "Todas" ? true : filter === "Premium" ? r.premium : r.diff === filter);
+  const canAccess = (recipe: Recipe) => !recipe.premium || plan === "premium" || plan === "start";
 
-  const printRecipe = (recipe: typeof RECIPES[0]) => {
-    const w = window.open("","_blank");
+  const filtered = useMemo(() => {
+    const normalizedQuery = query.trim().toLowerCase();
+    return RECIPES.filter(recipe => {
+      const matchCategory = filter === "Todas"
+        ? true
+        : filter === "Premium"
+          ? recipe.premium
+          : recipe.category === filter;
+      const matchQuery = !normalizedQuery || [
+        recipe.title,
+        recipe.description,
+        recipe.category,
+        ...recipe.goal,
+      ].join(" ").toLowerCase().includes(normalizedQuery);
+
+      return matchCategory && matchQuery;
+    });
+  }, [filter, query]);
+
+  const printRecipe = (recipe: Recipe) => {
+    const w = window.open("", "_blank");
     if (!w) return;
-    w.document.write(`<!DOCTYPE html><html lang="pt-BR"><head><meta charset="UTF-8"><title>${recipe.title} — Levefy</title><style>*{margin:0;padding:0;box-sizing:border-box}body{font-family:-apple-system,BlinkMacSystemFont,'Segoe UI',sans-serif;color:#1e293b;padding:40px;max-width:600px;margin:0 auto}.header{border-bottom:3px solid #16a34a;padding-bottom:20px;margin-bottom:24px}.brand{color:#16a34a;font-size:12px;font-weight:700;letter-spacing:2px;text-transform:uppercase;margin-bottom:8px}.emoji{font-size:48px;display:block;margin-bottom:12px}h1{font-size:22px;font-weight:800;line-height:1.3}.meta{display:flex;gap:16px;margin-top:10px;font-size:13px;color:#64748b;flex-wrap:wrap}.macros{display:grid;grid-template-columns:repeat(3,1fr);gap:12px;margin:24px 0}.macro{background:#f8fafc;border-radius:10px;padding:14px;text-align:center;border:1px solid #e2e8f0}.macro-val{font-size:20px;font-weight:800;color:#16a34a}.macro-lbl{font-size:11px;color:#94a3b8;margin-top:2px;text-transform:uppercase}h2{font-size:13px;font-weight:700;color:#16a34a;text-transform:uppercase;letter-spacing:1px;margin:24px 0 12px}ul{list-style:none}ul li{padding:8px 0;border-bottom:1px solid #f1f5f9;font-size:14px;display:flex;align-items:center;gap:8px}ul li::before{content:"•";color:#16a34a;font-weight:bold;font-size:18px}ol{list-style:none}ol li{padding:10px 0;border-bottom:1px solid #f1f5f9;font-size:14px;display:flex;gap:12px;align-items:flex-start}.num{background:#16a34a;color:white;border-radius:50%;width:22px;height:22px;display:flex;align-items:center;justify-content:center;font-size:11px;font-weight:700;flex-shrink:0;margin-top:1px}.footer{margin-top:32px;padding-top:16px;border-top:1px solid #e2e8f0;text-align:center;font-size:12px;color:#94a3b8}@media print{body{padding:20px}}</style></head><body><div class="header"><p class="brand">Levefy — Receita Saudável</p><span class="emoji">${recipe.emoji}</span><h1>${recipe.title}</h1><div class="meta"><span>🔥 ${recipe.cal} kcal</span><span>⏱ ${recipe.time} min</span><span>${recipe.diff}</span></div></div><div class="macros"><div class="macro"><div class="macro-val">${recipe.macros.protein}g</div><div class="macro-lbl">Proteína</div></div><div class="macro"><div class="macro-val">${recipe.macros.carbs}g</div><div class="macro-lbl">Carboidrato</div></div><div class="macro"><div class="macro-val">${recipe.macros.fat}g</div><div class="macro-lbl">Gordura</div></div></div><h2>🛒 Ingredientes</h2><ul>${recipe.ingredients.map(i=>`<li>${i}</li>`).join("")}</ul><h2>👩‍🍳 Modo de preparo</h2><ol>${recipe.steps.map((s,i)=>`<li><span class="num">${i+1}</span><span>${s}</span></li>`).join("")}</ol><div class="footer">Gerado pelo Levefy · levefy-mu.vercel.app · ${new Date().toLocaleDateString("pt-BR")}</div><script>window.onload=()=>{window.print();window.onafterprint=()=>window.close()}<\/script></body></html>`);
+    w.document.write(`<!DOCTYPE html><html lang="pt-BR"><head><meta charset="UTF-8"><title>${recipe.title} - Levefy</title><style>*{box-sizing:border-box}body{font-family:-apple-system,BlinkMacSystemFont,'Segoe UI',sans-serif;color:#172033;padding:32px;max-width:720px;margin:0 auto}.hero{width:100%;height:260px;object-fit:cover;border-radius:24px;margin-bottom:24px}.brand{color:#16a34a;font-size:12px;font-weight:800;letter-spacing:2px;text-transform:uppercase}h1{font-size:30px;line-height:1.15;margin:10px 0}.desc{color:#64748b}.meta{display:flex;gap:10px;flex-wrap:wrap;margin:18px 0}.pill{border:1px solid #e2e8f0;border-radius:999px;padding:8px 12px;font-size:13px}.macros{display:grid;grid-template-columns:repeat(3,1fr);gap:12px;margin:24px 0}.macro{background:#f8fafc;border-radius:16px;padding:16px;text-align:center}.macro strong{display:block;font-size:22px;color:#16a34a}h2{font-size:14px;text-transform:uppercase;letter-spacing:1px;color:#16a34a;margin-top:28px}li{margin:9px 0;color:#334155}.footer{margin-top:32px;border-top:1px solid #e2e8f0;padding-top:16px;color:#94a3b8;font-size:12px;text-align:center}@media print{body{padding:12px}.hero{height:180px}}</style></head><body><img class="hero" src="${recipe.image}" alt="${recipe.title}"><p class="brand">Levefy - Receita saudável</p><h1>${recipe.title}</h1><p class="desc">${recipe.description}</p><div class="meta"><span class="pill">${recipe.cal} kcal</span><span class="pill">${recipe.time} min</span><span class="pill">${recipe.diff}</span><span class="pill">${recipe.category}</span></div><div class="macros"><div class="macro"><strong>${recipe.macros.protein}g</strong>Proteína</div><div class="macro"><strong>${recipe.macros.carbs}g</strong>Carboidrato</div><div class="macro"><strong>${recipe.macros.fat}g</strong>Gordura</div></div><h2>Ingredientes</h2><ul>${recipe.ingredients.map(i=>`<li>${i}</li>`).join("")}</ul><h2>Modo de preparo</h2><ol>${recipe.steps.map(s=>`<li>${s}</li>`).join("")}</ol><div class="footer">Gerado pelo Levefy - levefy-mu.vercel.app - ${new Date().toLocaleDateString("pt-BR")}</div><script>window.onload=()=>{window.print();window.onafterprint=()=>window.close()}<\/script></body></html>`);
     w.document.close();
   };
 
   return (
     <AppShell title="Receitas">
-      <div className="flex items-center justify-between mb-6 flex-wrap gap-3">
-        <p className="text-slate-500 text-sm font-medium">
-          <span className="text-slate-900 font-bold">{filtered.length}</span> receitas disponíveis
-        </p>
-        <div className="flex gap-2 flex-wrap text-xs">
-          {["Todas","Fácil","Médio","Premium"].map(f => (
-            <button
-              key={f}
-              onClick={() => setFilter(f)}
-              className={`px-4 py-2 rounded-full border font-semibold transition-all duration-200 ${
-                filter === f
-                  ? "border-transparent text-white gradient-brand shadow-brand"
-                  : "border-slate-200 bg-white text-slate-600 hover:border-brand-300 hover:text-brand-700 hover:-translate-y-0.5"
-              }`}
-            >
-              {f}
-            </button>
-          ))}
+      <div className="mb-6 rounded-3xl bg-slate-950 p-5 text-white shadow-premium sm:p-7">
+        <div className="flex flex-col gap-4 lg:flex-row lg:items-end lg:justify-between">
+          <div>
+            <p className="text-[11px] font-extrabold uppercase tracking-[0.18em] text-emerald-300">Catálogo Levefy</p>
+            <h2 className="mt-2 text-2xl font-extrabold tracking-tight sm:text-3xl">
+              Receitas prontas com fotos reais, doces fit e opções premium.
+            </h2>
+            <p className="mt-2 max-w-2xl text-sm leading-relaxed text-white/65">
+              São {RECIPES.length} receitas organizadas por objetivo, com macros, ingredientes e modo de preparo.
+            </p>
+          </div>
+          <div className="grid grid-cols-3 gap-2 text-center">
+            <div className="rounded-2xl bg-white/10 px-3 py-3">
+              <p className="text-lg font-extrabold">{RECIPES.filter(r => !r.premium).length}</p>
+              <p className="text-[10px] text-white/55">grátis</p>
+            </div>
+            <div className="rounded-2xl bg-white/10 px-3 py-3">
+              <p className="text-lg font-extrabold">{RECIPES.filter(r => r.premium).length}</p>
+              <p className="text-[10px] text-white/55">premium</p>
+            </div>
+            <div className="rounded-2xl bg-white/10 px-3 py-3">
+              <p className="text-lg font-extrabold">6</p>
+              <p className="text-[10px] text-white/55">doces fit</p>
+            </div>
+          </div>
         </div>
       </div>
 
-      <div className="grid sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-4">
-        {filtered.map(r => (
-          <div
-            key={r.title}
-            className={`card card-hover p-5 flex flex-col group relative overflow-hidden ${
-              canAccess(r) ? "cursor-pointer" : ""
+      <div className="mb-5 flex flex-col gap-3 lg:flex-row lg:items-center lg:justify-between">
+        <div className="relative w-full lg:max-w-sm">
+          <Search className="pointer-events-none absolute left-4 top-1/2 h-4 w-4 -translate-y-1/2 text-slate-400" />
+          <input
+            value={query}
+            onChange={event => setQuery(event.target.value)}
+            placeholder="Buscar bolo, frango, sobremesa..."
+            className="w-full rounded-2xl border border-slate-200 bg-white py-3 pl-11 pr-4 text-sm font-medium outline-none transition focus:border-brand-400 focus:ring-4 focus:ring-brand-100"
+          />
+        </div>
+        <p className="text-sm font-medium text-slate-500">
+          <span className="font-extrabold text-slate-900">{filtered.length}</span> receitas encontradas
+        </p>
+      </div>
+
+      <div className="mb-6 flex gap-2 overflow-x-auto pb-1 text-xs">
+        {CATEGORIES.map(category => (
+          <button
+            key={category}
+            onClick={() => setFilter(category)}
+            className={`shrink-0 rounded-full border px-4 py-2 font-bold transition-all ${
+              filter === category
+                ? "border-transparent gradient-brand text-white shadow-brand"
+                : "border-slate-200 bg-white text-slate-600 hover:border-brand-300 hover:text-brand-700"
             }`}
-            onClick={() => canAccess(r) && setSelected(r)}
           >
-            {r.premium && (
-              <span className="absolute top-3 right-3 inline-flex items-center gap-1 px-2 py-0.5 rounded-full bg-amber-50 border border-amber-100 text-amber-700 text-[10px] font-bold">
-                <Crown className="w-2.5 h-2.5" /> PRO
-              </span>
-            )}
-            <div className="w-14 h-14 rounded-2xl bg-brand-50/60 flex items-center justify-center text-3xl sm:text-4xl mb-4 group-hover:scale-110 transition-transform duration-200">
-              {r.emoji}
-            </div>
-            <h3 className="font-bold text-sm leading-snug mb-2 line-clamp-2">{r.title}</h3>
-            <div className="flex items-center gap-3 text-[11px] text-slate-500 mb-3 flex-wrap font-medium">
-              <span className="flex items-center gap-1"><Flame className="w-3 h-3 text-orange-400"/>{r.cal} kcal</span>
-              <span className="flex items-center gap-1"><Clock className="w-3 h-3"/>{r.time} min</span>
-              <span className="px-1.5 py-0.5 rounded-md bg-slate-100 text-slate-600">{r.diff}</span>
-            </div>
-            <div className="flex flex-wrap gap-1 mt-auto mb-3">
-              {r.goal.map(g => (
-                <span key={g} className="px-2 py-0.5 bg-brand-50 text-brand-700 text-[10px] rounded-full font-bold">
-                  {GOAL_LABELS[g]}
+            {category}
+          </button>
+        ))}
+      </div>
+
+      <div className="grid gap-4 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4">
+        {filtered.map(recipe => (
+          <article
+            key={recipe.title}
+            className={`group overflow-hidden rounded-3xl border border-slate-100 bg-white shadow-sm transition-all hover:-translate-y-0.5 hover:shadow-xl ${
+              canAccess(recipe) ? "cursor-pointer" : ""
+            }`}
+            onClick={() => canAccess(recipe) && setSelected(recipe)}
+          >
+            <div className="relative aspect-[4/3] overflow-hidden bg-slate-100">
+              <img
+                src={recipe.image}
+                alt={recipe.title}
+                loading="lazy"
+                className="h-full w-full object-cover transition duration-500 group-hover:scale-105"
+              />
+              <div className="absolute inset-x-0 top-0 flex items-start justify-between gap-2 p-3">
+                <span className="rounded-full bg-white/90 px-3 py-1 text-[10px] font-extrabold uppercase tracking-wider text-slate-700 shadow-sm">
+                  {recipe.category}
                 </span>
-              ))}
+                {recipe.premium && (
+                  <span className="inline-flex items-center gap-1 rounded-full bg-amber-400 px-3 py-1 text-[10px] font-extrabold text-amber-950 shadow-sm">
+                    <Crown className="h-3 w-3" /> PRO
+                  </span>
+                )}
+              </div>
+              {!canAccess(recipe) && (
+                <div className="absolute inset-0 flex items-center justify-center bg-slate-950/45 backdrop-blur-[1px]">
+                  <span className="inline-flex items-center gap-2 rounded-full bg-white px-4 py-2 text-xs font-extrabold text-slate-900">
+                    <Lock className="h-3.5 w-3.5" /> Plano pago
+                  </span>
+                </div>
+              )}
             </div>
-            {canAccess(r) ? (
-              <span className="flex items-center gap-1 text-xs text-brand-600 font-bold group-hover:gap-2 transition-all">
-                Ver receita <ChevronRight className="w-3.5 h-3.5"/>
-              </span>
-            ) : (
-              <span className="flex items-center gap-1 text-xs text-amber-600 font-bold">
-                <Lock className="w-3 h-3"/> Requer plano pago
-              </span>
-            )}
-          </div>
+
+            <div className="p-4">
+              <h3 className="line-clamp-2 text-sm font-extrabold leading-snug text-slate-950">{recipe.title}</h3>
+              <p className="mt-1 line-clamp-2 min-h-9 text-xs leading-relaxed text-slate-500">{recipe.description}</p>
+              <div className="mt-3 flex flex-wrap items-center gap-2 text-[11px] font-bold text-slate-500">
+                <span className="inline-flex items-center gap-1 rounded-full bg-orange-50 px-2.5 py-1 text-orange-700">
+                  <Flame className="h-3 w-3" /> {recipe.cal} kcal
+                </span>
+                <span className="inline-flex items-center gap-1 rounded-full bg-slate-100 px-2.5 py-1">
+                  <Clock className="h-3 w-3" /> {recipe.time} min
+                </span>
+                <span className="rounded-full bg-slate-100 px-2.5 py-1">{recipe.diff}</span>
+              </div>
+              <div className="mt-4 flex items-center justify-between">
+                <div className="text-[11px] text-slate-400">
+                  P {recipe.macros.protein}g · C {recipe.macros.carbs}g · G {recipe.macros.fat}g
+                </div>
+                {canAccess(recipe) && (
+                  <span className="inline-flex items-center gap-1 text-xs font-extrabold text-brand-700">
+                    Ver <ChevronRight className="h-3.5 w-3.5" />
+                  </span>
+                )}
+              </div>
+            </div>
+          </article>
         ))}
       </div>
 
       {plan === "free" && (
-        <div className="mt-10 card p-5 sm:p-6 gradient-brand text-white flex items-center justify-between gap-4 flex-wrap relative overflow-hidden shadow-premium">
-          <div className="absolute inset-0 bg-[radial-gradient(circle_at_top_right,rgba(255,255,255,0.2),transparent_60%)] pointer-events-none" />
-          <div className="relative">
-            <p className="font-extrabold text-lg tracking-tight">🔓 Desbloqueie todas as receitas</p>
-            <p className="text-sm text-white/85 mt-1">Acesse receitas exclusivas com START ou PREMIUM</p>
+        <div className="mt-10 flex flex-col gap-4 rounded-3xl gradient-brand p-5 text-white shadow-premium sm:flex-row sm:items-center sm:justify-between sm:p-6">
+          <div>
+            <p className="text-lg font-extrabold tracking-tight">Desbloqueie bolos fit, sobremesas e receitas premium</p>
+            <p className="mt-1 text-sm text-white/85">START e PREMIUM liberam todo o catálogo visual do Levefy.</p>
           </div>
-          <Link
-            href="/membership"
-            className="relative bg-white text-brand-700 font-bold px-6 py-3 rounded-full text-sm shrink-0 hover:-translate-y-0.5 hover:bg-brand-50 transition-all duration-200 shadow-soft"
-          >
+          <Link href="/membership" className="inline-flex justify-center rounded-full bg-white px-6 py-3 text-sm font-extrabold text-brand-700 shadow-soft">
             Ver planos
           </Link>
         </div>
       )}
 
       {selected && (
-        <div className="fixed inset-0 bg-slate-900/60 backdrop-blur-sm flex items-end sm:items-center justify-center z-50 animate-fade-in">
-          <div className="bg-white w-full sm:rounded-3xl sm:max-w-lg max-h-[92vh] overflow-y-auto rounded-t-3xl shadow-premium">
-            <div className="sticky top-0 bg-white/95 backdrop-blur-xl border-b border-slate-100 px-5 py-4 flex items-center justify-between">
-              <div className="flex items-center gap-3 min-w-0">
-                <span className="text-2xl shrink-0 w-10 h-10 rounded-2xl bg-brand-50 flex items-center justify-center">{selected.emoji}</span>
-                <div className="min-w-0">
-                  <h2 className="font-extrabold text-sm leading-tight truncate">{selected.title}</h2>
-                  <div className="flex gap-2 text-[11px] text-slate-500 mt-0.5 font-medium">
-                    <span>🔥 {selected.cal} kcal</span><span>⏱ {selected.time} min</span>
-                  </div>
-                </div>
-              </div>
+        <div className="fixed inset-0 z-50 flex items-end justify-center bg-slate-900/65 backdrop-blur-sm animate-fade-in sm:items-center">
+          <div className="max-h-[92vh] w-full overflow-y-auto rounded-t-3xl bg-white shadow-premium sm:max-w-2xl sm:rounded-3xl">
+            <div className="relative h-64 overflow-hidden bg-slate-100 sm:h-80">
+              <img src={selected.image} alt={selected.title} className="h-full w-full object-cover" />
               <button
                 onClick={() => setSelected(null)}
-                className="w-9 h-9 flex items-center justify-center rounded-full bg-slate-100 hover:bg-slate-200 shrink-0 ml-2 transition-colors"
+                className="absolute right-4 top-4 flex h-10 w-10 items-center justify-center rounded-full bg-white/90 text-slate-700 shadow-sm transition hover:bg-white"
+                aria-label="Fechar receita"
               >
-                <X className="w-4 h-4 text-slate-600"/>
+                <X className="h-4 w-4" />
               </button>
+              {selected.premium && (
+                <span className="absolute left-4 top-4 inline-flex items-center gap-1 rounded-full bg-amber-400 px-3 py-1 text-xs font-extrabold text-amber-950">
+                  <Crown className="h-3.5 w-3.5" /> Premium
+                </span>
+              )}
             </div>
-            <div className="px-5 py-5">
-              <div className="grid grid-cols-3 gap-2 mb-6">
+            <div className="p-5 sm:p-7">
+              <p className="text-xs font-extrabold uppercase tracking-widest text-brand-700">{selected.category}</p>
+              <h2 className="mt-2 text-2xl font-extrabold tracking-tight text-slate-950">{selected.title}</h2>
+              <p className="mt-2 text-sm leading-relaxed text-slate-500">{selected.description}</p>
+
+              <div className="mt-5 grid grid-cols-3 gap-2">
                 {[
-                  { l: "Proteína", v: `${selected.macros.protein}g`, c: "text-blue-700", b: "bg-blue-50" },
-                  { l: "Carbo",    v: `${selected.macros.carbs}g`,   c: "text-amber-700", b: "bg-amber-50" },
-                  { l: "Gordura",  v: `${selected.macros.fat}g`,     c: "text-rose-700",  b: "bg-rose-50" },
-                ].map(m => (
-                  <div key={m.l} className={`${m.b} rounded-2xl p-3 text-center`}>
-                    <p className={`font-extrabold text-lg ${m.c}`}>{m.v}</p>
-                    <p className="text-[11px] text-slate-500 font-medium">{m.l}</p>
+                  { label: "Proteína", value: `${selected.macros.protein}g`, color: "bg-blue-50 text-blue-700" },
+                  { label: "Carbo", value: `${selected.macros.carbs}g`, color: "bg-amber-50 text-amber-700" },
+                  { label: "Gordura", value: `${selected.macros.fat}g`, color: "bg-rose-50 text-rose-700" },
+                ].map(item => (
+                  <div key={item.label} className={`rounded-2xl p-3 text-center ${item.color}`}>
+                    <p className="text-lg font-extrabold">{item.value}</p>
+                    <p className="text-[11px] font-bold opacity-70">{item.label}</p>
                   </div>
                 ))}
               </div>
-              <h3 className="font-bold text-sm mb-3 uppercase tracking-wider text-slate-500">🛒 Ingredientes</h3>
-              <ul className="space-y-2 mb-6">
-                {selected.ingredients.map((ing,i)=>(
-                  <li key={i} className="text-sm text-slate-600 flex items-start gap-2.5">
-                    <span className="w-1.5 h-1.5 bg-brand-500 rounded-full shrink-0 mt-2"/>
-                    {ing}
+
+              <h3 className="mt-7 text-xs font-extrabold uppercase tracking-widest text-slate-400">Ingredientes</h3>
+              <ul className="mt-3 space-y-2">
+                {selected.ingredients.map(ingredient => (
+                  <li key={ingredient} className="flex items-start gap-2 text-sm text-slate-600">
+                    <span className="mt-2 h-1.5 w-1.5 shrink-0 rounded-full bg-brand-500" />
+                    {ingredient}
                   </li>
                 ))}
               </ul>
-              <h3 className="font-bold text-sm mb-3 uppercase tracking-wider text-slate-500">👩‍🍳 Modo de preparo</h3>
-              <ol className="space-y-3 mb-7">
-                {selected.steps.map((step,i)=>(
-                  <li key={i} className="text-sm text-slate-700 flex gap-3">
-                    <span className="w-7 h-7 gradient-brand text-white rounded-full flex items-center justify-center text-xs font-extrabold shrink-0 mt-0.5 shadow-brand">
-                      {i+1}
+
+              <h3 className="mt-7 text-xs font-extrabold uppercase tracking-widest text-slate-400">Modo de preparo</h3>
+              <ol className="mt-3 space-y-3">
+                {selected.steps.map((step, index) => (
+                  <li key={step} className="flex gap-3 text-sm leading-relaxed text-slate-700">
+                    <span className="flex h-7 w-7 shrink-0 items-center justify-center rounded-full gradient-brand text-xs font-extrabold text-white shadow-brand">
+                      {index + 1}
                     </span>
-                    <span className="leading-relaxed pt-1">{step}</span>
+                    <span className="pt-1">{step}</span>
                   </li>
                 ))}
               </ol>
-              <button onClick={() => printRecipe(selected)} className="btn-primary w-full gap-2">
-                <Download className="w-4 h-4"/> Salvar / Imprimir PDF
+
+              <button onClick={() => printRecipe(selected)} className="btn-primary mt-7 w-full gap-2">
+                <Download className="h-4 w-4" /> Salvar / Imprimir PDF
               </button>
             </div>
           </div>
