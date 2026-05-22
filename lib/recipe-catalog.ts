@@ -222,37 +222,50 @@ export function buildRecipeCatalog<T extends RecipeLike>(baseRecipes: T[]): T[] 
   baseRecipes.forEach(add);
 
   let index = 0;
-  for (const group of GROUPS) {
-    for (const base of group.bases) {
-      for (const variant of group.variants) {
-        const cal = interpolate(index, group.cal);
-        const time = interpolate(index + 3, group.time);
-        const premium = group.premiumFrom ? index % group.premiumFrom === 0 : recipes.length >= FREE_RECIPE_LIMIT;
-        const variantWords = variant.replace("com ", "").replace("sem ", "");
+  const cursors = new Map<string, number>();
 
-        add({
-          title: `${base} ${variant}`,
-          description: `${group.description} Versão ${variantWords} para variar o cardápio sem sair da proposta fit.`,
-          category: group.category,
-          cal,
-          time,
-          diff: time > 28 ? "Médio" : "Fácil",
-          goal: unique([...group.goals, group.category, variantWords]),
-          premium,
-          image: img(group.photos[index % group.photos.length]),
-          ingredients: unique([...group.ingredients, variantWords]).slice(0, 8),
-          steps: group.steps,
-          macros: {
-            protein: Math.max(2, group.macros.protein + ((index % 5) - 2) * 2),
-            carbs: Math.max(1, group.macros.carbs + ((index % 7) - 3) * 3),
-            fat: Math.max(1, group.macros.fat + ((index % 4) - 1) * 2),
-          },
-        });
+  while (recipes.length < 200) {
+    let addedInRound = false;
 
-        index += 1;
-        if (recipes.length >= 200) return finalize();
-      }
+    for (const group of GROUPS) {
+      const cursor = cursors.get(group.category) ?? 0;
+      const maxCombinations = group.bases.length * group.variants.length;
+
+      if (cursor >= maxCombinations) continue;
+
+      const base = group.bases[cursor % group.bases.length];
+      const variant = group.variants[Math.floor(cursor / group.bases.length) % group.variants.length];
+      const cal = interpolate(index, group.cal);
+      const time = interpolate(index + 3, group.time);
+      const variantWords = variant.replace("com ", "").replace("sem ", "");
+
+      add({
+        title: `${base} ${variant}`,
+        description: `${group.description} Versão ${variantWords} para variar o cardápio sem sair da proposta fit.`,
+        category: group.category,
+        cal,
+        time,
+        diff: time > 28 ? "Médio" : "Fácil",
+        goal: unique([...group.goals, group.category, variantWords]),
+        premium: recipes.length >= FREE_RECIPE_LIMIT,
+        image: img(group.photos[(cursor + index) % group.photos.length]),
+        ingredients: unique([...group.ingredients, variantWords]).slice(0, 8),
+        steps: group.steps,
+        macros: {
+          protein: Math.max(2, group.macros.protein + ((index % 5) - 2) * 2),
+          carbs: Math.max(1, group.macros.carbs + ((index % 7) - 3) * 3),
+          fat: Math.max(1, group.macros.fat + ((index % 4) - 1) * 2),
+        },
+      });
+
+      cursors.set(group.category, cursor + 1);
+      index += 1;
+      addedInRound = true;
+
+      if (recipes.length >= 200) return finalize();
     }
+
+    if (!addedInRound) break;
   }
 
   return finalize();
