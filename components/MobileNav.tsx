@@ -1,8 +1,7 @@
 "use client";
 import Link from "next/link";
-import { usePathname, useRouter } from "next/navigation";
-import { LayoutDashboard, UtensilsCrossed, Trophy, User, Crown, LogOut, Brain } from "lucide-react";
-import { auth } from "@/lib/auth";
+import { usePathname } from "next/navigation";
+import { LayoutDashboard, UtensilsCrossed, Trophy, User, Crown, Brain } from "lucide-react";
 
 const items = [
   { href: "/dashboard",   icon: LayoutDashboard, label: "Painel" },
@@ -15,26 +14,10 @@ const items = [
 
 export default function MobileNav() {
   const pathname = usePathname();
-  const router = useRouter();
-
-  const handleSignOut = async () => {
-    await auth.signOut();
-    router.push("/login");
-    router.refresh();
-  };
 
   return (
     <nav className="lg:hidden fixed bottom-0 inset-x-0 z-40 pointer-events-none">
       <div className="relative mx-auto mb-0.5 w-[calc(100%-0.75rem)] max-w-lg mobile-safe-bottom pointer-events-auto sm:w-[calc(100%-2rem)]">
-        <button
-          type="button"
-          onClick={handleSignOut}
-          aria-label="Sair"
-          title="Sair"
-          className="absolute -top-9 right-1 flex h-8 w-8 items-center justify-center rounded-full border border-slate-100 bg-white/95 text-slate-400 shadow-[0_12px_35px_-18px_rgba(15,23,42,0.7)] backdrop-blur-xl transition hover:text-red-500"
-        >
-          <LogOut className="h-3.5 w-3.5" />
-        </button>
         <div className="rounded-[22px] border border-slate-100 bg-white/[0.94] px-1 py-0.5 shadow-[0_14px_44px_-24px_rgba(15,23,42,0.5)] backdrop-blur-xl">
           <div className="grid grid-cols-6 gap-0.5">
             {items.map(({ href, icon: Icon, label }) => {

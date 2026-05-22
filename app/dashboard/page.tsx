@@ -3,6 +3,7 @@
 import { useState, useEffect } from "react";
 import AppShell from "@/components/AppShell";
 import HabitLoopCenter from "@/components/HabitLoopCenter";
+import MobileDashboard from "@/components/MobileDashboard";
 import { Flame, Droplets, Target, Trophy, TrendingUp, Zap, ChevronRight, Brain, Sparkles, ArrowRight } from "lucide-react";
 import { LineChart, Line, BarChart, Bar, XAxis, YAxis, CartesianGrid, Tooltip, ResponsiveContainer } from "recharts";
 import Link from "next/link";
@@ -78,7 +79,20 @@ export default function DashboardPage() {
   const PrimaryActionIcon = primaryAction.icon;
 
   if (loading) return (
-    <AppShell title="Painel">
+    <AppShell
+      title="Painel"
+      mobile={
+        <MobileDashboard
+          user={user}
+          water={water}
+          setWater={setWater}
+          waterTarget={waterTarget}
+          onboardingComplete={onboardingComplete}
+          isPaid={isPaid}
+          primaryAction={primaryAction}
+        />
+      }
+    >
       <div className="space-y-3 sm:space-y-4">
         <div className="skeleton h-28 sm:h-32 w-full" />
         <div className="grid grid-cols-2 lg:grid-cols-4 gap-2.5 sm:gap-4">
