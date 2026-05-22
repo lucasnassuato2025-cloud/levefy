@@ -24,8 +24,25 @@ export const metadata = {
     title: "Levefy | Rotina saudável com IA",
     description:
       "Planos alimentares, receitas e hábitos com IA para deixar sua rotina mais simples.",
+    url: "https://levefy-mu.vercel.app",
+    siteName: "Levefy",
     type: "website",
-    images: [{ url: "/og.png", width: 1200, height: 630 }],
+    locale: "pt_BR",
+    images: [
+      {
+        url: "/og.png",
+        width: 1200,
+        height: 630,
+        alt: "Levefy - Rotina saudável com IA",
+      },
+    ],
+  },
+  twitter: {
+    card: "summary_large_image",
+    title: "Levefy | Rotina saudável com IA",
+    description:
+      "Planos alimentares, receitas e hábitos com IA para deixar sua rotina mais simples.",
+    images: ["/og.png"],
   },
 };
 
@@ -499,14 +516,14 @@ export default function LandingPage() {
               Termos
             </Link>
             <span>Levefy não substitui orientação médica ou nutricional.</span>
-            <span className="flex flex-col gap-0.5 rounded-2xl border border-slate-200 bg-slate-50 px-4 py-2 text-left leading-tight">
-              <span className="text-[10px] font-extrabold uppercase tracking-[0.16em] text-slate-400">
-                Créditos de desenvolvimento
+            <span className="flex flex-col gap-0.5 text-left leading-tight text-slate-400">
+              <span className="text-[10px] font-bold uppercase tracking-[0.18em]">
+                Desenvolvimento
               </span>
-              <span className="font-extrabold text-slate-800">
+              <span className="text-xs font-semibold text-slate-600">
                 Lucas Nassuato da Silva
               </span>
-              <span className="text-xs font-bold text-slate-400">
+              <span className="text-xs">
                 © 2026 Levefy
               </span>
             </span>

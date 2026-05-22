@@ -2,19 +2,35 @@ import type { Metadata, Viewport } from "next";
 import "./globals.css";
 
 export const metadata: Metadata = {
-  title: "Levefy — Plano alimentar inteligente em 60 segundos",
-  description: "Dietas personalizadas, receitas e progresso inteligente sem complicação. Meal AI que se adapta ao seu corpo.",
+  metadataBase: new URL("https://levefy-mu.vercel.app"),
+  title: "Levefy | Rotina saudável com IA",
+  description: "Planos, receitas, hábitos e check-ins em um só lugar. Comece grátis com o Levefy.",
   applicationName: "Levefy",
   manifest: "/manifest.json",
   appleWebApp: { capable: true, statusBarStyle: "default", title: "Levefy" },
   icons: { icon: "/favicon.ico", apple: "/icons/apple-touch-icon.png" },
   openGraph: {
-    title: "Levefy — Plano alimentar inteligente",
-    description: "Dietas personalizadas em 60 segundos. Sem enrolação.",
+    title: "Levefy | Rotina saudável com IA",
+    description: "Organize sua alimentação com planos, receitas e hábitos em um só lugar.",
+    url: "https://levefy-mu.vercel.app",
+    siteName: "Levefy",
     type: "website",
-    images: [{ url: "/og.png", width: 1200, height: 630 }],
+    locale: "pt_BR",
+    images: [
+      {
+        url: "/og.png",
+        width: 1200,
+        height: 630,
+        alt: "Levefy - Rotina saudável com IA",
+      },
+    ],
   },
-  twitter: { card: "summary_large_image", title: "Levefy", description: "Plano alimentar inteligente em 60 segundos" },
+  twitter: {
+    card: "summary_large_image",
+    title: "Levefy | Rotina saudável com IA",
+    description: "Planos, receitas, hábitos e check-ins em um só lugar.",
+    images: ["/og.png"],
+  },
 };
 
 export const viewport: Viewport = {
