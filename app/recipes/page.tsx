@@ -4,8 +4,22 @@ import { useEffect, useMemo, useState } from "react";
 import AppShell from "@/components/AppShell";
 import { Clock, Flame, Crown, Lock, Download, X, ChevronRight, Search } from "lucide-react";
 import Link from "next/link";
+import { buildRecipeCatalog } from "@/lib/recipe-catalog";
 
-type RecipeCategory = "Refeições" | "Lanches" | "Bolos fit" | "Sobremesas" | "Low carb";
+type RecipeCategory =
+  | "Refeições"
+  | "Lanches"
+  | "Bolos fit"
+  | "Sobremesas"
+  | "Low carb"
+  | "Churrasco fit"
+  | "Carnes vermelhas"
+  | "Massas fit"
+  | "Sucos detox"
+  | "Sucos naturais"
+  | "Hipertensão"
+  | "Fumantes"
+  | "Gorduras boas";
 
 type Recipe = {
   title: string;
@@ -24,7 +38,7 @@ type Recipe = {
 
 const img = (id: string) => `https://images.unsplash.com/${id}?auto=format&fit=crop&w=900&q=82`;
 
-const RECIPES: Recipe[] = [
+const BASE_RECIPES: Recipe[] = [
   {
     title: "Bowl de frango grelhado com quinoa",
     description: "Almoço proteico, colorido e fácil de montar.",
@@ -293,7 +307,25 @@ const RECIPES: Recipe[] = [
   },
 ];
 
-const CATEGORIES = ["Todas", "Refeições", "Lanches", "Bolos fit", "Sobremesas", "Low carb", "Premium"] as const;
+const RECIPES = buildRecipeCatalog(BASE_RECIPES);
+
+const CATEGORIES = [
+  "Todas",
+  "Refeições",
+  "Lanches",
+  "Bolos fit",
+  "Sobremesas",
+  "Low carb",
+  "Churrasco fit",
+  "Carnes vermelhas",
+  "Massas fit",
+  "Sucos detox",
+  "Sucos naturais",
+  "Gorduras boas",
+  "Hipertensão",
+  "Fumantes",
+  "Premium",
+] as const;
 
 export default function RecipesPage() {
   const [plan, setPlan] = useState("free");
@@ -314,12 +346,14 @@ export default function RecipesPage() {
         ? true
         : filter === "Premium"
           ? recipe.premium
-          : recipe.category === filter;
+          : recipe.category === filter || recipe.goal.includes(filter);
       const matchQuery = !normalizedQuery || [
         recipe.title,
         recipe.description,
         recipe.category,
         ...recipe.goal,
+        ...recipe.ingredients,
+        ...recipe.steps,
       ].join(" ").toLowerCase().includes(normalizedQuery);
 
       return matchCategory && matchQuery;
