@@ -30,9 +30,10 @@ export const metadata = {
     locale: "pt_BR",
     images: [
       {
-        url: "/og.png",
+        url: "/og.jpg",
         width: 1200,
         height: 630,
+        type: "image/jpeg",
         alt: "Levefy - Rotina saudável com IA",
       },
     ],
@@ -42,7 +43,7 @@ export const metadata = {
     title: "Levefy | Rotina saudável com IA",
     description:
       "Planos alimentares, receitas e hábitos com IA para deixar sua rotina mais simples.",
-    images: ["/og.png"],
+    images: ["/og.jpg"],
   },
 };
 
