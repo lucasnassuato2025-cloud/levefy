@@ -45,7 +45,8 @@ export const PREMIUM_VALUE_STACK = [
 ];
 
 export function normalizePlan(plan?: string | null): LevefyPlan {
-  if (plan === "premium" || plan === "start") return plan;
+  const normalized = plan?.trim().toLowerCase();
+  if (normalized === "premium" || normalized === "start") return normalized;
   return "free";
 }
 

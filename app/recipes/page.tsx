@@ -5,6 +5,7 @@ import AppShell from "@/components/AppShell";
 import { Clock, Flame, Crown, Lock, Download, X, ChevronRight, Search } from "lucide-react";
 import Link from "next/link";
 import { buildRecipeCatalog } from "@/lib/recipe-catalog";
+import { normalizePlan } from "@/lib/plan-access";
 
 type RecipeCategory =
   | "Refeições"
@@ -309,6 +310,10 @@ const BASE_RECIPES: Recipe[] = [
 
 const RECIPES = buildRecipeCatalog(BASE_RECIPES);
 
+function recipePrintHtml(recipe: Recipe) {
+  return `<!DOCTYPE html><html lang="pt-BR"><head><meta charset="UTF-8"><title>${recipe.title} - Levefy</title><style>*{box-sizing:border-box}body{font-family:-apple-system,BlinkMacSystemFont,'Segoe UI',sans-serif;color:#172033;padding:32px;max-width:720px;margin:0 auto}.brand{color:#16a34a;font-size:12px;font-weight:800;letter-spacing:2px;text-transform:uppercase}h1{font-size:30px;line-height:1.15;margin:10px 0}.desc{color:#64748b}.meta{display:flex;gap:10px;flex-wrap:wrap;margin:18px 0}.pill{border:1px solid #e2e8f0;border-radius:999px;padding:8px 12px;font-size:13px}.macros{display:grid;grid-template-columns:repeat(3,1fr);gap:12px;margin:24px 0}.macro{background:#f8fafc;border-radius:16px;padding:16px;text-align:center}.macro strong{display:block;font-size:22px;color:#16a34a}h2{font-size:14px;text-transform:uppercase;letter-spacing:1px;color:#16a34a;margin-top:28px}li{margin:9px 0;color:#334155}.footer{margin-top:32px;border-top:1px solid #e2e8f0;padding-top:16px;color:#94a3b8;font-size:12px;text-align:center}@media print{body{padding:12px}}</style></head><body><p class="brand">Levefy - Receita saudável</p><h1>${recipe.title}</h1><p class="desc">${recipe.description}</p><div class="meta"><span class="pill">${recipe.cal} kcal</span><span class="pill">${recipe.time} min</span><span class="pill">${recipe.diff}</span><span class="pill">${recipe.category}</span></div><div class="macros"><div class="macro"><strong>${recipe.macros.protein}g</strong>Proteína</div><div class="macro"><strong>${recipe.macros.carbs}g</strong>Carboidrato</div><div class="macro"><strong>${recipe.macros.fat}g</strong>Gordura</div></div><h2>Ingredientes</h2><ul>${recipe.ingredients.map(item => `<li>${item}</li>`).join("")}</ul><h2>Modo de preparo</h2><ol>${recipe.steps.map(step => `<li>${step}</li>`).join("")}</ol><div class="footer">Gerado pelo Levefy - levefy-mu.vercel.app - ${new Date().toLocaleDateString("pt-BR")}</div></body></html>`;
+}
+
 const CATEGORIES = [
   "Todas",
   "Refeições",
@@ -332,12 +337,16 @@ export default function RecipesPage() {
   const [filter, setFilter] = useState<(typeof CATEGORIES)[number]>("Todas");
   const [query, setQuery] = useState("");
   const [selected, setSelected] = useState<Recipe | null>(null);
+  const activePlan = normalizePlan(plan);
 
   useEffect(() => {
     fetch("/api/user/me").then(r => r.json()).then(d => setPlan(d.user?.plan ?? "free"));
   }, []);
 
-  const canAccess = (recipe: Recipe) => !recipe.premium || plan === "premium" || plan === "start";
+  const canAccess = (recipe: Recipe) => !recipe.premium || activePlan !== "free";
+  const openRecipe = (recipe: Recipe) => {
+    if (canAccess(recipe)) setSelected(recipe);
+  };
 
   const filtered = useMemo(() => {
     const normalizedQuery = query.trim().toLowerCase();
@@ -361,17 +370,45 @@ export default function RecipesPage() {
   }, [filter, query]);
 
   const printRecipe = (recipe: Recipe) => {
-    const w = window.open("", "_blank");
-    if (!w) return;
-    w.document.write(`<!DOCTYPE html><html lang="pt-BR"><head><meta charset="UTF-8"><title>${recipe.title} - Levefy</title><style>*{box-sizing:border-box}body{font-family:-apple-system,BlinkMacSystemFont,'Segoe UI',sans-serif;color:#172033;padding:32px;max-width:720px;margin:0 auto}.hero{width:100%;height:260px;object-fit:cover;border-radius:24px;margin-bottom:24px}.brand{color:#16a34a;font-size:12px;font-weight:800;letter-spacing:2px;text-transform:uppercase}h1{font-size:30px;line-height:1.15;margin:10px 0}.desc{color:#64748b}.meta{display:flex;gap:10px;flex-wrap:wrap;margin:18px 0}.pill{border:1px solid #e2e8f0;border-radius:999px;padding:8px 12px;font-size:13px}.macros{display:grid;grid-template-columns:repeat(3,1fr);gap:12px;margin:24px 0}.macro{background:#f8fafc;border-radius:16px;padding:16px;text-align:center}.macro strong{display:block;font-size:22px;color:#16a34a}h2{font-size:14px;text-transform:uppercase;letter-spacing:1px;color:#16a34a;margin-top:28px}li{margin:9px 0;color:#334155}.footer{margin-top:32px;border-top:1px solid #e2e8f0;padding-top:16px;color:#94a3b8;font-size:12px;text-align:center}@media print{body{padding:12px}.hero{height:180px}}</style></head><body><img class="hero" src="${recipe.image}" alt="${recipe.title}"><p class="brand">Levefy - Receita saudável</p><h1>${recipe.title}</h1><p class="desc">${recipe.description}</p><div class="meta"><span class="pill">${recipe.cal} kcal</span><span class="pill">${recipe.time} min</span><span class="pill">${recipe.diff}</span><span class="pill">${recipe.category}</span></div><div class="macros"><div class="macro"><strong>${recipe.macros.protein}g</strong>Proteína</div><div class="macro"><strong>${recipe.macros.carbs}g</strong>Carboidrato</div><div class="macro"><strong>${recipe.macros.fat}g</strong>Gordura</div></div><h2>Ingredientes</h2><ul>${recipe.ingredients.map(i=>`<li>${i}</li>`).join("")}</ul><h2>Modo de preparo</h2><ol>${recipe.steps.map(s=>`<li>${s}</li>`).join("")}</ol><div class="footer">Gerado pelo Levefy - levefy-mu.vercel.app - ${new Date().toLocaleDateString("pt-BR")}</div><script>window.onload=()=>{window.print();window.onafterprint=()=>window.close()}<\/script></body></html>`);
-    w.document.close();
+    const iframe = document.createElement("iframe");
+    iframe.setAttribute("aria-hidden", "true");
+    iframe.style.position = "fixed";
+    iframe.style.left = "-9999px";
+    iframe.style.top = "0";
+    iframe.style.width = "1px";
+    iframe.style.height = "1px";
+    iframe.style.border = "0";
+    iframe.style.opacity = "0";
+    document.body.appendChild(iframe);
+
+    const printDocument = iframe.contentDocument ?? iframe.contentWindow?.document;
+    if (!printDocument) {
+      iframe.remove();
+      return;
+    }
+
+    printDocument.open();
+    printDocument.write(recipePrintHtml(recipe));
+    printDocument.close();
+
+    let printed = false;
+    const runPrint = () => {
+      if (printed) return;
+      printed = true;
+      iframe.contentWindow?.focus();
+      iframe.contentWindow?.print();
+      setTimeout(() => iframe.remove(), 1000);
+    };
+
+    iframe.onload = runPrint;
+    setTimeout(runPrint, 250);
   };
 
   const mobileView = (
     <div className="space-y-3.5">
       <section className="rounded-[1.65rem] bg-slate-950 p-4 text-white shadow-[0_20px_50px_-28px_rgba(15,23,42,0.8)]">
         <p className="text-[10px] font-extrabold uppercase tracking-[0.18em] text-emerald-300">Receitas Levefy</p>
-        <h1 className="mt-1 text-[1.45rem] font-extrabold leading-tight tracking-tight">Receitas prontas com fotos reais</h1>
+        <h1 className="mt-1 text-[1.45rem] font-extrabold leading-tight tracking-tight">Receitas prontas e organizadas</h1>
         <p className="mt-1 text-xs leading-5 text-white/65">Filtre por objetivo, veja macros e salve a receita.</p>
         <div className="mt-4 grid grid-cols-3 gap-2 text-center">
           <div className="rounded-2xl bg-white/10 p-2.5">
@@ -421,38 +458,60 @@ export default function RecipesPage() {
           return (
             <article
               key={recipe.title}
-              onClick={() => allowed && setSelected(recipe)}
-              className="overflow-hidden rounded-[1.45rem] bg-white shadow-sm ring-1 ring-slate-100"
+              onClick={() => openRecipe(recipe)}
+              className={`rounded-[1.45rem] bg-white p-3.5 shadow-sm ring-1 ring-slate-100 ${allowed ? "cursor-pointer" : ""}`}
             >
-              <div className="grid min-h-[136px] grid-cols-[104px_minmax(0,1fr)]">
-                <div className="relative h-full min-h-[136px] shrink-0 overflow-hidden bg-slate-100">
-                  <img src={recipe.image} alt={recipe.title} loading="lazy" className="h-full w-full object-cover" />
-                  {recipe.premium && (
-                    <span className="absolute left-2 top-2 rounded-full bg-amber-400 px-2 py-1 text-[9px] font-extrabold text-amber-950">PRO</span>
-                  )}
-                  {!allowed && (
-                    <div className="absolute inset-0 flex items-center justify-center bg-slate-950/45">
-                      <Lock className="h-5 w-5 text-white" />
-                    </div>
-                  )}
-                </div>
-                <div className="min-w-0 overflow-hidden p-3">
+              <div className="flex min-w-0 items-start justify-between gap-3">
+                <div className="min-w-0">
                   <p className="text-[10px] font-extrabold uppercase tracking-wider text-brand-700">{recipe.category}</p>
                   <h2 className="mt-1 line-clamp-2 break-words text-sm font-extrabold leading-snug text-slate-950">{recipe.title}</h2>
-                  <p className="mt-1 line-clamp-2 break-words text-[11px] leading-4 text-slate-500">{recipe.description}</p>
-                  <div className="mt-2 flex flex-wrap gap-1.5 text-[10px] font-bold">
-                    <span className="rounded-full bg-orange-50 px-2 py-1 text-orange-700">{recipe.cal} kcal</span>
-                    <span className="rounded-full bg-slate-100 px-2 py-1 text-slate-600">{recipe.time} min</span>
-                  </div>
-                  <p className="mt-2 truncate text-[10px] text-slate-400">P {recipe.macros.protein}g • C {recipe.macros.carbs}g • G {recipe.macros.fat}g</p>
                 </div>
+                <div className="flex shrink-0 flex-col items-end gap-1.5">
+                  {recipe.premium && (
+                    <span className="rounded-full bg-amber-100 px-2.5 py-1 text-[9px] font-extrabold text-amber-800">PRO</span>
+                  )}
+                  {!allowed && (
+                    <span className="flex h-8 w-8 items-center justify-center rounded-full bg-slate-100 text-slate-500">
+                      <Lock className="h-4 w-4" />
+                    </span>
+                  )}
+                </div>
+              </div>
+              <p className="mt-2 line-clamp-2 break-words text-[11px] leading-4 text-slate-500">{recipe.description}</p>
+              <div className="mt-3 flex flex-wrap gap-1.5 text-[10px] font-bold">
+                <span className="rounded-full bg-orange-50 px-2.5 py-1 text-orange-700">{recipe.cal} kcal</span>
+                <span className="rounded-full bg-slate-100 px-2.5 py-1 text-slate-600">{recipe.time} min</span>
+                <span className="rounded-full bg-slate-100 px-2.5 py-1 text-slate-600">{recipe.diff}</span>
+              </div>
+              <div className="mt-3 flex items-center justify-between gap-3">
+                <p className="truncate text-[10px] text-slate-400">P {recipe.macros.protein}g • C {recipe.macros.carbs}g • G {recipe.macros.fat}g</p>
+                {allowed ? (
+                  <button
+                    type="button"
+                    onClick={event => {
+                      event.stopPropagation();
+                      openRecipe(recipe);
+                    }}
+                    className="shrink-0 rounded-full bg-brand-50 px-3 py-1.5 text-[11px] font-extrabold text-brand-700"
+                  >
+                    Abrir
+                  </button>
+                ) : (
+                  <Link
+                    href="/membership"
+                    onClick={event => event.stopPropagation()}
+                    className="shrink-0 rounded-full bg-slate-100 px-3 py-1.5 text-[11px] font-extrabold text-slate-600"
+                  >
+                    Premium
+                  </Link>
+                )}
               </div>
             </article>
           );
         })}
       </section>
 
-      {plan === "free" && (
+      {activePlan === "free" && (
         <Link href="/membership" className="flex items-center justify-between rounded-[1.45rem] bg-slate-950 p-3.5 text-white shadow-sm">
           <div>
             <p className="text-sm font-extrabold">Desbloqueie receitas premium</p>
@@ -465,15 +524,16 @@ export default function RecipesPage() {
       {selected && (
         <div className="fixed inset-0 z-50 flex items-end bg-slate-950/70 backdrop-blur-sm">
           <div className="max-h-[92dvh] w-full overflow-y-auto rounded-t-[1.8rem] bg-white">
-            <div className="relative h-56 shrink-0 overflow-hidden bg-slate-100">
-              <img src={selected.image} alt={selected.title} className="h-full w-full object-cover" />
-              <button onClick={() => setSelected(null)} className="absolute right-3 top-3 flex h-9 w-9 items-center justify-center rounded-full bg-white/95 text-slate-700">
+            <div className="flex items-start justify-between gap-3 border-b border-slate-100 p-4">
+              <div className="min-w-0">
+                <p className="text-[10px] font-extrabold uppercase tracking-wider text-brand-700">{selected.category}</p>
+                <h2 className="mt-1 break-words text-xl font-extrabold text-slate-950">{selected.title}</h2>
+              </div>
+              <button onClick={() => setSelected(null)} className="flex h-9 w-9 shrink-0 items-center justify-center rounded-full bg-slate-100 text-slate-700">
                 <X className="h-4 w-4" />
               </button>
             </div>
             <div className="min-w-0 p-4">
-              <p className="text-[10px] font-extrabold uppercase tracking-wider text-brand-700">{selected.category}</p>
-              <h2 className="mt-1 break-words text-xl font-extrabold text-slate-950">{selected.title}</h2>
               <p className="mt-2 text-sm leading-6 text-slate-500">{selected.description}</p>
               <div className="mt-4 grid grid-cols-3 gap-2">
                 {[
@@ -512,7 +572,7 @@ export default function RecipesPage() {
           <div>
             <p className="text-[11px] font-extrabold uppercase tracking-[0.18em] text-emerald-300">Catálogo Levefy</p>
             <h2 className="mt-2 text-xl font-extrabold tracking-tight sm:text-3xl">
-              Receitas prontas com fotos reais, doces fit e opções premium.
+              Receitas prontas, doces fit e opções premium.
             </h2>
             <p className="mt-2 max-w-2xl text-sm leading-relaxed text-white/65">
               São {RECIPES.length} receitas organizadas por objetivo, com macros, ingredientes e modo de preparo.
@@ -570,39 +630,24 @@ export default function RecipesPage() {
         {filtered.map(recipe => (
           <article
             key={recipe.title}
-            className={`group overflow-hidden rounded-[1.35rem] border border-slate-100 bg-white shadow-sm transition-all hover:-translate-y-0.5 hover:shadow-xl sm:rounded-3xl ${
+            className={`group rounded-[1.35rem] border border-slate-100 bg-white p-4 shadow-sm transition-all hover:-translate-y-0.5 hover:shadow-xl sm:rounded-3xl sm:p-5 ${
               canAccess(recipe) ? "cursor-pointer" : ""
             }`}
-            onClick={() => canAccess(recipe) && setSelected(recipe)}
+            onClick={() => openRecipe(recipe)}
           >
-            <div className="relative aspect-[4/3] overflow-hidden bg-slate-100">
-              <img
-                src={recipe.image}
-                alt={recipe.title}
-                loading="lazy"
-                className="h-full w-full object-cover transition duration-500 group-hover:scale-105"
-              />
-              <div className="absolute inset-x-0 top-0 flex items-start justify-between gap-2 p-2.5 sm:p-3">
-                <span className="rounded-full bg-white/90 px-2.5 py-1 text-[9px] font-extrabold uppercase tracking-wider text-slate-700 shadow-sm sm:px-3 sm:text-[10px]">
-                  {recipe.category}
+            <div className="flex min-w-0 items-start justify-between gap-3">
+              <span className="rounded-full bg-brand-50 px-3 py-1 text-[10px] font-extrabold uppercase tracking-wider text-brand-700">
+                {recipe.category}
+              </span>
+              {recipe.premium && (
+                <span className="inline-flex shrink-0 items-center gap-1 rounded-full bg-amber-100 px-3 py-1 text-[10px] font-extrabold text-amber-800">
+                  <Crown className="h-3 w-3" /> PRO
                 </span>
-                {recipe.premium && (
-                  <span className="inline-flex items-center gap-1 rounded-full bg-amber-400 px-2.5 py-1 text-[9px] font-extrabold text-amber-950 shadow-sm sm:px-3 sm:text-[10px]">
-                    <Crown className="h-3 w-3" /> PRO
-                  </span>
-                )}
-              </div>
-              {!canAccess(recipe) && (
-                <div className="absolute inset-0 flex items-center justify-center bg-slate-950/45 backdrop-blur-[1px]">
-                  <span className="inline-flex items-center gap-2 rounded-full bg-white px-4 py-2 text-xs font-extrabold text-slate-900">
-                    <Lock className="h-3.5 w-3.5" /> Plano pago
-                  </span>
-                </div>
               )}
             </div>
 
-            <div className="min-w-0 p-3.5 sm:p-4">
-              <h3 className="line-clamp-2 break-words text-[13px] font-extrabold leading-snug text-slate-950 sm:text-sm">{recipe.title}</h3>
+            <div className="min-w-0 pt-4">
+              <h3 className="line-clamp-2 break-words text-base font-extrabold leading-snug text-slate-950">{recipe.title}</h3>
               <p className="mt-1 line-clamp-2 min-h-9 break-words text-xs leading-relaxed text-slate-500">{recipe.description}</p>
               <div className="mt-3 flex flex-wrap items-center gap-1.5 text-[10px] font-bold text-slate-500 sm:gap-2 sm:text-[11px]">
                 <span className="inline-flex items-center gap-1 rounded-full bg-orange-50 px-2.5 py-1 text-orange-700">
@@ -617,10 +662,25 @@ export default function RecipesPage() {
                 <div className="text-[11px] text-slate-400">
                   P {recipe.macros.protein}g · C {recipe.macros.carbs}g · G {recipe.macros.fat}g
                 </div>
-                {canAccess(recipe) && (
-                  <span className="inline-flex items-center gap-1 text-xs font-extrabold text-brand-700">
-                    Ver <ChevronRight className="h-3.5 w-3.5" />
-                  </span>
+                {canAccess(recipe) ? (
+                  <button
+                    type="button"
+                    onClick={event => {
+                      event.stopPropagation();
+                      openRecipe(recipe);
+                    }}
+                    className="inline-flex items-center gap-1 rounded-full bg-brand-50 px-3 py-1.5 text-xs font-extrabold text-brand-700"
+                  >
+                    Abrir receita <ChevronRight className="h-3.5 w-3.5" />
+                  </button>
+                ) : (
+                  <Link
+                    href="/membership"
+                    onClick={event => event.stopPropagation()}
+                    className="inline-flex items-center gap-1 rounded-full bg-slate-100 px-3 py-1.5 text-xs font-extrabold text-slate-500"
+                  >
+                    <Lock className="h-3.5 w-3.5" /> Premium
+                  </Link>
                 )}
               </div>
             </div>
@@ -628,11 +688,11 @@ export default function RecipesPage() {
         ))}
       </div>
 
-      {plan === "free" && (
+      {activePlan === "free" && (
         <div className="mt-7 flex flex-col gap-4 rounded-[1.35rem] gradient-brand p-4 text-white shadow-premium sm:mt-10 sm:flex-row sm:items-center sm:justify-between sm:rounded-3xl sm:p-6">
           <div>
             <p className="text-lg font-extrabold tracking-tight">Desbloqueie bolos fit, sobremesas e receitas premium</p>
-            <p className="mt-1 text-sm text-white/85">START e PREMIUM liberam todo o catálogo visual do Levefy.</p>
+            <p className="mt-1 text-sm text-white/85">START e PREMIUM liberam todo o catálogo completo do Levefy.</p>
           </div>
           <Link href="/membership" className="inline-flex justify-center rounded-full bg-white px-6 py-3 text-sm font-extrabold text-brand-700 shadow-soft">
             Ver planos
@@ -643,24 +703,25 @@ export default function RecipesPage() {
       {selected && (
         <div className="fixed inset-0 z-50 flex items-end justify-center bg-slate-900/65 backdrop-blur-sm animate-fade-in sm:items-center">
           <div className="max-h-[92vh] w-full overflow-y-auto rounded-t-3xl bg-white shadow-premium sm:max-w-2xl sm:rounded-3xl">
-            <div className="relative h-56 overflow-hidden bg-slate-100 sm:h-80">
-              <img src={selected.image} alt={selected.title} className="h-full w-full object-cover" />
+            <div className="flex items-start justify-between gap-4 border-b border-slate-100 p-4 sm:p-6">
+              <div className="min-w-0">
+                <p className="text-xs font-extrabold uppercase tracking-widest text-brand-700">{selected.category}</p>
+                <h2 className="mt-2 break-words text-xl font-extrabold tracking-tight text-slate-950 sm:text-2xl">{selected.title}</h2>
+              </div>
               <button
                 onClick={() => setSelected(null)}
-                className="absolute right-4 top-4 flex h-10 w-10 items-center justify-center rounded-full bg-white/90 text-slate-700 shadow-sm transition hover:bg-white"
+                className="flex h-10 w-10 shrink-0 items-center justify-center rounded-full bg-slate-100 text-slate-700 transition hover:bg-slate-200"
                 aria-label="Fechar receita"
               >
                 <X className="h-4 w-4" />
               </button>
               {selected.premium && (
-                <span className="absolute left-4 top-4 inline-flex items-center gap-1 rounded-full bg-amber-400 px-3 py-1 text-xs font-extrabold text-amber-950">
+                <span className="hidden shrink-0 items-center gap-1 rounded-full bg-amber-100 px-3 py-1 text-xs font-extrabold text-amber-800 sm:inline-flex">
                   <Crown className="h-3.5 w-3.5" /> Premium
                 </span>
               )}
             </div>
             <div className="p-4 sm:p-7">
-              <p className="text-xs font-extrabold uppercase tracking-widest text-brand-700">{selected.category}</p>
-              <h2 className="mt-2 text-xl font-extrabold tracking-tight text-slate-950 sm:text-2xl">{selected.title}</h2>
               <p className="mt-2 text-sm leading-relaxed text-slate-500">{selected.description}</p>
 
               <div className="mt-5 grid grid-cols-3 gap-2">
