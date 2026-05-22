@@ -28,10 +28,11 @@ function isStandaloneApp() {
 }
 
 export interface DownloadAppButtonProps {
-  variant?: "primary" | "ghost" | "white" | "compact";
+  variant?: "primary" | "ghost" | "white" | "compact" | "mini";
   className?: string;
   fullWidth?: boolean;
   label?: string;
+  hideWhenInstalled?: boolean;
 }
 
 export default function DownloadAppButton({
@@ -39,6 +40,7 @@ export default function DownloadAppButton({
   className = "",
   fullWidth = false,
   label,
+  hideWhenInstalled = false,
 }: DownloadAppButtonProps) {
   const [device, setDevice] = useState<Device>("desktop");
   const [canInstall, setCanInstall] = useState(false);
@@ -132,7 +134,12 @@ export default function DownloadAppButton({
   const buttonLabel = installed ? "App instalado" : label ?? "Baixar App";
 
   const base = "group relative inline-flex items-center gap-2 font-extrabold rounded-full transition-all duration-200 select-none focus:outline-none focus:ring-4 focus:ring-emerald-300/40 disabled:cursor-default";
-  const sizes = variant === "compact" ? "px-4 py-2.5 text-sm" : "px-6 py-3 text-sm lg:text-base";
+  const sizes =
+    variant === "mini"
+      ? "px-3 py-2 text-xs"
+      : variant === "compact"
+        ? "px-4 py-2.5 text-sm"
+        : "px-6 py-3 text-sm lg:text-base";
   const wide = fullWidth ? "w-full justify-center" : "";
 
   const variantClass =
@@ -140,9 +147,13 @@ export default function DownloadAppButton({
       ? "border border-slate-200 text-slate-700 hover:border-emerald-500 hover:text-emerald-700 bg-white/80 backdrop-blur shadow-sm"
       : variant === "white"
       ? "bg-white text-emerald-700 hover:bg-emerald-50 shadow-lg shadow-black/10"
+      : variant === "mini"
+      ? "border border-emerald-100 bg-white text-emerald-700 shadow-sm hover:border-emerald-300 hover:bg-emerald-50"
       : variant === "compact"
       ? "bg-gradient-to-r from-emerald-400 via-green-500 to-emerald-700 text-white shadow-lg shadow-emerald-950/30 hover:brightness-110"
       : "bg-gradient-to-r from-emerald-500 to-emerald-700 text-white shadow-md shadow-emerald-600/25 hover:shadow-lg hover:-translate-y-0.5";
+
+  if (hideWhenInstalled && (!mounted || installed)) return null;
 
   return (
     <>
@@ -154,7 +165,7 @@ export default function DownloadAppButton({
       >
         {installed ? <CheckCircle2 className="w-4 h-4" /> : <Download className="w-4 h-4" />}
         <span>{buttonLabel}</span>
-        {!installed && (
+        {!installed && variant !== "mini" && (
           <span className="ml-1 hidden sm:inline-flex items-center gap-1 rounded-full bg-white/18 px-2 py-0.5 text-[10px] font-black uppercase tracking-wider text-white/95">
             PWA
           </span>

@@ -119,7 +119,6 @@ export default function MobileDashboard({
   return (
     <div className="space-y-3.5">
       <section className="overflow-hidden rounded-[1.65rem] bg-slate-950 p-4 text-white shadow-[0_20px_50px_-28px_rgba(15,23,42,0.8)]">
-        <div className="absolute" />
         <div className="flex items-start justify-between gap-3">
           <div className="min-w-0">
             <p className="text-[10px] font-extrabold uppercase tracking-[0.18em] text-emerald-300">Painel Levefy</p>

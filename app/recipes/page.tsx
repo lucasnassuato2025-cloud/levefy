@@ -390,8 +390,8 @@ export default function RecipesPage() {
               onClick={() => allowed && setSelected(recipe)}
               className="overflow-hidden rounded-[1.45rem] bg-white shadow-sm ring-1 ring-slate-100"
             >
-              <div className="grid grid-cols-[112px_1fr]">
-                <div className="relative min-h-[132px] bg-slate-100">
+              <div className="grid min-h-[136px] grid-cols-[104px_minmax(0,1fr)]">
+                <div className="relative h-full min-h-[136px] shrink-0 overflow-hidden bg-slate-100">
                   <img src={recipe.image} alt={recipe.title} loading="lazy" className="h-full w-full object-cover" />
                   {recipe.premium && (
                     <span className="absolute left-2 top-2 rounded-full bg-amber-400 px-2 py-1 text-[9px] font-extrabold text-amber-950">PRO</span>
@@ -402,15 +402,15 @@ export default function RecipesPage() {
                     </div>
                   )}
                 </div>
-                <div className="p-3">
+                <div className="min-w-0 overflow-hidden p-3">
                   <p className="text-[10px] font-extrabold uppercase tracking-wider text-brand-700">{recipe.category}</p>
-                  <h2 className="mt-1 line-clamp-2 text-sm font-extrabold leading-snug text-slate-950">{recipe.title}</h2>
-                  <p className="mt-1 line-clamp-2 text-[11px] leading-4 text-slate-500">{recipe.description}</p>
+                  <h2 className="mt-1 line-clamp-2 break-words text-sm font-extrabold leading-snug text-slate-950">{recipe.title}</h2>
+                  <p className="mt-1 line-clamp-2 break-words text-[11px] leading-4 text-slate-500">{recipe.description}</p>
                   <div className="mt-2 flex flex-wrap gap-1.5 text-[10px] font-bold">
                     <span className="rounded-full bg-orange-50 px-2 py-1 text-orange-700">{recipe.cal} kcal</span>
                     <span className="rounded-full bg-slate-100 px-2 py-1 text-slate-600">{recipe.time} min</span>
                   </div>
-                  <p className="mt-2 text-[10px] text-slate-400">P {recipe.macros.protein}g • C {recipe.macros.carbs}g • G {recipe.macros.fat}g</p>
+                  <p className="mt-2 truncate text-[10px] text-slate-400">P {recipe.macros.protein}g • C {recipe.macros.carbs}g • G {recipe.macros.fat}g</p>
                 </div>
               </div>
             </article>
@@ -431,15 +431,15 @@ export default function RecipesPage() {
       {selected && (
         <div className="fixed inset-0 z-50 flex items-end bg-slate-950/70 backdrop-blur-sm">
           <div className="max-h-[92dvh] w-full overflow-y-auto rounded-t-[1.8rem] bg-white">
-            <div className="relative h-56 bg-slate-100">
+            <div className="relative h-56 shrink-0 overflow-hidden bg-slate-100">
               <img src={selected.image} alt={selected.title} className="h-full w-full object-cover" />
               <button onClick={() => setSelected(null)} className="absolute right-3 top-3 flex h-9 w-9 items-center justify-center rounded-full bg-white/95 text-slate-700">
                 <X className="h-4 w-4" />
               </button>
             </div>
-            <div className="p-4">
+            <div className="min-w-0 p-4">
               <p className="text-[10px] font-extrabold uppercase tracking-wider text-brand-700">{selected.category}</p>
-              <h2 className="mt-1 text-xl font-extrabold text-slate-950">{selected.title}</h2>
+              <h2 className="mt-1 break-words text-xl font-extrabold text-slate-950">{selected.title}</h2>
               <p className="mt-2 text-sm leading-6 text-slate-500">{selected.description}</p>
               <div className="mt-4 grid grid-cols-3 gap-2">
                 {[
@@ -567,9 +567,9 @@ export default function RecipesPage() {
               )}
             </div>
 
-            <div className="p-3.5 sm:p-4">
-              <h3 className="line-clamp-2 text-[13px] font-extrabold leading-snug text-slate-950 sm:text-sm">{recipe.title}</h3>
-              <p className="mt-1 line-clamp-2 min-h-9 text-xs leading-relaxed text-slate-500">{recipe.description}</p>
+            <div className="min-w-0 p-3.5 sm:p-4">
+              <h3 className="line-clamp-2 break-words text-[13px] font-extrabold leading-snug text-slate-950 sm:text-sm">{recipe.title}</h3>
+              <p className="mt-1 line-clamp-2 min-h-9 break-words text-xs leading-relaxed text-slate-500">{recipe.description}</p>
               <div className="mt-3 flex flex-wrap items-center gap-1.5 text-[10px] font-bold text-slate-500 sm:gap-2 sm:text-[11px]">
                 <span className="inline-flex items-center gap-1 rounded-full bg-orange-50 px-2.5 py-1 text-orange-700">
                   <Flame className="h-3 w-3" /> {recipe.cal} kcal

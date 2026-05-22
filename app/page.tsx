@@ -1,6 +1,5 @@
 import Link from "next/link";
 import Logo from "@/components/Logo";
-import MobileInstallBanner from "@/components/MobileInstallBanner";
 import MobileStickyCTA from "@/components/MobileStickyCTA";
 import {
   ArrowRight,
@@ -233,10 +232,6 @@ export default function LandingPage() {
           </div>
         </div>
       </nav>
-
-      <div className="bg-slate-950 px-4 pt-4 sm:hidden">
-        <MobileInstallBanner />
-      </div>
 
       <section className="bg-slate-950 text-white">
         <div className="mx-auto grid min-h-[calc(100svh-4rem)] max-w-6xl content-center gap-10 px-4 py-10 sm:px-6 lg:py-14">

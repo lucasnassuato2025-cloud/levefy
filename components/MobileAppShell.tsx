@@ -4,6 +4,7 @@ import { LogOut } from "lucide-react";
 import { useRouter } from "next/navigation";
 import Logo from "./Logo";
 import MobileNav from "./MobileNav";
+import DownloadAppButton from "./DownloadAppButton";
 import { auth } from "@/lib/auth";
 
 export default function MobileAppShell({
@@ -24,17 +25,20 @@ export default function MobileAppShell({
   return (
     <div className="lg:hidden min-h-dvh overflow-x-hidden bg-[#f6faf8] text-[14px] text-slate-950">
       <header className="sticky top-0 z-40 border-b border-white/70 bg-[#f6faf8]/92 backdrop-blur-xl">
-        <div className="mx-auto flex h-14 w-full max-w-[520px] items-center justify-between px-3.5">
+        <div className="mx-auto flex h-14 w-full max-w-[520px] items-center justify-between gap-2 px-3.5">
           <Logo />
-          <button
-            type="button"
-            onClick={handleSignOut}
-            aria-label="Sair"
-            title="Sair"
-            className="flex h-9 w-9 items-center justify-center rounded-full border border-slate-100 bg-white text-slate-400 shadow-sm transition hover:text-red-500"
-          >
-            <LogOut className="h-4 w-4" />
-          </button>
+          <div className="flex shrink-0 items-center gap-2">
+            <DownloadAppButton variant="mini" label="App" hideWhenInstalled />
+            <button
+              type="button"
+              onClick={handleSignOut}
+              aria-label="Sair"
+              title="Sair"
+              className="flex h-9 w-9 items-center justify-center rounded-full border border-slate-100 bg-white text-slate-400 shadow-sm transition hover:text-red-500"
+            >
+              <LogOut className="h-4 w-4" />
+            </button>
+          </div>
         </div>
       </header>
 
