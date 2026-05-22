@@ -335,42 +335,42 @@ export default function RecipesPage() {
 
   return (
     <AppShell title="Receitas">
-      <div className="mb-6 rounded-3xl bg-slate-950 p-5 text-white shadow-premium sm:p-7">
+      <div className="mb-4 rounded-[1.35rem] bg-slate-950 p-4 text-white shadow-premium sm:mb-6 sm:rounded-3xl sm:p-7">
         <div className="flex flex-col gap-4 lg:flex-row lg:items-end lg:justify-between">
           <div>
             <p className="text-[11px] font-extrabold uppercase tracking-[0.18em] text-emerald-300">Catálogo Levefy</p>
-            <h2 className="mt-2 text-2xl font-extrabold tracking-tight sm:text-3xl">
+            <h2 className="mt-2 text-xl font-extrabold tracking-tight sm:text-3xl">
               Receitas prontas com fotos reais, doces fit e opções premium.
             </h2>
             <p className="mt-2 max-w-2xl text-sm leading-relaxed text-white/65">
               São {RECIPES.length} receitas organizadas por objetivo, com macros, ingredientes e modo de preparo.
             </p>
           </div>
-          <div className="grid grid-cols-3 gap-2 text-center">
-            <div className="rounded-2xl bg-white/10 px-3 py-3">
-              <p className="text-lg font-extrabold">{RECIPES.filter(r => !r.premium).length}</p>
+          <div className="grid grid-cols-3 gap-1.5 text-center sm:gap-2">
+            <div className="rounded-2xl bg-white/10 px-2 py-2.5 sm:px-3 sm:py-3">
+              <p className="text-base font-extrabold sm:text-lg">{RECIPES.filter(r => !r.premium).length}</p>
               <p className="text-[10px] text-white/55">grátis</p>
             </div>
-            <div className="rounded-2xl bg-white/10 px-3 py-3">
-              <p className="text-lg font-extrabold">{RECIPES.filter(r => r.premium).length}</p>
+            <div className="rounded-2xl bg-white/10 px-2 py-2.5 sm:px-3 sm:py-3">
+              <p className="text-base font-extrabold sm:text-lg">{RECIPES.filter(r => r.premium).length}</p>
               <p className="text-[10px] text-white/55">premium</p>
             </div>
-            <div className="rounded-2xl bg-white/10 px-3 py-3">
-              <p className="text-lg font-extrabold">6</p>
+            <div className="rounded-2xl bg-white/10 px-2 py-2.5 sm:px-3 sm:py-3">
+              <p className="text-base font-extrabold sm:text-lg">6</p>
               <p className="text-[10px] text-white/55">doces fit</p>
             </div>
           </div>
         </div>
       </div>
 
-      <div className="mb-5 flex flex-col gap-3 lg:flex-row lg:items-center lg:justify-between">
+      <div className="mb-4 flex flex-col gap-3 sm:mb-5 lg:flex-row lg:items-center lg:justify-between">
         <div className="relative w-full lg:max-w-sm">
           <Search className="pointer-events-none absolute left-4 top-1/2 h-4 w-4 -translate-y-1/2 text-slate-400" />
           <input
             value={query}
             onChange={event => setQuery(event.target.value)}
             placeholder="Buscar bolo, frango, sobremesa..."
-            className="w-full rounded-2xl border border-slate-200 bg-white py-3 pl-11 pr-4 text-sm font-medium outline-none transition focus:border-brand-400 focus:ring-4 focus:ring-brand-100"
+            className="w-full rounded-2xl border border-slate-200 bg-white py-2.5 pl-11 pr-4 text-sm font-medium outline-none transition focus:border-brand-400 focus:ring-4 focus:ring-brand-100 sm:py-3"
           />
         </div>
         <p className="text-sm font-medium text-slate-500">
@@ -378,12 +378,12 @@ export default function RecipesPage() {
         </p>
       </div>
 
-      <div className="mb-6 flex gap-2 overflow-x-auto pb-1 text-xs">
+      <div className="mb-4 flex gap-1.5 overflow-x-auto pb-1 text-[11px] sm:mb-6 sm:gap-2 sm:text-xs">
         {CATEGORIES.map(category => (
           <button
             key={category}
             onClick={() => setFilter(category)}
-            className={`shrink-0 rounded-full border px-4 py-2 font-bold transition-all ${
+            className={`shrink-0 rounded-full border px-3.5 py-2 font-bold transition-all sm:px-4 ${
               filter === category
                 ? "border-transparent gradient-brand text-white shadow-brand"
                 : "border-slate-200 bg-white text-slate-600 hover:border-brand-300 hover:text-brand-700"
@@ -394,11 +394,11 @@ export default function RecipesPage() {
         ))}
       </div>
 
-      <div className="grid gap-4 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4">
+      <div className="grid gap-3 sm:grid-cols-2 sm:gap-4 lg:grid-cols-3 xl:grid-cols-4">
         {filtered.map(recipe => (
           <article
             key={recipe.title}
-            className={`group overflow-hidden rounded-3xl border border-slate-100 bg-white shadow-sm transition-all hover:-translate-y-0.5 hover:shadow-xl ${
+            className={`group overflow-hidden rounded-[1.35rem] border border-slate-100 bg-white shadow-sm transition-all hover:-translate-y-0.5 hover:shadow-xl sm:rounded-3xl ${
               canAccess(recipe) ? "cursor-pointer" : ""
             }`}
             onClick={() => canAccess(recipe) && setSelected(recipe)}
@@ -410,12 +410,12 @@ export default function RecipesPage() {
                 loading="lazy"
                 className="h-full w-full object-cover transition duration-500 group-hover:scale-105"
               />
-              <div className="absolute inset-x-0 top-0 flex items-start justify-between gap-2 p-3">
-                <span className="rounded-full bg-white/90 px-3 py-1 text-[10px] font-extrabold uppercase tracking-wider text-slate-700 shadow-sm">
+              <div className="absolute inset-x-0 top-0 flex items-start justify-between gap-2 p-2.5 sm:p-3">
+                <span className="rounded-full bg-white/90 px-2.5 py-1 text-[9px] font-extrabold uppercase tracking-wider text-slate-700 shadow-sm sm:px-3 sm:text-[10px]">
                   {recipe.category}
                 </span>
                 {recipe.premium && (
-                  <span className="inline-flex items-center gap-1 rounded-full bg-amber-400 px-3 py-1 text-[10px] font-extrabold text-amber-950 shadow-sm">
+                  <span className="inline-flex items-center gap-1 rounded-full bg-amber-400 px-2.5 py-1 text-[9px] font-extrabold text-amber-950 shadow-sm sm:px-3 sm:text-[10px]">
                     <Crown className="h-3 w-3" /> PRO
                   </span>
                 )}
@@ -429,10 +429,10 @@ export default function RecipesPage() {
               )}
             </div>
 
-            <div className="p-4">
-              <h3 className="line-clamp-2 text-sm font-extrabold leading-snug text-slate-950">{recipe.title}</h3>
+            <div className="p-3.5 sm:p-4">
+              <h3 className="line-clamp-2 text-[13px] font-extrabold leading-snug text-slate-950 sm:text-sm">{recipe.title}</h3>
               <p className="mt-1 line-clamp-2 min-h-9 text-xs leading-relaxed text-slate-500">{recipe.description}</p>
-              <div className="mt-3 flex flex-wrap items-center gap-2 text-[11px] font-bold text-slate-500">
+              <div className="mt-3 flex flex-wrap items-center gap-1.5 text-[10px] font-bold text-slate-500 sm:gap-2 sm:text-[11px]">
                 <span className="inline-flex items-center gap-1 rounded-full bg-orange-50 px-2.5 py-1 text-orange-700">
                   <Flame className="h-3 w-3" /> {recipe.cal} kcal
                 </span>
@@ -457,7 +457,7 @@ export default function RecipesPage() {
       </div>
 
       {plan === "free" && (
-        <div className="mt-10 flex flex-col gap-4 rounded-3xl gradient-brand p-5 text-white shadow-premium sm:flex-row sm:items-center sm:justify-between sm:p-6">
+        <div className="mt-7 flex flex-col gap-4 rounded-[1.35rem] gradient-brand p-4 text-white shadow-premium sm:mt-10 sm:flex-row sm:items-center sm:justify-between sm:rounded-3xl sm:p-6">
           <div>
             <p className="text-lg font-extrabold tracking-tight">Desbloqueie bolos fit, sobremesas e receitas premium</p>
             <p className="mt-1 text-sm text-white/85">START e PREMIUM liberam todo o catálogo visual do Levefy.</p>
@@ -471,7 +471,7 @@ export default function RecipesPage() {
       {selected && (
         <div className="fixed inset-0 z-50 flex items-end justify-center bg-slate-900/65 backdrop-blur-sm animate-fade-in sm:items-center">
           <div className="max-h-[92vh] w-full overflow-y-auto rounded-t-3xl bg-white shadow-premium sm:max-w-2xl sm:rounded-3xl">
-            <div className="relative h-64 overflow-hidden bg-slate-100 sm:h-80">
+            <div className="relative h-56 overflow-hidden bg-slate-100 sm:h-80">
               <img src={selected.image} alt={selected.title} className="h-full w-full object-cover" />
               <button
                 onClick={() => setSelected(null)}
@@ -486,9 +486,9 @@ export default function RecipesPage() {
                 </span>
               )}
             </div>
-            <div className="p-5 sm:p-7">
+            <div className="p-4 sm:p-7">
               <p className="text-xs font-extrabold uppercase tracking-widest text-brand-700">{selected.category}</p>
-              <h2 className="mt-2 text-2xl font-extrabold tracking-tight text-slate-950">{selected.title}</h2>
+              <h2 className="mt-2 text-xl font-extrabold tracking-tight text-slate-950 sm:text-2xl">{selected.title}</h2>
               <p className="mt-2 text-sm leading-relaxed text-slate-500">{selected.description}</p>
 
               <div className="mt-5 grid grid-cols-3 gap-2">
@@ -498,7 +498,7 @@ export default function RecipesPage() {
                   { label: "Gordura", value: `${selected.macros.fat}g`, color: "bg-rose-50 text-rose-700" },
                 ].map(item => (
                   <div key={item.label} className={`rounded-2xl p-3 text-center ${item.color}`}>
-                    <p className="text-lg font-extrabold">{item.value}</p>
+                    <p className="text-base font-extrabold sm:text-lg">{item.value}</p>
                     <p className="text-[11px] font-bold opacity-70">{item.label}</p>
                   </div>
                 ))}

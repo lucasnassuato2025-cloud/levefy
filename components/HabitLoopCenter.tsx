@@ -110,20 +110,20 @@ export default function HabitLoopCenter({ user }: { user: any }) {
     : "O objetivo é simples: aparecer hoje, ganhar XP e voltar amanhã.";
 
   return (
-    <section className="mb-4 sm:mb-6 grid lg:grid-cols-[1.35fr_.85fr] gap-3 sm:gap-5">
-      <div className="card relative overflow-hidden border-brand-100 p-3.5 sm:p-6">
-        <div className="relative flex items-start justify-between gap-3 mb-3 sm:mb-5">
+    <section className="mb-3 sm:mb-6 grid lg:grid-cols-[1.35fr_.85fr] gap-2.5 sm:gap-5">
+      <div className="card relative overflow-hidden border-brand-100 p-3 sm:p-6">
+        <div className="relative flex items-start justify-between gap-3 mb-2.5 sm:mb-5">
           <div>
-            <p className="text-[10px] font-extrabold uppercase tracking-[0.16em] text-brand-700 sm:text-[11px]">Loop diário</p>
-            <h2 className="mt-1 text-[1.08rem] font-extrabold leading-tight tracking-tight sm:text-2xl">Check-in de 30 segundos</h2>
-            <p className="mt-1 max-w-xl text-[12px] leading-5 text-slate-500 sm:text-sm">{state?.message ?? "Marque pequenas vitórias para manter XP, sequência e vontade de voltar amanhã."}</p>
+            <p className="text-[9px] font-extrabold uppercase tracking-[0.16em] text-brand-700 sm:text-[11px]">Loop diário</p>
+            <h2 className="mt-1 text-base font-extrabold leading-tight tracking-tight sm:text-2xl">Check-in de 30 segundos</h2>
+            <p className="mt-1 max-w-xl text-[11px] leading-4 text-slate-500 sm:text-sm">{state?.message ?? "Marque pequenas vitórias para manter XP, sequência e vontade de voltar amanhã."}</p>
           </div>
           <div className="hidden sm:flex items-center gap-2 rounded-full bg-orange-50 text-orange-700 px-3 py-2 text-xs font-extrabold border border-orange-100">
             <Flame className="w-4 h-4" /> {streak}d streak
           </div>
         </div>
 
-        <div className="relative mb-3 grid grid-cols-2 gap-2 sm:mb-5 sm:grid-cols-4 sm:gap-2.5">
+        <div className="relative mb-2.5 grid grid-cols-2 gap-2 sm:mb-5 sm:grid-cols-4 sm:gap-2.5">
           {ACTIONS.map(action => {
             const checked = selectedSet.has(action.id);
             const already = completedSet.has(action.id);
@@ -132,23 +132,23 @@ export default function HabitLoopCenter({ user }: { user: any }) {
                 key={action.id}
                 type="button"
                 onClick={() => toggle(action.id)}
-                className={`min-h-[82px] text-left rounded-2xl sm:rounded-3xl border-2 p-2.5 sm:min-h-[104px] sm:p-3.5 transition-all duration-200 ${checked
+                className={`min-h-[72px] text-left rounded-2xl sm:rounded-3xl border-2 p-2 sm:min-h-[104px] sm:p-3.5 transition-all duration-200 ${checked
                   ? "border-brand-500 bg-brand-50 shadow-brand/20 shadow-lg -translate-y-0.5"
                   : "border-slate-100 bg-white hover:border-brand-200 hover:bg-brand-50/40"}`}
               >
                 <div className="flex items-center justify-between mb-2">
-                  <span className="text-lg sm:text-2xl">{action.emoji}</span>
+                  <span className="text-base sm:text-2xl">{action.emoji}</span>
                   {checked || already ? <CheckCircle2 className="w-4 h-4 text-brand-600 sm:h-5 sm:w-5" /> : <span className="text-[9px] font-bold text-slate-400 sm:text-[10px]">+{action.xp} XP</span>}
                 </div>
-                <p className="text-[13px] font-extrabold leading-tight text-slate-900 sm:text-sm">{action.title}</p>
+                <p className="text-[12px] font-extrabold leading-tight text-slate-900 sm:text-sm">{action.title}</p>
                 <p className="hidden sm:block text-[11px] text-slate-500">{action.desc}</p>
               </button>
             );
           })}
         </div>
 
-        <div className="relative mb-3 sm:mb-5">
-          <div className="flex justify-between text-xs font-bold text-slate-500 mb-1.5">
+        <div className="relative mb-2.5 sm:mb-5">
+          <div className="flex justify-between text-[11px] font-bold text-slate-500 mb-1.5 sm:text-xs">
             <span>Check-in de hoje</span>
             <span className="text-brand-700">{progress}%</span>
           </div>
@@ -162,7 +162,7 @@ export default function HabitLoopCenter({ user }: { user: any }) {
           type="button"
           onClick={saveCheckin}
           disabled={saving || selected.length === 0}
-          className="w-full min-h-11 btn-primary disabled:opacity-50 disabled:cursor-not-allowed"
+          className="w-full min-h-10 btn-primary disabled:opacity-50 disabled:cursor-not-allowed"
         >
           {saving ? "Salvando..." : "Salvar check-in"}
         </button>

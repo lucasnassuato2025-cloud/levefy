@@ -153,40 +153,40 @@ export default function MealAIPage() {
   return (
     <AppShell title="">
       {/* Header */}
-      <div className="mb-8 flex items-center gap-4">
+      <div className="mb-5 flex items-center gap-3 sm:mb-8 sm:gap-4">
         <div className="relative">
-          <div className="w-14 h-14 rounded-2xl gradient-brand flex items-center justify-center shadow-brand">
-            <Brain className="w-7 h-7 text-white" />
+          <div className="w-12 h-12 sm:w-14 sm:h-14 rounded-2xl gradient-brand flex items-center justify-center shadow-brand">
+            <Brain className="w-6 h-6 sm:w-7 sm:h-7 text-white" />
           </div>
           <span className="absolute -top-1 -right-1 w-4 h-4 rounded-full bg-amber-400 border-2 border-white flex items-center justify-center">
             <Sparkles className="w-2.5 h-2.5 text-white" />
           </span>
         </div>
         <div>
-          <h1 className="text-2xl sm:text-3xl font-extrabold tracking-tight flex items-center gap-2">
+          <h1 className="text-xl sm:text-3xl font-extrabold tracking-tight flex items-center gap-2">
             Meal <span className="text-gradient-soft">AI</span>
           </h1>
           <p className="text-sm text-slate-500">Plano alimentar personalizado em segundos</p>
         </div>
       </div>
 
-      <div className="mb-5 grid gap-3 sm:grid-cols-3">
-        <div className="rounded-2xl border border-brand-100 bg-brand-50/70 px-4 py-3">
+      <div className="mb-4 grid gap-2.5 sm:mb-5 sm:grid-cols-3 sm:gap-3">
+        <div className="rounded-2xl border border-brand-100 bg-brand-50/70 px-3 py-2.5 sm:px-4 sm:py-3">
           <p className="text-[10px] font-extrabold uppercase tracking-widest text-brand-700">Seu plano</p>
           <p className="mt-1 text-sm font-extrabold text-slate-900">{PLAN_LIMITS[plan].label}</p>
         </div>
-        <div className="rounded-2xl border border-slate-100 bg-white px-4 py-3 shadow-sm">
+        <div className="rounded-2xl border border-slate-100 bg-white px-3 py-2.5 shadow-sm sm:px-4 sm:py-3">
           <p className="text-[10px] font-extrabold uppercase tracking-widest text-slate-400">Meal AI</p>
           <p className="mt-1 text-sm font-extrabold text-slate-900">{usageLabel}</p>
         </div>
-        <div className="rounded-2xl border border-slate-100 bg-white px-4 py-3 shadow-sm">
+        <div className="rounded-2xl border border-slate-100 bg-white px-3 py-2.5 shadow-sm sm:px-4 sm:py-3">
           <p className="text-[10px] font-extrabold uppercase tracking-widest text-slate-400">Jejum</p>
           <p className="mt-1 text-sm font-extrabold text-slate-900">{isPaid ? "Liberado" : "START/Premium"}</p>
         </div>
       </div>
 
       {/* 7-day free trial banner */}
-      <div className="mb-6 rounded-3xl p-5 overflow-hidden relative"
+      <div className="mb-4 rounded-[1.35rem] p-4 overflow-hidden relative sm:mb-6 sm:rounded-3xl sm:p-5"
         style={{ background: "linear-gradient(135deg, #1a1a2e 0%, #16213e 50%, #0f3460 100%)" }}>
         <div className="absolute inset-0 opacity-20"
           style={{ backgroundImage: "radial-gradient(circle at 80% 50%, #22c55e 0%, transparent 60%)" }} />
@@ -196,26 +196,26 @@ export default function MealAIPage() {
               <Gift className="w-5 h-5 text-amber-400" />
               <span className="text-amber-400 font-bold text-sm uppercase tracking-wider">7 Dias Grátis</span>
             </div>
-            <h3 className="text-white font-extrabold text-lg mb-1">Seu presente de boas-vindas 🎁</h3>
+            <h3 className="text-white font-extrabold text-base sm:text-lg mb-1">Seu presente de boas-vindas 🎁</h3>
             <p className="text-white/60 text-sm">7 cardápios completos e personalizados para começar sua jornada</p>
           </div>
           <div className="flex gap-2 flex-wrap">
             {FREE_RECIPES_PREVIEW.slice(0, 3).map((r, i) => (
-              <div key={i} className="bg-white/10 backdrop-blur rounded-2xl p-3 text-center min-w-[90px]">
+              <div key={i} className="bg-white/10 backdrop-blur rounded-2xl p-2.5 text-center min-w-[78px] sm:min-w-[90px] sm:p-3">
                 <p className="text-[10px] font-bold text-green-400 mb-1">{r.day}</p>
                 <p className="text-[10px] text-white/70 leading-tight">{r.cal} kcal</p>
               </div>
             ))}
-            <div className="bg-white/10 backdrop-blur rounded-2xl p-3 text-center min-w-[90px] flex items-center justify-center">
+            <div className="bg-white/10 backdrop-blur rounded-2xl p-2.5 text-center min-w-[78px] flex items-center justify-center sm:min-w-[90px] sm:p-3">
               <p className="text-[10px] text-white/50">+4 dias incluídos</p>
             </div>
           </div>
         </div>
       </div>
 
-      <div className="grid lg:grid-cols-5 gap-5 lg:gap-6">
+      <div className="grid lg:grid-cols-5 gap-4 lg:gap-6">
         {/* Form */}
-        <div className="lg:col-span-2 card p-6 space-y-5">
+        <div className="lg:col-span-2 card p-4 space-y-4 sm:p-6 sm:space-y-5">
           <div className="flex items-center justify-between">
             <h2 className="font-bold text-xs uppercase tracking-[0.14em] text-slate-500">Seu perfil</h2>
             <div className="flex items-center gap-2">
@@ -258,10 +258,10 @@ export default function MealAIPage() {
 
           <div>
             <label className="text-[11px] text-slate-500 mb-2 block font-medium">Objetivo</label>
-            <div className="grid grid-cols-1 gap-2">
+            <div className="grid grid-cols-1 gap-1.5 sm:gap-2">
               {GOALS.map(g => (
                 <button key={g.v} onClick={() => set("goal", g.v)}
-                  className={`text-left px-4 py-2.5 rounded-2xl text-sm font-semibold transition-all duration-200 border ${
+                  className={`text-left px-3 py-2 rounded-2xl text-sm font-semibold transition-all duration-200 border sm:px-4 sm:py-2.5 ${
                     form.goal === g.v
                       ? "gradient-brand text-white border-transparent shadow-brand"
                       : "border-slate-200 bg-white text-slate-700 hover:border-brand-300 hover:-translate-y-0.5"
@@ -289,7 +289,7 @@ export default function MealAIPage() {
                 </Link>
               )}
             </div>
-            <div className="grid grid-cols-2 gap-2">
+            <div className="grid grid-cols-2 gap-1.5 sm:gap-2">
               {FASTING_OPTIONS.map(option => {
                 const locked = option.value !== "none" && !isPaid;
                 const active = form.fastingProtocol === option.value;
@@ -299,7 +299,7 @@ export default function MealAIPage() {
                     type="button"
                     disabled={locked}
                     onClick={() => setForm(current => ({ ...current, fastingProtocol: option.value }))}
-                    className={`rounded-2xl border px-3 py-3 text-left transition-all ${
+                    className={`rounded-2xl border px-2.5 py-2 text-left transition-all sm:px-3 sm:py-3 ${
                       active
                         ? "border-transparent gradient-brand text-white shadow-brand"
                         : locked
@@ -337,8 +337,8 @@ export default function MealAIPage() {
         {/* Result */}
         <div className="lg:col-span-3">
           {loading && (
-            <div className="card p-7 sm:p-8">
-              <div className="flex items-center gap-3 mb-6">
+            <div className="card p-5 sm:p-8">
+              <div className="flex items-center gap-3 mb-4 sm:mb-6">
                 <div className="w-11 h-11 rounded-2xl gradient-brand flex items-center justify-center shadow-brand">
                   <Brain className="w-5 h-5 text-white animate-pulse" />
                 </div>
@@ -367,7 +367,7 @@ export default function MealAIPage() {
           {result && !loading && (
             <div className="space-y-4 animate-fade-in">
               {/* Macros */}
-              <div className="card p-5 sm:p-6">
+              <div className="card p-4 sm:p-6">
                 <div className="flex items-center justify-between mb-4">
                   <h3 className="font-bold">Distribuição de macros</h3>
                   <div className="flex items-center gap-1.5">
@@ -377,14 +377,14 @@ export default function MealAIPage() {
                     }`}>{scoreLabel(result.score)}</span>
                   </div>
                 </div>
-                <div className="grid grid-cols-4 gap-2 sm:gap-3">
+                <div className="grid grid-cols-2 gap-2 sm:grid-cols-4 sm:gap-3">
                   {[
                     { l: "Calorias", v: `${result.macros.calories}`, u: "kcal", color: "bg-brand-50 text-brand-700" },
                     { l: "Proteína", v: `${result.macros.protein}g`, u: "", color: "bg-blue-50 text-blue-700" },
                     { l: "Carbs",    v: `${result.macros.carbs}g`,   u: "", color: "bg-amber-50 text-amber-700" },
                     { l: "Gordura", v: `${result.macros.fat}g`,      u: "", color: "bg-purple-50 text-purple-700" },
                   ].map(m => (
-                    <div key={m.l} className={`rounded-2xl p-3 text-center ${m.color}`}>
+                    <div key={m.l} className={`rounded-2xl p-2.5 text-center sm:p-3 ${m.color}`}>
                       <p className="text-[10px] font-bold uppercase tracking-wider opacity-70">{m.l}</p>
                       <p className="text-lg sm:text-xl font-extrabold mt-0.5">{m.v}</p>
                       {m.u && <p className="text-[10px] opacity-60">{m.u}</p>}
@@ -394,20 +394,20 @@ export default function MealAIPage() {
               </div>
 
               {/* WOW projection */}
-              <div className="grid sm:grid-cols-2 gap-4">
-                <div className="card p-5 bg-gradient-to-br from-brand-50 to-emerald-50 border-brand-100">
+              <div className="grid sm:grid-cols-2 gap-3 sm:gap-4">
+                <div className="card p-4 sm:p-5 bg-gradient-to-br from-brand-50 to-emerald-50 border-brand-100">
                   <div className="flex items-center gap-2 mb-3">
                     <Sparkles className="w-4 h-4 text-brand-700" />
                     <h3 className="font-extrabold text-sm text-brand-900">Projeção de 30 dias</h3>
                   </div>
-                  <p className="text-3xl font-extrabold text-brand-700 leading-none">
+                  <p className="text-2xl sm:text-3xl font-extrabold text-brand-700 leading-none">
                     {form.goal === "hipertrofia" ? "+1 a +3kg" : "-2 a -5kg"}
                   </p>
                   <p className="text-xs text-slate-600 mt-2 leading-relaxed">
                     Estimativa educativa baseada em consistência, macros e check-ins. O Premium acompanha e ajusta essa rota todos os dias.
                   </p>
                 </div>
-                <div className="card p-5 bg-slate-950 text-white relative overflow-hidden">
+                <div className="card p-4 sm:p-5 bg-slate-950 text-white relative overflow-hidden">
                   <div className="absolute inset-0 bg-[radial-gradient(circle_at_top_right,rgba(34,197,94,0.35),transparent_60%)]" />
                   <div className="relative">
                     <div className="flex items-center gap-2 mb-3">
@@ -417,7 +417,7 @@ export default function MealAIPage() {
                     <p className="text-xs text-white/70 leading-relaxed mb-4">
                       Troque refeições, gere novos dias, monte lista de compras e veja a rota de 90 dias sem limite.
                     </p>
-                    <Link href="/membership" className="inline-flex items-center gap-2 bg-white text-slate-950 px-4 py-2 rounded-full text-xs font-extrabold">
+                    <Link href="/membership" className="inline-flex items-center gap-2 bg-white text-slate-950 px-3.5 py-2 rounded-full text-xs font-extrabold sm:px-4">
                       <Lock className="w-3.5 h-3.5" /> Desbloquear Premium
                     </Link>
                   </div>
@@ -437,10 +437,10 @@ export default function MealAIPage() {
                 </div>
                 <div className="divide-y divide-slate-50">
                   {result.meals.map((meal, i) => (
-                    <div key={i} className="p-4 sm:p-5 transition-colors hover:bg-slate-50/40">
+                    <div key={i} className="p-3.5 sm:p-5 transition-colors hover:bg-slate-50/40">
                       <button className="w-full flex items-center justify-between" onClick={() => setExpandedMeal(expandedMeal === i ? null : i)}>
                         <div className="flex items-center gap-3">
-                          <div className="w-10 h-10 rounded-2xl bg-brand-50 flex items-center justify-center text-xl">
+                          <div className="w-9 h-9 sm:w-10 sm:h-10 rounded-2xl bg-brand-50 flex items-center justify-center text-lg sm:text-xl">
                             {["☀️","🍏","🍽️","🥤","🌙"][i]}
                           </div>
                           <div className="text-left">
@@ -481,7 +481,7 @@ export default function MealAIPage() {
 
               {/* Habits */}
               {result.habits.length > 0 && (
-                <div className="card p-5 sm:p-6">
+                <div className="card p-4 sm:p-6">
                   <h3 className="font-bold mb-3 flex items-center gap-2">💡 Hábitos recomendados</h3>
                   <ul className="space-y-2">
                     {result.habits.slice(0, 4).map((h, i) => (
@@ -497,7 +497,7 @@ export default function MealAIPage() {
           )}
 
           {!result && !loading && (
-            <div className="card p-10 sm:p-14 text-center">
+            <div className="card p-6 sm:p-14 text-center">
               <div className="w-16 h-16 mx-auto rounded-2xl bg-brand-50 flex items-center justify-center mb-4">
                 <Brain className="w-8 h-8 text-brand-400" />
               </div>
@@ -511,8 +511,8 @@ export default function MealAIPage() {
       </div>
 
       {/* Experts section */}
-      <div className="mt-8">
-        <div className="flex items-center justify-between mb-5">
+      <div className="mt-6 sm:mt-8">
+        <div className="flex items-center justify-between gap-3 mb-4 sm:mb-5">
           <div>
             <h3 className="font-extrabold text-lg tracking-tight">Desenvolvido com especialistas</h3>
             <p className="text-xs text-slate-500 mt-0.5">Algoritmo validado por nutricionistas certificados</p>
@@ -521,11 +521,11 @@ export default function MealAIPage() {
             <BadgeCheck className="w-3.5 h-3.5" /> CRN verificado
           </span>
         </div>
-        <div className="grid sm:grid-cols-3 gap-4">
+        <div className="grid sm:grid-cols-3 gap-3 sm:gap-4">
           {EXPERTS.map(e => (
-            <div key={e.name} className="bg-white rounded-3xl border border-slate-100 p-5 shadow-sm hover:shadow-md transition-all duration-200 hover:-translate-y-0.5">
+            <div key={e.name} className="bg-white rounded-[1.35rem] sm:rounded-3xl border border-slate-100 p-4 sm:p-5 shadow-sm hover:shadow-md transition-all duration-200 hover:-translate-y-0.5">
               <div className="flex items-center gap-3 mb-3">
-                <div className={`w-12 h-12 rounded-2xl bg-gradient-to-br ${e.color} flex items-center justify-center text-white font-extrabold text-sm shadow-md`}>
+                <div className={`w-10 h-10 sm:w-12 sm:h-12 rounded-2xl bg-gradient-to-br ${e.color} flex items-center justify-center text-white font-extrabold text-sm shadow-md`}>
                   {e.avatar}
                 </div>
                 <div>
@@ -547,9 +547,9 @@ export default function MealAIPage() {
           ))}
         </div>
         {/* Trust row */}
-        <div className="mt-4 grid grid-cols-3 gap-4">
+        <div className="mt-4 grid grid-cols-3 gap-2 sm:gap-4">
           {["+12.000 planos gerados", "4.9★ avaliação média", "98% satisfação"].map(s => (
-            <div key={s} className="text-center p-3 rounded-2xl bg-gradient-to-br from-brand-50 to-emerald-50 border border-brand-100/60">
+            <div key={s} className="text-center p-2.5 sm:p-3 rounded-2xl bg-gradient-to-br from-brand-50 to-emerald-50 border border-brand-100/60">
               <p className="text-sm font-extrabold text-brand-700">{s.split(" ")[0]}</p>
               <p className="text-[11px] text-slate-500">{s.split(" ").slice(1).join(" ")}</p>
             </div>

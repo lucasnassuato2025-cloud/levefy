@@ -84,22 +84,22 @@ export default function Membership() {
   };
 
   return (
-    <AppShell title="Área Premium">
-      <div className="relative overflow-hidden rounded-[2rem] gradient-brand text-white p-6 sm:p-8 mb-8 shadow-premium">
+    <AppShell title="Planos">
+      <div className="relative overflow-hidden rounded-[1.35rem] sm:rounded-[2rem] gradient-brand text-white p-4 sm:p-8 mb-5 sm:mb-8 shadow-premium">
         <div className="absolute inset-0 bg-[radial-gradient(circle_at_top_right,rgba(255,255,255,0.25),transparent_55%)]" />
-        <div className="relative grid lg:grid-cols-[1.4fr_.8fr] gap-6 items-center">
+        <div className="relative grid lg:grid-cols-[1.4fr_.8fr] gap-4 sm:gap-6 items-center">
           <div>
-            <div className="inline-flex items-center gap-2 px-3 py-1 rounded-full bg-white/15 border border-white/20 text-xs font-extrabold uppercase tracking-wider mb-4">
+            <div className="inline-flex items-center gap-2 px-3 py-1 rounded-full bg-white/15 border border-white/20 text-[10px] sm:text-xs font-extrabold uppercase tracking-wider mb-3 sm:mb-4">
               <Sparkles className="w-3.5 h-3.5" /> Upgrade inteligente
             </div>
-            <h2 className="text-2xl sm:text-4xl font-extrabold tracking-tight leading-tight">
+            <h2 className="text-xl sm:text-4xl font-extrabold tracking-tight leading-tight">
               Free cria o hábito. Premium acelera a transformação.
             </h2>
-            <p className="mt-3 text-white/80 max-w-2xl">
+            <p className="mt-2 sm:mt-3 text-sm sm:text-base text-white/80 max-w-2xl">
               O Levefy foi organizado para entregar valor rápido no grátis e destravar personalização, recorrência e acompanhamento profundo no pago.
             </p>
           </div>
-          <div className="bg-white/12 backdrop-blur rounded-3xl p-5 border border-white/15">
+          <div className="bg-white/12 backdrop-blur rounded-[1.25rem] sm:rounded-3xl p-4 sm:p-5 border border-white/15">
             <div className="flex items-center gap-3 mb-3">
               <Brain className="w-8 h-8 text-emerald-100" />
               <div>
@@ -109,11 +109,11 @@ export default function Membership() {
             </div>
             <div className="grid grid-cols-2 gap-3 text-center">
               <div className="rounded-2xl bg-white/12 p-3">
-                <p className="text-2xl font-extrabold">30 dias</p>
+                <p className="text-xl sm:text-2xl font-extrabold">30 dias</p>
                 <p className="text-xs text-white/70">rota de evolução</p>
               </div>
               <div className="rounded-2xl bg-white/12 p-3">
-                <p className="text-2xl font-extrabold">90 dias</p>
+                <p className="text-xl sm:text-2xl font-extrabold">90 dias</p>
                 <p className="text-xs text-white/70">visão de resultado</p>
               </div>
             </div>
@@ -121,11 +121,11 @@ export default function Membership() {
         </div>
       </div>
 
-      <div className="grid md:grid-cols-3 gap-5 lg:gap-6 items-stretch">
+      <div className="grid md:grid-cols-3 gap-4 lg:gap-6 items-stretch">
         {plans.map(p => (
           <div
             key={p.name}
-            className={`card p-7 sm:p-8 relative flex flex-col transition-all duration-300 ${
+            className={`card p-4 sm:p-8 relative flex flex-col transition-all duration-300 ${
               p.featured
                 ? "card-premium ring-2 ring-brand-500/30 shadow-premium md:-translate-y-2"
                 : "card-hover"
@@ -142,7 +142,7 @@ export default function Membership() {
               </span>
             )}
 
-            <div className="flex items-center gap-2.5 mb-4">
+            <div className="flex items-center gap-2.5 mb-3 sm:mb-4">
               {p.icon ? (
                 <div className={`w-10 h-10 rounded-2xl flex items-center justify-center ${
                   p.featured ? "gradient-brand shadow-brand" : "bg-brand-50"
@@ -155,13 +155,13 @@ export default function Membership() {
                 </div>
               )}
               <div>
-                <h3 className="font-extrabold text-xl tracking-tight">{p.name}</h3>
+                <h3 className="font-extrabold text-lg sm:text-xl tracking-tight">{p.name}</h3>
                 <p className="text-xs text-slate-500 mt-0.5">{p.description}</p>
               </div>
             </div>
 
             <p className="mb-2 leading-none">
-              <span className={`text-5xl font-extrabold tracking-tight ${p.featured ? "text-gradient-soft" : "text-slate-900"}`}>
+              <span className={`text-4xl sm:text-5xl font-extrabold tracking-tight ${p.featured ? "text-gradient-soft" : "text-slate-900"}`}>
                 {p.price}
               </span>
               <span className="text-slate-500 text-sm ml-1.5 font-medium">{p.per}</span>
@@ -172,7 +172,7 @@ export default function Membership() {
               </p>
             )}
 
-            <ul className="mt-6 space-y-3 flex-1">
+            <ul className="mt-4 sm:mt-6 space-y-2.5 sm:space-y-3 flex-1">
               {p.features.map(f => (
                 <li key={f} className="flex items-start gap-2.5 text-sm text-slate-700">
                   <span className={`shrink-0 w-5 h-5 rounded-full flex items-center justify-center mt-0.5 ${
@@ -188,7 +188,7 @@ export default function Membership() {
             <button
               disabled={p.disabled || loading === p.plan}
               onClick={() => p.plan && checkout(p.plan)}
-              className={`mt-8 w-full font-bold py-3.5 rounded-full transition-all duration-200 ${
+              className={`mt-5 sm:mt-8 w-full font-bold py-3 rounded-full transition-all duration-200 sm:py-3.5 ${
                 p.featured
                   ? "btn-primary"
                   : p.disabled
@@ -202,8 +202,8 @@ export default function Membership() {
         ))}
       </div>
 
-      <div className="mt-10 card overflow-hidden">
-        <div className="p-5 sm:p-6 border-b border-slate-100 flex items-center gap-2">
+      <div className="mt-7 sm:mt-10 card overflow-hidden">
+        <div className="p-4 sm:p-6 border-b border-slate-100 flex items-center gap-2">
           <TrendingUp className="w-5 h-5 text-brand-600" />
           <h3 className="font-extrabold">Comparação clara: Free x START x PREMIUM</h3>
         </div>
@@ -228,21 +228,21 @@ export default function Membership() {
         </div>
       </div>
 
-      <div className="mt-10 card p-6 sm:p-7 gradient-brand-soft border border-brand-100">
+      <div className="mt-7 sm:mt-10 card p-4 sm:p-7 gradient-brand-soft border border-brand-100">
         <div className="flex items-center gap-2 mb-4">
           <ShieldCheck className="w-5 h-5 text-brand-700" />
           <h3 className="font-bold text-brand-800">Pagamento 100% seguro</h3>
         </div>
-        <div className="grid sm:grid-cols-3 gap-4 text-sm text-slate-700">
-          <div className="bg-white/70 rounded-2xl p-4 border border-white">
+        <div className="grid sm:grid-cols-3 gap-3 sm:gap-4 text-sm text-slate-700">
+          <div className="bg-white/70 rounded-2xl p-3.5 sm:p-4 border border-white">
             <strong className="block text-slate-900">PIX instantâneo</strong>
             <span className="text-slate-500 text-xs">Acesso imediato após pagamento</span>
           </div>
-          <div className="bg-white/70 rounded-2xl p-4 border border-white">
+          <div className="bg-white/70 rounded-2xl p-3.5 sm:p-4 border border-white">
             <strong className="block text-slate-900">Cartão de crédito</strong>
             <span className="text-slate-500 text-xs">Visa, Mastercard, Elo e mais</span>
           </div>
-          <div className="bg-white/70 rounded-2xl p-4 border border-white">
+          <div className="bg-white/70 rounded-2xl p-3.5 sm:p-4 border border-white">
             <strong className="block text-slate-900">Cancele quando quiser</strong>
             <span className="text-slate-500 text-xs">Sem multa nem fidelidade</span>
           </div>

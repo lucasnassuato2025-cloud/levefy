@@ -226,19 +226,19 @@ export default function ProfilePage() {
 
   return (
     <AppShell title="Perfil">
-      <div className="grid lg:grid-cols-3 gap-5 lg:gap-6">
+      <div className="grid lg:grid-cols-3 gap-4 lg:gap-6">
 
         {/* ── Card lateral ── */}
-        <div className="card p-7 text-center relative overflow-hidden">
+        <div className="card p-4 sm:p-7 text-center relative overflow-hidden">
           <div className="absolute -top-10 left-1/2 -translate-x-1/2 w-48 h-48 rounded-full bg-brand-100/40 blur-3xl pointer-events-none" />
 
           {/* Avatar */}
-          <div className="relative w-24 h-24 mx-auto mb-4">
+          <div className="relative w-20 h-20 sm:w-24 sm:h-24 mx-auto mb-3 sm:mb-4">
             {avatar ? (
               <img src={avatar} alt="Foto de perfil"
-                className="w-24 h-24 rounded-full object-cover border-4 border-white shadow-lg" />
+                className="w-20 h-20 sm:w-24 sm:h-24 rounded-full object-cover border-4 border-white shadow-lg" />
             ) : (
-              <div className="w-24 h-24 rounded-full gradient-brand flex items-center justify-center text-5xl shadow-lg border-4 border-white">
+              <div className="w-20 h-20 sm:w-24 sm:h-24 rounded-full gradient-brand flex items-center justify-center text-4xl sm:text-5xl shadow-lg border-4 border-white">
                 {level.emoji}
               </div>
             )}
@@ -247,7 +247,7 @@ export default function ProfilePage() {
             </div>
           </div>
 
-          <p className="font-extrabold text-xl tracking-tight">{form.name || "Usuário"}</p>
+          <p className="font-extrabold text-lg sm:text-xl tracking-tight">{form.name || "Usuário"}</p>
           <p className="text-sm text-slate-500 mt-0.5">{level.title} · Nível {level.level}</p>
 
           <div className="mt-3">
@@ -269,13 +269,13 @@ export default function ProfilePage() {
           </div>
 
           {/* XP e Streak */}
-          <div className="grid grid-cols-2 gap-3 mt-6">
-            <div className="rounded-2xl bg-brand-50 p-4">
-              <p className="text-2xl font-extrabold text-brand-700">{xp}</p>
+          <div className="grid grid-cols-2 gap-2.5 sm:gap-3 mt-4 sm:mt-6">
+            <div className="rounded-2xl bg-brand-50 p-3 sm:p-4">
+              <p className="text-xl sm:text-2xl font-extrabold text-brand-700">{xp}</p>
               <p className="text-[11px] text-brand-600 font-bold uppercase tracking-wider mt-0.5">XP total</p>
             </div>
-            <div className="rounded-2xl bg-orange-50 p-4">
-              <p className="text-2xl font-extrabold text-orange-600">{streak > 0 ? `${streak}🔥` : "0"}</p>
+            <div className="rounded-2xl bg-orange-50 p-3 sm:p-4">
+              <p className="text-xl sm:text-2xl font-extrabold text-orange-600">{streak > 0 ? `${streak}🔥` : "0"}</p>
               <p className="text-[11px] text-orange-500 font-bold uppercase tracking-wider mt-0.5">Streak</p>
             </div>
           </div>
@@ -314,16 +314,16 @@ export default function ProfilePage() {
         </div>
 
         {/* ── Formulário com abas ── */}
-        <div className="lg:col-span-2 card p-7">
+        <div className="lg:col-span-2 card p-4 sm:p-7">
 
           {/* Abas */}
-          <div className="flex gap-2 mb-6 p-1 bg-slate-100 rounded-2xl">
+          <div className="flex gap-1.5 sm:gap-2 mb-4 sm:mb-6 p-1 bg-slate-100 rounded-2xl">
             {[
               { id: "personal", label: "👤 Dados pessoais" },
               { id: "health",   label: "🏥 Saúde e restrições" },
             ].map(t => (
               <button key={t.id} onClick={() => setActiveTab(t.id as any)}
-                className={`flex-1 py-2.5 rounded-xl text-sm font-bold transition-all duration-200 ${
+                className={`flex-1 py-2 rounded-xl text-xs sm:py-2.5 sm:text-sm font-bold transition-all duration-200 ${
                   activeTab === t.id
                     ? "bg-white text-slate-900 shadow-sm"
                     : "text-slate-500 hover:text-slate-700"
@@ -335,13 +335,13 @@ export default function ProfilePage() {
 
           {/* Aba: Dados pessoais */}
           {activeTab === "personal" && (
-            <div className="space-y-5">
+            <div className="space-y-4 sm:space-y-5">
               <div>
                 <h3 className="font-extrabold text-lg tracking-tight">Dados pessoais</h3>
                 <p className="text-xs text-slate-500 mt-0.5">Mantenha seus dados atualizados para um plano mais preciso</p>
               </div>
 
-              <div className="grid grid-cols-2 gap-4">
+              <div className="grid grid-cols-2 gap-3 sm:gap-4">
                 <div className="col-span-2">
                   <label className="text-[11px] text-slate-500 mb-1 block font-medium">Nome completo</label>
                   <input type="text" placeholder="Seu nome" value={form.name}
@@ -405,7 +405,7 @@ export default function ProfilePage() {
 
           {/* Aba: Saúde */}
           {activeTab === "health" && (
-            <div className="space-y-6">
+            <div className="space-y-5 sm:space-y-6">
               <div>
                 <h3 className="font-extrabold text-lg tracking-tight">Saúde e estilo de vida</h3>
                 <p className="text-xs text-slate-500 mt-0.5">Informações confidenciais para personalizar seu plano</p>
@@ -417,7 +417,7 @@ export default function ProfilePage() {
                 <div className="space-y-2">
                   {HEALTH_TOGGLES.map(f => (
                     <div key={f.id} onClick={() => toggleHealth(f.id)}
-                      className={`flex items-center justify-between p-4 rounded-2xl border-2 cursor-pointer transition-all duration-200 ${
+                      className={`flex items-center justify-between p-3 sm:p-4 rounded-2xl border-2 cursor-pointer transition-all duration-200 ${
                         healthFlags[f.id]
                           ? "border-brand-300 bg-brand-50"
                           : "border-slate-100 bg-white hover:border-slate-200"
@@ -478,7 +478,7 @@ export default function ProfilePage() {
           )}
 
           {/* Botão salvar + feedback */}
-          <div className="mt-6 pt-5 border-t border-slate-100 space-y-3">
+          <div className="mt-5 sm:mt-6 pt-4 sm:pt-5 border-t border-slate-100 space-y-3">
             {saved && (
               <div className="flex items-center gap-2 text-brand-700 bg-brand-50 border border-brand-100 rounded-2xl px-4 py-3 text-sm font-medium">
                 <CheckCircle2 className="w-4 h-4 shrink-0 text-brand-600" />
@@ -501,8 +501,8 @@ export default function ProfilePage() {
         </div>
 
         {/* ── Medalhas ── */}
-        <div className="lg:col-span-3 card p-7">
-          <div className="flex items-center justify-between mb-5">
+        <div className="lg:col-span-3 card p-4 sm:p-7">
+          <div className="flex items-center justify-between mb-4 sm:mb-5">
             <h3 className="font-extrabold flex items-center gap-2 tracking-tight">
               <Trophy className="w-4 h-4 text-amber-500" /> Conquistas
             </h3>
@@ -513,8 +513,8 @@ export default function ProfilePage() {
           <div className="grid grid-cols-2 sm:grid-cols-3 lg:grid-cols-6 gap-3">
             {MEDALS.map(m => (
               <div key={m.id}
-                className="text-center p-4 rounded-2xl border border-slate-100 hover:border-brand-200 hover:bg-brand-50/30 hover:-translate-y-0.5 hover:shadow-sm transition-all duration-200">
-                <div className="text-4xl mb-2">{m.emoji}</div>
+              className="text-center p-3 sm:p-4 rounded-2xl border border-slate-100 hover:border-brand-200 hover:bg-brand-50/30 hover:-translate-y-0.5 hover:shadow-sm transition-all duration-200">
+                <div className="text-3xl sm:text-4xl mb-1.5 sm:mb-2">{m.emoji}</div>
                 <p className="text-xs font-bold leading-tight">{m.title}</p>
                 <p className="text-[11px] text-brand-600 mt-1 font-bold">+{m.xp} XP</p>
               </div>
@@ -526,7 +526,7 @@ export default function ProfilePage() {
 
 
       {/* Zona de perigo */}
-      <div className="mt-6 card p-6 border border-red-100 bg-red-50/40">
+      <div className="mt-4 sm:mt-6 card p-4 sm:p-6 border border-red-100 bg-red-50/40">
         <div className="flex flex-col sm:flex-row sm:items-start sm:justify-between gap-4">
           <div>
             <div className="inline-flex items-center gap-2 px-3 py-1 rounded-full bg-red-100 text-red-700 text-[11px] font-extrabold uppercase tracking-wider mb-3">

@@ -236,17 +236,36 @@ body {
 .animate-border-glow  { animation: borderGlow 3s  ease-in-out infinite; }
 
 /* Mobile safe area */
-.mobile-safe-bottom { padding-bottom: 0.55rem; }
+.mobile-safe-bottom { padding-bottom: 0.45rem; }
 @supports (padding-bottom: env(safe-area-inset-bottom)) {
-  .mobile-safe-bottom { padding-bottom: max(0.55rem, env(safe-area-inset-bottom)); }
+  .mobile-safe-bottom { padding-bottom: max(0.45rem, env(safe-area-inset-bottom)); }
 }
 
 @media (max-width: 480px) {
+  body {
+    font-size: 14px;
+  }
+
   .card,
   .card-premium,
   .card-glass,
   .card-glass-dark {
-    border-radius: 1.35rem;
+    border-radius: 1.2rem;
+  }
+
+  .btn-primary,
+  .btn-brand,
+  .btn-ghost,
+  .btn-soft {
+    min-height: 42px;
+    padding: 0.625rem 1rem;
+    font-size: 0.875rem;
+  }
+
+  .input-premium {
+    border-radius: 1rem;
+    padding: 0.625rem 0.75rem;
+    font-size: 0.8125rem;
   }
 }
 
