@@ -2,7 +2,7 @@
 
 import { useState, useEffect } from "react";
 import AppShell from "@/components/AppShell";
-import { Sparkles, Brain, Loader2, ChevronDown, RefreshCw, Calendar, Star, BadgeCheck, Gift, Crown, Lock, AlertCircle } from "lucide-react";
+import { Sparkles, Brain, Loader2, ChevronDown, RefreshCw, Calendar, Star, BadgeCheck, Crown, Lock, AlertCircle } from "lucide-react";
 import type { FastingProtocol, MealSlot, MacroResult } from "@/lib/meal-engine";
 import { PLAN_LIMITS, normalizePlan, type LevefyPlan } from "@/lib/plan-access";
 import Link from "next/link";
@@ -45,16 +45,6 @@ const EXPERTS = [
   { name: "Dra. Camila Azevedo", specialty: "Nutrição Clínica Esportiva", avatar: "CA", color: "from-rose-400 to-pink-600" },
   { name: "Dr. Rafael Monteiro", specialty: "Emagrecimento e Performance", avatar: "RM", color: "from-blue-400 to-indigo-600" },
   { name: "Dra. Juliana Ferraz", specialty: "Nutrição Funcional Hormonal", avatar: "JF", color: "from-amber-400 to-orange-500" },
-];
-
-const FREE_RECIPES_PREVIEW = [
-  { day: "Dia 1", name: "Café da manhã proteico + almoço detox", cal: 1650, goal: "emagrecimento" },
-  { day: "Dia 2", name: "Smoothie verde + prato equilibrado", cal: 1720, goal: "emagrecimento" },
-  { day: "Dia 3", name: "Aveia fitness + frango grelhado", cal: 1580, goal: "manutencao" },
-  { day: "Dia 4", name: "Omelete proteica + salada completa", cal: 1800, goal: "hipertrofia" },
-  { day: "Dia 5", name: "Iogurte grego + peixe ao forno", cal: 1620, goal: "emagrecimento" },
-  { day: "Dia 6", name: "Tapioca fit + peito de frango", cal: 1750, goal: "manutencao" },
-  { day: "Dia 7", name: "Vitamina de frutas + wrap proteico", cal: 1680, goal: "emagrecimento" },
 ];
 
 interface Result {
@@ -356,34 +346,6 @@ export default function MealAIPage() {
         <div className="rounded-2xl border border-slate-100 bg-white px-3 py-2.5 shadow-sm sm:px-4 sm:py-3">
           <p className="text-[10px] font-extrabold uppercase tracking-widest text-slate-400">Jejum</p>
           <p className="mt-1 text-sm font-extrabold text-slate-900">{isPaid ? "Liberado" : "START/Premium"}</p>
-        </div>
-      </div>
-
-      {/* 7-day free trial banner */}
-      <div className="mb-4 rounded-[1.35rem] p-4 overflow-hidden relative sm:mb-6 sm:rounded-3xl sm:p-5"
-        style={{ background: "linear-gradient(135deg, #1a1a2e 0%, #16213e 50%, #0f3460 100%)" }}>
-        <div className="absolute inset-0 opacity-20"
-          style={{ backgroundImage: "radial-gradient(circle at 80% 50%, #22c55e 0%, transparent 60%)" }} />
-        <div className="relative flex items-start justify-between gap-4 flex-wrap">
-          <div>
-            <div className="flex items-center gap-2 mb-2">
-              <Gift className="w-5 h-5 text-amber-400" />
-              <span className="text-amber-400 font-bold text-sm uppercase tracking-wider">7 Dias Grátis</span>
-            </div>
-            <h3 className="text-white font-extrabold text-base sm:text-lg mb-1">Seu presente de boas-vindas 🎁</h3>
-            <p className="text-white/60 text-sm">7 cardápios completos e personalizados para começar sua jornada</p>
-          </div>
-          <div className="flex gap-2 flex-wrap">
-            {FREE_RECIPES_PREVIEW.slice(0, 3).map((r, i) => (
-              <div key={i} className="bg-white/10 backdrop-blur rounded-2xl p-2.5 text-center min-w-[78px] sm:min-w-[90px] sm:p-3">
-                <p className="text-[10px] font-bold text-green-400 mb-1">{r.day}</p>
-                <p className="text-[10px] text-white/70 leading-tight">{r.cal} kcal</p>
-              </div>
-            ))}
-            <div className="bg-white/10 backdrop-blur rounded-2xl p-2.5 text-center min-w-[78px] flex items-center justify-center sm:min-w-[90px] sm:p-3">
-              <p className="text-[10px] text-white/50">+4 dias incluídos</p>
-            </div>
-          </div>
         </div>
       </div>
 
