@@ -20,7 +20,12 @@
   --dark-surface:#0d1117;
 }
 
-html, body { height: 100%; }
+html, body {
+  height: 100%;
+  overflow-x: hidden;
+  -webkit-text-size-adjust: 100%;
+  text-size-adjust: 100%;
+}
 body {
   @apply bg-[#f8fafc] text-slate-900 antialiased;
   font-family: 'DM Sans', ui-sans-serif, system-ui, sans-serif;
@@ -231,8 +236,18 @@ body {
 .animate-border-glow  { animation: borderGlow 3s  ease-in-out infinite; }
 
 /* Mobile safe area */
+.mobile-safe-bottom { padding-bottom: 0.55rem; }
 @supports (padding-bottom: env(safe-area-inset-bottom)) {
-  .mobile-safe-bottom { padding-bottom: max(1rem, env(safe-area-inset-bottom)); }
+  .mobile-safe-bottom { padding-bottom: max(0.55rem, env(safe-area-inset-bottom)); }
+}
+
+@media (max-width: 480px) {
+  .card,
+  .card-premium,
+  .card-glass,
+  .card-glass-dark {
+    border-radius: 1.35rem;
+  }
 }
 
 /* Stagger delays */

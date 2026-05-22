@@ -13,7 +13,7 @@ const nav = [
   { href: "/recipes",    label: "Receitas",        icon: UtensilsCrossed, emoji: "🍽️" },
   { href: "/challenge",  label: "Desafio 21 Dias", icon: Trophy,          emoji: "🏆" },
   { href: "/profile",    label: "Perfil",          icon: User,            emoji: "👤" },
-  { href: "/membership", label: "Área Premium",    icon: Crown,           emoji: "👑" },
+  { href: "/membership", label: "Planos",          icon: Crown,           emoji: "👑" },
   { href: "/admin",      label: "Admin",           icon: Shield,          emoji: "🛡️" },
 ];
 
