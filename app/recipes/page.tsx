@@ -333,8 +333,146 @@ export default function RecipesPage() {
     w.document.close();
   };
 
+  const mobileView = (
+    <div className="space-y-3.5">
+      <section className="rounded-[1.65rem] bg-slate-950 p-4 text-white shadow-[0_20px_50px_-28px_rgba(15,23,42,0.8)]">
+        <p className="text-[10px] font-extrabold uppercase tracking-[0.18em] text-emerald-300">Receitas Levefy</p>
+        <h1 className="mt-1 text-[1.45rem] font-extrabold leading-tight tracking-tight">Receitas prontas com fotos reais</h1>
+        <p className="mt-1 text-xs leading-5 text-white/65">Filtre por objetivo, veja macros e salve a receita.</p>
+        <div className="mt-4 grid grid-cols-3 gap-2 text-center">
+          <div className="rounded-2xl bg-white/10 p-2.5">
+            <p className="text-base font-extrabold">{RECIPES.filter(r => !r.premium).length}</p>
+            <p className="text-[10px] text-white/55">gratis</p>
+          </div>
+          <div className="rounded-2xl bg-white/10 p-2.5">
+            <p className="text-base font-extrabold">{RECIPES.filter(r => r.premium).length}</p>
+            <p className="text-[10px] text-white/55">premium</p>
+          </div>
+          <div className="rounded-2xl bg-white/10 p-2.5">
+            <p className="text-base font-extrabold">6</p>
+            <p className="text-[10px] text-white/55">doces fit</p>
+          </div>
+        </div>
+      </section>
+
+      <section className="rounded-[1.45rem] bg-white p-3.5 shadow-sm ring-1 ring-slate-100">
+        <div className="relative">
+          <Search className="pointer-events-none absolute left-3 top-1/2 h-4 w-4 -translate-y-1/2 text-slate-400" />
+          <input
+            value={query}
+            onChange={event => setQuery(event.target.value)}
+            placeholder="Buscar bolo, frango..."
+            className="w-full rounded-2xl border border-slate-200 bg-white py-3 pl-10 pr-3 text-base font-medium outline-none focus:border-brand-400 focus:ring-4 focus:ring-brand-100"
+          />
+        </div>
+        <div className="mt-3 flex gap-2 overflow-x-auto pb-1">
+          {CATEGORIES.map(category => (
+            <button
+              key={category}
+              type="button"
+              onClick={() => setFilter(category)}
+              className={`shrink-0 rounded-full border px-3.5 py-2 text-[11px] font-extrabold ${
+                filter === category ? "border-transparent gradient-brand text-white shadow-brand" : "border-slate-200 bg-white text-slate-600"
+              }`}
+            >
+              {category}
+            </button>
+          ))}
+        </div>
+      </section>
+
+      <section className="grid gap-3">
+        {filtered.map(recipe => {
+          const allowed = canAccess(recipe);
+          return (
+            <article
+              key={recipe.title}
+              onClick={() => allowed && setSelected(recipe)}
+              className="overflow-hidden rounded-[1.45rem] bg-white shadow-sm ring-1 ring-slate-100"
+            >
+              <div className="grid grid-cols-[112px_1fr]">
+                <div className="relative min-h-[132px] bg-slate-100">
+                  <img src={recipe.image} alt={recipe.title} loading="lazy" className="h-full w-full object-cover" />
+                  {recipe.premium && (
+                    <span className="absolute left-2 top-2 rounded-full bg-amber-400 px-2 py-1 text-[9px] font-extrabold text-amber-950">PRO</span>
+                  )}
+                  {!allowed && (
+                    <div className="absolute inset-0 flex items-center justify-center bg-slate-950/45">
+                      <Lock className="h-5 w-5 text-white" />
+                    </div>
+                  )}
+                </div>
+                <div className="p-3">
+                  <p className="text-[10px] font-extrabold uppercase tracking-wider text-brand-700">{recipe.category}</p>
+                  <h2 className="mt-1 line-clamp-2 text-sm font-extrabold leading-snug text-slate-950">{recipe.title}</h2>
+                  <p className="mt-1 line-clamp-2 text-[11px] leading-4 text-slate-500">{recipe.description}</p>
+                  <div className="mt-2 flex flex-wrap gap-1.5 text-[10px] font-bold">
+                    <span className="rounded-full bg-orange-50 px-2 py-1 text-orange-700">{recipe.cal} kcal</span>
+                    <span className="rounded-full bg-slate-100 px-2 py-1 text-slate-600">{recipe.time} min</span>
+                  </div>
+                  <p className="mt-2 text-[10px] text-slate-400">P {recipe.macros.protein}g • C {recipe.macros.carbs}g • G {recipe.macros.fat}g</p>
+                </div>
+              </div>
+            </article>
+          );
+        })}
+      </section>
+
+      {plan === "free" && (
+        <Link href="/membership" className="flex items-center justify-between rounded-[1.45rem] bg-slate-950 p-3.5 text-white shadow-sm">
+          <div>
+            <p className="text-sm font-extrabold">Desbloqueie receitas premium</p>
+            <p className="text-[11px] text-white/60">Bolos fit, sobremesas e opcoes extras.</p>
+          </div>
+          <Crown className="h-5 w-5 text-amber-300" />
+        </Link>
+      )}
+
+      {selected && (
+        <div className="fixed inset-0 z-50 flex items-end bg-slate-950/70 backdrop-blur-sm">
+          <div className="max-h-[92dvh] w-full overflow-y-auto rounded-t-[1.8rem] bg-white">
+            <div className="relative h-56 bg-slate-100">
+              <img src={selected.image} alt={selected.title} className="h-full w-full object-cover" />
+              <button onClick={() => setSelected(null)} className="absolute right-3 top-3 flex h-9 w-9 items-center justify-center rounded-full bg-white/95 text-slate-700">
+                <X className="h-4 w-4" />
+              </button>
+            </div>
+            <div className="p-4">
+              <p className="text-[10px] font-extrabold uppercase tracking-wider text-brand-700">{selected.category}</p>
+              <h2 className="mt-1 text-xl font-extrabold text-slate-950">{selected.title}</h2>
+              <p className="mt-2 text-sm leading-6 text-slate-500">{selected.description}</p>
+              <div className="mt-4 grid grid-cols-3 gap-2">
+                {[
+                  ["Proteina", `${selected.macros.protein}g`],
+                  ["Carbo", `${selected.macros.carbs}g`],
+                  ["Gordura", `${selected.macros.fat}g`],
+                ].map(([label, value]) => (
+                  <div key={label} className="rounded-2xl bg-slate-50 p-3 text-center">
+                    <p className="text-base font-extrabold text-slate-950">{value}</p>
+                    <p className="text-[10px] font-bold text-slate-400">{label}</p>
+                  </div>
+                ))}
+              </div>
+              <h3 className="mt-5 text-xs font-extrabold uppercase tracking-wider text-slate-400">Ingredientes</h3>
+              <ul className="mt-2 space-y-2">
+                {selected.ingredients.map(item => <li key={item} className="text-sm text-slate-600">• {item}</li>)}
+              </ul>
+              <h3 className="mt-5 text-xs font-extrabold uppercase tracking-wider text-slate-400">Preparo</h3>
+              <ol className="mt-2 space-y-2">
+                {selected.steps.map((step, index) => <li key={step} className="text-sm leading-6 text-slate-700">{index + 1}. {step}</li>)}
+              </ol>
+              <button onClick={() => printRecipe(selected)} className="mt-5 flex min-h-11 w-full items-center justify-center gap-2 rounded-full gradient-brand text-sm font-extrabold text-white">
+                <Download className="h-4 w-4" /> Salvar / imprimir
+              </button>
+            </div>
+          </div>
+        </div>
+      )}
+    </div>
+  );
+
   return (
-    <AppShell title="Receitas">
+    <AppShell title="Receitas" mobile={mobileView}>
       <div className="mb-4 rounded-[1.35rem] bg-slate-950 p-4 text-white shadow-premium sm:mb-6 sm:rounded-3xl sm:p-7">
         <div className="flex flex-col gap-4 lg:flex-row lg:items-end lg:justify-between">
           <div>

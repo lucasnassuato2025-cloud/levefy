@@ -99,8 +99,85 @@ export default function ChallengePage() {
     );
   }
 
+  const mobileView = (
+    <div className="space-y-3.5">
+      <section className="rounded-[1.65rem] bg-slate-950 p-4 text-white shadow-[0_20px_50px_-28px_rgba(15,23,42,0.8)]">
+        <div className="flex items-start justify-between gap-3">
+          <div>
+            <p className="text-[10px] font-extrabold uppercase tracking-[0.18em] text-emerald-300">Desafio 21 dias</p>
+            <h1 className="mt-1 text-[1.45rem] font-extrabold leading-tight tracking-tight">Dia {completedDays} de {total}</h1>
+            <p className="mt-1 text-xs leading-5 text-white/65">
+              {completedDays >= total ? "Desafio concluido." : `${total - completedDays} dias restantes para sua transformacao.`}
+            </p>
+          </div>
+          <div className="flex h-14 w-14 shrink-0 items-center justify-center rounded-full bg-white/10 text-lg font-black text-emerald-200">
+            {pct}%
+          </div>
+        </div>
+        <div className="mt-4 h-2.5 overflow-hidden rounded-full bg-white/10">
+          <div className="h-full rounded-full gradient-brand" style={{ width: `${pct}%` }} />
+        </div>
+      </section>
+
+      {completedDays < total && (
+        <section className="rounded-[1.45rem] bg-white p-3.5 shadow-sm ring-1 ring-slate-100">
+          <div className="mb-3 flex items-center justify-between">
+            <h2 className="text-sm font-extrabold text-slate-950">{todayDone ? "Hoje concluido" : "Tarefas de hoje"}</h2>
+            <span className="rounded-full bg-orange-50 px-2.5 py-1 text-[10px] font-extrabold text-orange-600">Dia {completedDays + 1}</span>
+          </div>
+          <div className="space-y-2">
+            {CHALLENGE_TASKS.map((task, index) => {
+              const isChecked = checked.has(index) || todayDone;
+              return (
+                <button
+                  key={task.title}
+                  type="button"
+                  onClick={() => toggle(index)}
+                  disabled={todayDone}
+                  className={`flex w-full items-center gap-3 rounded-2xl border p-3 text-left ${
+                    isChecked ? "border-brand-200 bg-brand-50" : "border-slate-100 bg-slate-50/70"
+                  }`}
+                >
+                  <span className="flex h-9 w-9 shrink-0 items-center justify-center rounded-2xl bg-white text-lg shadow-sm">
+                    {isChecked ? <Check className="h-4 w-4 text-brand-600" /> : task.icon}
+                  </span>
+                  <span className="min-w-0">
+                    <span className="block text-sm font-extrabold text-slate-950">{task.title}</span>
+                    <span className="block text-[11px] leading-4 text-slate-500">{task.desc}</span>
+                  </span>
+                </button>
+              );
+            })}
+          </div>
+          {!todayDone && (
+            <button
+              onClick={completeDay}
+              disabled={saving || checked.size < CHALLENGE_TASKS.length}
+              className="mt-3 flex min-h-11 w-full items-center justify-center rounded-full gradient-brand text-sm font-extrabold text-white shadow-brand disabled:opacity-50"
+            >
+              {saving ? "Salvando..." : "Confirmar dia concluido"}
+            </button>
+          )}
+        </section>
+      )}
+
+      <section className="grid grid-cols-2 gap-2.5">
+        {MILESTONES.map(milestone => {
+          const reached = completedDays >= milestone.day;
+          return (
+            <div key={milestone.day} className={`rounded-[1.25rem] p-3 shadow-sm ring-1 ${reached ? "bg-brand-50 ring-brand-100" : "bg-white ring-slate-100"}`}>
+              <div className="text-2xl">{milestone.emoji}</div>
+              <p className={`mt-1 text-base font-extrabold ${reached ? "text-brand-700" : "text-slate-300"}`}>Dia {milestone.day}</p>
+              <p className="text-xs font-bold leading-4 text-slate-700">{milestone.title}</p>
+            </div>
+          );
+        })}
+      </section>
+    </div>
+  );
+
   return (
-    <AppShell title="Desafio 21 Dias">
+    <AppShell title="Desafio 21 Dias" mobile={mobileView}>
       {/* Progress hero */}
       <div className="card card-premium p-4 sm:p-8 mb-4 sm:mb-6 relative overflow-hidden">
         <div className="absolute -top-16 -right-16 w-56 h-56 rounded-full bg-brand-200/40 blur-3xl pointer-events-none" />

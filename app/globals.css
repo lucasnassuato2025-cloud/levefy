@@ -26,11 +26,29 @@ html, body {
   -webkit-text-size-adjust: 100%;
   text-size-adjust: 100%;
 }
+
+html {
+  width: 100%;
+}
+
 body {
   @apply bg-[#f8fafc] text-slate-900 antialiased;
   font-family: 'DM Sans', ui-sans-serif, system-ui, sans-serif;
   font-feature-settings: "cv11", "ss01";
   letter-spacing: -0.01em;
+  width: 100%;
+  min-width: 0;
+}
+
+* {
+  min-width: 0;
+}
+
+img,
+svg,
+video,
+canvas {
+  max-width: 100%;
 }
 
 /* ============================================================
@@ -265,7 +283,23 @@ body {
   .input-premium {
     border-radius: 1rem;
     padding: 0.625rem 0.75rem;
-    font-size: 0.8125rem;
+    font-size: 16px;
+  }
+}
+
+@media (max-width: 1023px) {
+  input,
+  select,
+  textarea {
+    font-size: 16px;
+  }
+
+  button,
+  a,
+  input,
+  select,
+  textarea {
+    -webkit-tap-highlight-color: transparent;
   }
 }
 

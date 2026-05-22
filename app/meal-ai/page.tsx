@@ -150,8 +150,182 @@ export default function MealAIPage() {
       ? "Ilimitado no Premium"
       : `${planLimit} gerações por semana`;
 
+  const mobileView = (
+    <div className="space-y-3.5">
+      <section className="rounded-[1.65rem] bg-slate-950 p-4 text-white shadow-[0_20px_50px_-28px_rgba(15,23,42,0.8)]">
+        <div className="flex items-start justify-between gap-3">
+          <div>
+            <p className="text-[10px] font-extrabold uppercase tracking-[0.18em] text-emerald-300">Meal AI</p>
+            <h1 className="mt-1 text-[1.45rem] font-extrabold leading-tight tracking-tight">
+              Plano alimentar rapido
+            </h1>
+            <p className="mt-1 text-xs leading-5 text-white/65">Preencha o basico e gere seu plano do dia.</p>
+          </div>
+          <div className="flex h-11 w-11 shrink-0 items-center justify-center rounded-2xl gradient-brand shadow-brand">
+            <Brain className="h-5 w-5 text-white" />
+          </div>
+        </div>
+      </section>
+
+      <section className="grid grid-cols-3 gap-2">
+        <div className="rounded-[1.25rem] bg-white p-3 shadow-sm ring-1 ring-slate-100">
+          <p className="text-[9px] font-extrabold uppercase tracking-wider text-slate-400">Plano</p>
+          <p className="mt-1 text-xs font-extrabold text-slate-900">{PLAN_LIMITS[plan].label}</p>
+        </div>
+        <div className="rounded-[1.25rem] bg-white p-3 shadow-sm ring-1 ring-slate-100">
+          <p className="text-[9px] font-extrabold uppercase tracking-wider text-slate-400">Uso</p>
+          <p className="mt-1 text-xs font-extrabold text-slate-900">{usageLabel}</p>
+        </div>
+        <div className="rounded-[1.25rem] bg-white p-3 shadow-sm ring-1 ring-slate-100">
+          <p className="text-[9px] font-extrabold uppercase tracking-wider text-slate-400">Jejum</p>
+          <p className="mt-1 text-xs font-extrabold text-slate-900">{isPaid ? "Liberado" : "Pago"}</p>
+        </div>
+      </section>
+
+      <section className="rounded-[1.45rem] bg-white p-3.5 shadow-sm ring-1 ring-slate-100">
+        <div className="mb-3 flex items-center justify-between">
+          <h2 className="text-sm font-extrabold text-slate-950">Seu perfil</h2>
+          {profileLoaded && <span className="rounded-full bg-brand-50 px-2 py-1 text-[10px] font-extrabold text-brand-700">sincronizado</span>}
+        </div>
+
+        <div className="grid grid-cols-2 gap-2.5">
+          <label className="block">
+            <span className="text-[11px] font-bold text-slate-500">Peso</span>
+            <input value={form.weight} onChange={e => set("weight", e.target.value)} type="number" className="input-premium mt-1" placeholder="70" />
+          </label>
+          <label className="block">
+            <span className="text-[11px] font-bold text-slate-500">Altura</span>
+            <input value={form.height} onChange={e => set("height", e.target.value)} type="number" className="input-premium mt-1" placeholder="165" />
+          </label>
+          <label className="block">
+            <span className="text-[11px] font-bold text-slate-500">Idade</span>
+            <input value={form.age} onChange={e => set("age", e.target.value)} type="number" className="input-premium mt-1" placeholder="30" />
+          </label>
+          <label className="block">
+            <span className="text-[11px] font-bold text-slate-500">Sexo</span>
+            <select value={form.gender} onChange={e => set("gender", e.target.value)} className="input-premium mt-1 bg-white">
+              <option value="feminino">Feminino</option>
+              <option value="masculino">Masculino</option>
+            </select>
+          </label>
+        </div>
+
+        <label className="mt-3 block">
+          <span className="text-[11px] font-bold text-slate-500">Objetivo</span>
+          <select value={form.goal} onChange={e => set("goal", e.target.value)} className="input-premium mt-1 bg-white">
+            {GOALS.map(goal => <option key={goal.v} value={goal.v}>{goal.l}</option>)}
+          </select>
+        </label>
+
+        <label className="mt-3 block">
+          <span className="text-[11px] font-bold text-slate-500">Atividade</span>
+          <select value={form.activityLevel} onChange={e => set("activityLevel", e.target.value)} className="input-premium mt-1 bg-white">
+            {ACTIVITY.map(activity => <option key={activity.v} value={activity.v}>{activity.l}</option>)}
+          </select>
+        </label>
+
+        <div className="mt-3">
+          <div className="mb-2 flex items-center justify-between">
+            <span className="text-[11px] font-bold text-slate-500">Jejum intermitente</span>
+            {!isPaid && <Link href="/membership" className="text-[10px] font-extrabold text-amber-700">START/Premium</Link>}
+          </div>
+          <div className="grid grid-cols-2 gap-2">
+            {FASTING_OPTIONS.map(option => {
+              const locked = option.value !== "none" && !isPaid;
+              const active = form.fastingProtocol === option.value;
+              return (
+                <button
+                  key={option.value}
+                  type="button"
+                  disabled={locked}
+                  onClick={() => setForm(current => ({ ...current, fastingProtocol: option.value }))}
+                  className={`rounded-2xl border px-3 py-2 text-left ${active ? "gradient-brand text-white border-transparent" : locked ? "border-slate-100 bg-slate-50 text-slate-300" : "border-slate-200 bg-white text-slate-700"}`}
+                >
+                  <span className="block text-xs font-extrabold">{option.label}</span>
+                  <span className={`block text-[10px] leading-tight ${active ? "text-white/75" : "text-slate-400"}`}>{option.description}</span>
+                </button>
+              );
+            })}
+          </div>
+        </div>
+
+        {error && (
+          <div className="mt-3 rounded-2xl border border-red-100 bg-red-50 p-3 text-xs font-bold text-red-700">
+            {error}
+          </div>
+        )}
+
+        <button onClick={generate} disabled={loading || !form.weight || !form.height || !form.age} className="mt-4 flex min-h-11 w-full items-center justify-center gap-2 rounded-full gradient-brand px-4 text-sm font-extrabold text-white shadow-brand disabled:opacity-50">
+          {loading ? <><Loader2 className="h-4 w-4 animate-spin" /> Gerando...</> : <><Sparkles className="h-4 w-4" /> Gerar plano</>}
+        </button>
+      </section>
+
+      {loading && (
+        <section className="rounded-[1.45rem] bg-white p-4 shadow-sm ring-1 ring-slate-100">
+          <p className="text-sm font-extrabold text-slate-900">{LOADING_STEPS[step]}</p>
+          <div className="mt-3 h-2 overflow-hidden rounded-full bg-slate-100">
+            <div className="h-full rounded-full gradient-brand transition-all" style={{ width: `${((step + 1) / LOADING_STEPS.length) * 100}%` }} />
+          </div>
+        </section>
+      )}
+
+      {result && !loading && (
+        <section className="space-y-3.5">
+          <div className="rounded-[1.45rem] bg-white p-3.5 shadow-sm ring-1 ring-slate-100">
+            <div className="mb-3 flex items-center justify-between">
+              <h2 className="text-sm font-extrabold">Macros do dia</h2>
+              <span className="rounded-full bg-brand-50 px-2 py-1 text-[10px] font-extrabold text-brand-700">{result.score}/100</span>
+            </div>
+            <div className="grid grid-cols-2 gap-2">
+              {[
+                ["Calorias", `${result.macros.calories} kcal`],
+                ["Proteina", `${result.macros.protein}g`],
+                ["Carbs", `${result.macros.carbs}g`],
+                ["Gordura", `${result.macros.fat}g`],
+              ].map(([label, value]) => (
+                <div key={label} className="rounded-2xl bg-slate-50 p-3">
+                  <p className="text-[10px] font-bold uppercase text-slate-400">{label}</p>
+                  <p className="mt-1 text-base font-extrabold text-slate-950">{value}</p>
+                </div>
+              ))}
+            </div>
+          </div>
+
+          <div className="rounded-[1.45rem] bg-white shadow-sm ring-1 ring-slate-100">
+            <div className="border-b border-slate-100 p-3.5">
+              <h2 className="text-sm font-extrabold">Plano do dia</h2>
+            </div>
+            <div className="divide-y divide-slate-100">
+              {result.meals.map((meal, index) => (
+                <button key={index} type="button" onClick={() => setExpandedMeal(expandedMeal === index ? null : index)} className="block w-full p-3.5 text-left">
+                  <div className="flex items-center justify-between gap-3">
+                    <div>
+                      <p className="text-sm font-extrabold text-slate-950">{meal.label}</p>
+                      <p className="text-[11px] text-slate-500">{meal.time} • {meal.totalCals} kcal</p>
+                    </div>
+                    <ChevronDown className={`h-4 w-4 text-slate-400 transition ${expandedMeal === index ? "rotate-180" : ""}`} />
+                  </div>
+                  {expandedMeal === index && (
+                    <div className="mt-3 space-y-2">
+                      {meal.items.map((item, itemIndex) => (
+                        <div key={itemIndex} className="flex items-center justify-between rounded-2xl bg-slate-50 px-3 py-2 text-xs">
+                          <span className="font-bold text-slate-700">{item.name}</span>
+                          <span className="text-slate-400">{item.calories} kcal</span>
+                        </div>
+                      ))}
+                    </div>
+                  )}
+                </button>
+              ))}
+            </div>
+          </div>
+        </section>
+      )}
+    </div>
+  );
+
   return (
-    <AppShell title="">
+    <AppShell title="" mobile={mobileView}>
       {/* Header */}
       <div className="mb-5 flex items-center gap-3 sm:mb-8 sm:gap-4">
         <div className="relative">

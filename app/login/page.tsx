@@ -4,6 +4,7 @@ import Link from "next/link";
 import { useEffect, useState } from "react";
 import Logo from "@/components/Logo";
 import { GoogleButton } from "@/components/GoogleButton";
+import MobileInstallBanner from "@/components/MobileInstallBanner";
 import { auth } from "@/lib/auth";
 import { syncCurrentUser } from "@/app/actions/sync-user";
 import { trackConversion } from "@/lib/tracking";
@@ -178,7 +179,8 @@ export default function LoginPage() {
       </div>
       <div className="flex items-center justify-center p-6 lg:p-12 bg-white">
         <div className="w-full max-w-md">
-          <div className="lg:hidden mb-8"><Logo /></div>
+          <div className="lg:hidden mb-4"><Logo /></div>
+          <MobileInstallBanner className="mb-5" />
           <h1 className="text-3xl font-bold">
             {mode === "login" && "Bem-vindo de volta"}
             {mode === "register" && "Crie sua conta"}

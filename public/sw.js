@@ -1,7 +1,7 @@
 // public/sw.js — Levefy Service Worker
 // Strategy: Cache-first for static assets, network-first for pages
 
-const CACHE_NAME = "levefy-v2";
+const CACHE_NAME = "levefy-v3-mobile-shell";
 const STATIC_ASSETS = [
   "/",
   "/manifest.json",

@@ -38,8 +38,7 @@ export const viewport: Viewport = {
   themeColor: "#16a34a",
   width: "device-width",
   initialScale: 1,
-  maximumScale: 1,   // Impede zoom acidental — padrão Nubank/iFood
-  userScalable: false,
+  viewportFit: "cover",
 };
 
 function isValidTrackingId(value?: string) {

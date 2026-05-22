@@ -83,8 +83,73 @@ export default function Membership() {
     }
   };
 
+  const mobileView = (
+    <div className="space-y-3.5">
+      <section className="rounded-[1.65rem] gradient-brand p-4 text-white shadow-[0_20px_50px_-28px_rgba(15,23,42,0.8)]">
+        <p className="text-[10px] font-extrabold uppercase tracking-[0.18em] text-white/75">Planos Levefy</p>
+        <h1 className="mt-1 text-[1.45rem] font-extrabold leading-tight tracking-tight">Escolha seu acesso</h1>
+        <p className="mt-1 text-xs leading-5 text-white/80">Comece gratis, compre START ou assine Premium.</p>
+      </section>
+
+      <section className="grid gap-3">
+        {plans.map(plan => (
+          <article
+            key={plan.name}
+            className={`rounded-[1.45rem] bg-white p-4 shadow-sm ring-1 ${
+              plan.featured ? "ring-brand-200" : "ring-slate-100"
+            }`}
+          >
+            <div className="mb-3 flex items-start justify-between gap-3">
+              <div>
+                <p className="text-lg font-extrabold text-slate-950">{plan.name}</p>
+                <p className="mt-1 text-xs leading-5 text-slate-500">{plan.description}</p>
+              </div>
+              {plan.featured && <span className="rounded-full gradient-brand px-2.5 py-1 text-[10px] font-extrabold text-white">melhor</span>}
+              {plan.pix && <span className="rounded-full bg-blue-50 px-2.5 py-1 text-[10px] font-extrabold text-blue-700">PIX</span>}
+            </div>
+            <p>
+              <span className="text-3xl font-black text-slate-950">{plan.price}</span>
+              <span className="ml-1 text-xs font-bold text-slate-400">{plan.per}</span>
+            </p>
+            <ul className="mt-4 space-y-2">
+              {plan.features.slice(0, 5).map(feature => (
+                <li key={feature} className="flex items-start gap-2 text-xs font-medium leading-5 text-slate-700">
+                  <Check className="mt-0.5 h-3.5 w-3.5 shrink-0 text-brand-600" />
+                  {feature}
+                </li>
+              ))}
+            </ul>
+            <button
+              disabled={plan.disabled || loading === plan.plan}
+              onClick={() => plan.plan && checkout(plan.plan)}
+              className={`mt-4 flex min-h-11 w-full items-center justify-center rounded-full text-sm font-extrabold ${
+                plan.featured
+                  ? "gradient-brand text-white shadow-brand"
+                  : plan.disabled
+                    ? "bg-slate-100 text-slate-400"
+                    : "border border-slate-200 bg-white text-slate-950"
+              }`}
+            >
+              {loading === plan.plan ? "Redirecionando..." : plan.cta}
+            </button>
+          </article>
+        ))}
+      </section>
+
+      <section className="rounded-[1.45rem] bg-brand-50 p-3.5 ring-1 ring-brand-100">
+        <div className="flex gap-3">
+          <ShieldCheck className="h-5 w-5 shrink-0 text-brand-700" />
+          <div>
+            <p className="text-sm font-extrabold text-slate-950">Pagamento seguro</p>
+            <p className="mt-1 text-[11px] leading-4 text-slate-600">PIX, cartao e acesso liberado automaticamente quando o pagamento for aprovado.</p>
+          </div>
+        </div>
+      </section>
+    </div>
+  );
+
   return (
-    <AppShell title="Planos">
+    <AppShell title="Planos" mobile={mobileView}>
       <div className="relative overflow-hidden rounded-[1.35rem] sm:rounded-[2rem] gradient-brand text-white p-4 sm:p-8 mb-5 sm:mb-8 shadow-premium">
         <div className="absolute inset-0 bg-[radial-gradient(circle_at_top_right,rgba(255,255,255,0.25),transparent_55%)]" />
         <div className="relative grid lg:grid-cols-[1.4fr_.8fr] gap-4 sm:gap-6 items-center">
